@@ -650,6 +650,18 @@ function getXShareUrl(text, pageUrl = '') {
   return intent.href;
 }
 
+const supportTemplate = document.getElementById('support-links-template');
+const campaignUrl = supportTemplate.content.querySelector('.campaign-site').href;
+document.querySelectorAll('[data-support-footer]').forEach(footer => {
+  footer.append(supportTemplate.content.cloneNode(true));
+});
+
+function renderCampaignShareLinks() {
+  const shareText = translate("一起转发声援黄仁勋，支持他早日回归 NVIDIA CEO 岗位。");
+  const shareUrl = getXShareUrl(shareText, campaignUrl);
+  document.querySelectorAll('.campaign-share').forEach(link => { link.href = shareUrl; });
+}
+
 function getGameShareAddress() {
   const canonical = document.querySelector('meta[property="og:url"]').content.trim();
   const pageUrl = new URL(canonical || window.location.href);
@@ -1079,6 +1091,7 @@ document.querySelectorAll('[data-game-language]').forEach(button => {
     const language = button.dataset.gameLanguage;
     if (language !== getGameLanguage()) state.enemyTaunt = getCurrentBoss().tauntStart;
     setGameLanguage(language);
+    renderCampaignShareLinks();
     renderSoundButton();
     clearStage();
     renderAll();
@@ -1088,6 +1101,7 @@ document.querySelectorAll('[data-game-language]').forEach(button => {
 });
 
 applyPageLanguage();
+renderCampaignShareLinks();
 renderSoundButton();
 initGame();
 if (!selectedLanguage) languageDialog.showModal();

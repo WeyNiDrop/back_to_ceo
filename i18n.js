@@ -316,6 +316,12 @@ const ENGLISH_TEXT = {
   "分享未完成，可以先下载海报。": "Couldn't complete sharing. You can download the poster.",
   "黑皮衣主角手持卡牌，身后是董事会长桌和一张金色空椅。": "A card player in a black jacket stands before a boardroom table and an empty golden CEO chair.",
   "席位已锁定": "Seat locked",
+  "点赞支持作者": "Support the Creator",
+  "在 GitHub 为项目加星": "Star the project on GitHub",
+  "在 X 关注作者": "Follow the creator on X",
+  "支持黄仁勋早日回归 NVIDIA CEO": "Support Jensen Huang’s return as NVIDIA CEO",
+  "在 X 转发声援": "Share Support on X",
+  "一起转发声援黄仁勋，支持他早日回归 NVIDIA CEO 岗位。": "Stand with Jensen Huang. Share your support for his swift return as NVIDIA CEO.",
 
   // First-visit guide
   "新手教学": "How to Play",

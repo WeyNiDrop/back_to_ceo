@@ -116,17 +116,35 @@ body {
 .top-btns { grid-area: controls; display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 6px; }
 .btn-top { padding: 6px 11px; font-size: 12px; }
 .project-links {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: flex-end;
-  gap: 8px 18px;
   margin-top: auto;
   border-top: 1px solid #78614066;
   padding: 6px 4px 0;
+}
+.support-footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 16px;
+  color: var(--muted);
   font-size: 12px;
 }
-.project-links a { color: var(--muted); padding-block: 6px; text-underline-offset: 3px; }
-.project-links a:hover { color: var(--amber); }
+.support-author, .support-campaign { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; }
+.support-icon {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  color: var(--text);
+  background: var(--card-bg);
+}
+.support-icon svg { width: 16px; height: 16px; }
+.support-icon:hover { color: var(--amber); border-color: var(--amber); }
+.support-campaign a { padding-block: 6px; color: var(--amber); text-underline-offset: 3px; }
+.support-campaign a:hover { color: var(--text); }
+.support-campaign .campaign-share { color: var(--cyan); }
 
 /* 敌方英雄区 */
 .enemy-hero-zone { display: flex; justify-content: center; }
@@ -510,6 +528,7 @@ body {
 .modal-close { min-width: 36px; min-height: 36px; font-size: 18px; }
 .modal-body { padding: 16px; display: flex; flex-direction: column; gap: 12px; }
 .modal-footer { padding: 12px 16px; border-top: 1px solid var(--border); display: flex; justify-content: flex-end; }
+.modal-footer.support-footer { justify-content: space-between; }
 .radio-row { display: flex; flex-direction: column; gap: 6px; }
 .radio-card { display: flex; align-items: center; gap: 8px; background: var(--card-bg); border: 1px solid var(--border); padding: 8px; border-radius: 3px; font-size: 13px; cursor: pointer; }
 .radio-card small { margin-inline-start: 5px; color: var(--muted); }
