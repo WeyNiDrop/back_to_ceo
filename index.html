@@ -8,35 +8,37 @@
   <meta name="description" content="用手牌争夺董事会九席，连克三关，重返 CEO 宝座。" />
   <meta property="og:type" content="website" />
   <meta property="og:title" content="Back To CEO 重回巅峰之路" />
-  <meta property="og:description" content="用手牌争夺董事会九席，连克三关，重返 CEO 宝座。" />
+  <meta property="og:description" content="用手牌争夺董事会九席，连克三关，重返 CEO 宝座。 Win three boardroom battles to take back the CEO chair." />
   <meta property="og:url" content="" />
   <meta property="og:image" content="assets/back-to-ceo-poster.jpg" />
   <meta property="og:image:width" content="1200" />
   <meta property="og:image:height" content="630" />
-  <meta property="og:image:alt" content="黑皮衣主角手持卡牌，身后是董事会长桌和一张金色空椅。" />
+  <meta property="og:image:alt" content="黑皮衣主角手持卡牌，身后是董事会长桌和一张金色空椅。 A card player stands before a boardroom and an empty golden CEO chair." />
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="Back To CEO 重回巅峰之路" />
-  <meta name="twitter:description" content="用手牌争夺董事会九席，连克三关，重返 CEO 宝座。" />
+  <meta name="twitter:description" content="用手牌争夺董事会九席，连克三关，重返 CEO 宝座。 Win three boardroom battles to take back the CEO chair." />
   <meta name="twitter:image" content="assets/back-to-ceo-poster.jpg" />
-  <meta name="twitter:image:alt" content="黑皮衣主角手持卡牌，身后是董事会长桌和一张金色空椅。" />
-  <link rel="stylesheet" href="style.css?v=20261118-game-share" />
+  <meta name="twitter:image:alt" content="黑皮衣主角手持卡牌，身后是董事会长桌和一张金色空椅。 A card player stands before a boardroom and an empty golden CEO chair." />
+  <link rel="stylesheet" href="style.css?v=20261118-global" />
 </head>
 <body>
   <div class="hs-table">
-    <!-- 顶部极简目标与连战进度 -->
+    <!-- 游戏标题、连战进度与工具栏 -->
     <header class="top-bar">
+      <h1 class="game-wordmark"><span lang="en">Back To CEO</span><small data-i18n="重回巅峰之路">重回巅峰之路</small></h1>
       <div class="goal-banner">
         <span class="goal-tag" id="stage-badge">第 1 / 3 关</span>
-        <span>连胜 3 关夺回 CEO · <strong id="stage-win-rule">占 6 席或锁 5 席即胜（第 6 回合末 ≥5 席晋级）</strong></span>
+        <span><span data-i18n="连胜 3 关夺回 CEO">连胜 3 关夺回 CEO</span> · <strong id="stage-win-rule">占 6 席或锁 5 席即胜（第 6 回合末 ≥5 席晋级）</strong></span>
       </div>
 
       <div class="turn-pill" id="turn-display">第 1 / 6 回合 · DAY 1 白天</div>
 
       <div class="top-btns">
-        <button class="btn-top" id="btn-share-game" type="button" aria-haspopup="dialog">分享游戏</button>
+        <button class="btn-top" id="btn-share-game" type="button" aria-haspopup="dialog" data-i18n="分享游戏">分享游戏</button>
+        <button class="btn-top" id="btn-language" type="button" aria-haspopup="dialog" data-i18n="语言">语言</button>
         <button class="btn-top" id="btn-sound-toggle">🔊 音效开</button>
-        <button class="btn-top" id="btn-ai-config">⚙️ <span id="ai-mode-text">对手设置</span></button>
-        <button class="btn-top" id="btn-restart">🔄 重开</button>
+        <button class="btn-top" id="btn-ai-config"><span id="ai-mode-text">对手设置</span></button>
+        <button class="btn-top" id="btn-restart" data-i18n="🔄 重开">🔄 重开</button>
       </div>
     </header>
 
@@ -46,7 +48,7 @@
         <img id="boss-portrait" src="assets/portraits/boss-elena.jpg" alt="Elena Sterling" class="hero-portrait enemy-border" />
         <div class="hero-meta">
           <div class="hero-title"><span id="boss-name">Elena Sterling</span> <small id="boss-title">第 1 关</small></div>
-          <div class="seat-score enemy-score">敌方席位：<strong id="enemy-votes">3</strong></div>
+          <div class="seat-score enemy-score"><span data-i18n="敌方席位">敌方席位</span> <strong id="enemy-votes">3</strong></div>
           <div class="passive-pill enemy-passive" id="boss-passive">被动：舆论绞肉机</div>
         </div>
         <div class="speech-bubble" id="enemy-taunt">“第一关就是我！热搜榜已经全是我买的通稿了。”</div>
@@ -56,9 +58,9 @@
     <!-- 中央对战区：9席董事会 + 卡牌碰撞舞台 -->
     <section class="battlefield">
       <div class="score-bar-wrap">
-        <span class="side-label player-side">我方 <strong id="player-votes">0</strong><small class="lock-progress" id="player-lock-progress">锁定 0 / 5</small></span>
+        <span class="side-label player-side"><span data-i18n="我方">我方</span> <strong id="player-votes">0</strong><small class="lock-progress" id="player-lock-progress">锁定 0 / 5</small></span>
         <div class="seats-row" id="seats-row"></div>
-        <span class="side-label enemy-side"><strong id="enemy-votes-bar">3</strong> 敌方<small class="lock-progress" id="enemy-lock-progress">锁定 1 / 5</small></span>
+        <span class="side-label enemy-side"><strong id="enemy-votes-bar">3</strong> <span data-i18n="敌方">敌方</span><small class="lock-progress" id="enemy-lock-progress">锁定 1 / 5</small></span>
       </div>
 
       <div class="clash-stage" id="clash-stage">
@@ -72,38 +74,38 @@
         <div class="hero-pod player-pod" id="player-pod">
           <img src="assets/hero_gesen.png" onerror="this.onerror=null;this.src='assets/hero_gesen.svg?v=202611172120';" alt="Gesen Yellow" class="hero-portrait player-border" />
           <div class="hero-meta">
-            <div class="hero-title">Gesen Yellow <small>前任CEO</small></div>
-            <div class="cash-badge">💰 资金：<strong id="stat-cash">$5,000万</strong></div>
-            <div class="inf-badge">🌟 影响力：<strong id="stat-inf">20</strong></div>
-            <div class="passive-pill hero-passive">🧥 被动：皮衣光环(+5🌟)</div>
+            <div class="hero-title">Gesen Yellow <small data-i18n="前任CEO">前任CEO</small></div>
+            <div class="cash-badge"><span data-i18n="💰 资金">💰 资金</span> <strong id="stat-cash">$5,000万</strong></div>
+            <div class="inf-badge"><span data-i18n="🌟 影响力">🌟 影响力</span> <strong id="stat-inf">20</strong></div>
+            <div class="passive-pill hero-passive" data-i18n="🧥 被动：皮衣光环(+5🌟)">🧥 被动：皮衣光环(+5🌟)</div>
           </div>
         </div>
 
         <div class="hero-powers">
           <button class="power-btn" id="btn-hero-jacket">
             <span class="p-icon">🧥</span>
-            <span class="p-name">皮衣直播 <small id="jacket-uses">2/2</small></span>
-            <span class="p-cost">2💎 (+20🌟抽1)</span>
+            <span class="p-name"><span data-i18n="皮衣直播">皮衣直播</span> <small id="jacket-uses">2/2</small></span>
+            <span class="p-cost" data-i18n="2💎 (+20🌟抽1)">2💎 (+20🌟抽1)</span>
           </button>
           <button class="power-btn equity-power" id="btn-hero-equity">
             <span class="p-icon">📜</span>
-            <span class="p-name">股权加锁 <small id="equity-uses">2/2</small></span>
-            <span class="p-cost">1💎 (锁1席)</span>
+            <span class="p-name"><span data-i18n="股权加锁">股权加锁</span> <small id="equity-uses">2/2</small></span>
+            <span class="p-cost" data-i18n="1💎 (锁1席)">1💎 (锁1席)</span>
           </button>
           <button class="power-btn inf-power" id="btn-hero-rally">
             <span class="p-icon">📣</span>
-            <span class="p-name">舆论号召 <small id="rally-uses">2/2</small></span>
-            <span class="p-cost">15🌟 (0💎抢1席)</span>
+            <span class="p-name"><span data-i18n="舆论号召">舆论号召</span> <small id="rally-uses">2/2</small></span>
+            <span class="p-cost" data-i18n="15🌟 (0💎抢1席)">15🌟 (0💎抢1席)</span>
           </button>
         </div>
       </div>
 
       <div class="hand-zone">
         <div class="hand-info">
-          <span>我的手牌</span>
+          <span data-i18n="我的手牌">我的手牌</span>
           <div class="hand-actions">
             <button class="btn-mulligan" id="btn-mulligan" type="button">换 1 张牌</button>
-            <span>牌库：<strong id="deck-count">17</strong> 张 · 弃牌：<strong id="discard-count">0</strong></span>
+            <span><span data-i18n="牌库">牌库</span> <strong id="deck-count">17</strong> · <span data-i18n="弃牌">弃牌</span> <strong id="discard-count">0</strong></span>
           </div>
         </div>
         <div class="hand-cards" id="hand-cards"></div>
@@ -111,7 +113,7 @@
 
       <div class="end-turn-dock">
         <div class="mana-tray">
-          <div class="mana-text">体力水晶 <strong id="stat-ap">4 / 4</strong></div>
+          <div class="mana-text"><span data-i18n="体力水晶">体力水晶</span> <strong id="stat-ap">4 / 4</strong></div>
           <div class="mana-gems" id="mana-gems"></div>
         </div>
         <button class="end-turn-btn" id="btn-end-turn">结束回合</button>
@@ -124,37 +126,37 @@
   <div class="modal-backdrop" id="modal-ai" style="display:none;">
     <div class="modal">
       <div class="modal-header">
-        <h3>对手设置</h3>
-        <button class="modal-close" id="btn-close-ai">✕</button>
+        <h3 data-i18n="对手设置">对手设置</h3>
+        <button class="modal-close" id="btn-close-ai" type="button" aria-label="关闭对手设置" data-i18n-aria="关闭对手设置">✕</button>
       </div>
       <div class="modal-body">
         <div class="radio-row">
           <label class="radio-card">
             <input type="radio" name="ai-engine" value="builtin" checked />
-            <span><strong>标准对手</strong>（本地策略）</span>
+            <span><strong data-i18n="标准对手">标准对手</strong><small data-i18n="（本地策略）">（本地策略）</small></span>
           </label>
           <label class="radio-card">
             <input type="radio" name="ai-engine" value="llm" />
-            <span><strong>自定义大模型接口</strong>（实时生成台词与出牌）</span>
+            <span><strong data-i18n="自定义大模型接口">自定义大模型接口</strong><small data-i18n="（实时生成台词与出牌）">（实时生成台词与出牌）</small></span>
           </label>
         </div>
         <div id="builtin-settings" class="settings-section">
-          <label>对手风格</label>
+          <label for="ai-personality" data-i18n="对手风格">对手风格</label>
           <select id="ai-personality">
-            <option value="balanced">稳健反制型（均衡出牌）</option>
-            <option value="scandal">舆论攻势型（主攻影响力与席位）</option>
-            <option value="coverup">资金封锁型（主攻资金冻结）</option>
+            <option value="balanced" data-i18n="稳健反制型（均衡出牌）">稳健反制型（均衡出牌）</option>
+            <option value="scandal" data-i18n="舆论攻势型（主攻影响力与席位）">舆论攻势型（主攻影响力与席位）</option>
+            <option value="coverup" data-i18n="资金封锁型（主攻资金冻结）">资金封锁型（主攻资金冻结）</option>
           </select>
         </div>
         <div id="llm-settings" class="settings-section" style="display:none;">
-          <p class="hint-text">支持 OpenAI / DeepSeek 等兼容接口，Key 仅保存在本地。</p>
+          <p class="hint-text" data-i18n="支持 OpenAI / DeepSeek 等兼容接口，Key 仅保存在本地。">支持 OpenAI / DeepSeek 等兼容接口，Key 仅保存在本地。</p>
           <input type="text" id="llm-url" value="https://api.openai.com/v1/chat/completions" placeholder="API Base URL" />
           <input type="text" id="llm-model" value="gpt-4o-mini" placeholder="Model" />
           <input type="password" id="llm-key" placeholder="API Key (sk-...)" />
         </div>
       </div>
       <div class="modal-footer">
-        <button class="btn-save" id="btn-save-ai">保存设置</button>
+        <button class="btn-save" id="btn-save-ai" data-i18n="保存设置">保存设置</button>
       </div>
     </div>
   </div>
@@ -164,11 +166,11 @@
     <div class="modal modal-end">
       <div class="modal-header"><h3 id="end-title">游戏结束</h3></div>
       <div class="modal-body">
-        <img id="end-scene-img" class="end-scene-img" src="assets/ending_victory.png" alt="结局场景" style="display:none;" />
+        <img id="end-scene-img" class="end-scene-img" src="assets/ending_victory.png" alt="结局场景" data-i18n-alt="结局场景" style="display:none;" />
         <p id="end-desc" class="end-desc"></p>
         <div class="end-actions">
           <button class="btn-save" id="btn-play-again">进入下一关</button>
-          <a class="btn-save btn-action-link btn-secondary" id="btn-share-x" target="_blank" rel="noopener noreferrer" hidden>分享到 X</a>
+          <a class="btn-save btn-action-link btn-secondary" id="btn-share-x" target="_blank" rel="noopener noreferrer" hidden data-i18n="分享到 X">分享到 X</a>
         </div>
       </div>
     </div>
@@ -176,27 +178,41 @@
 
   <dialog class="modal share-modal" id="game-share-dialog" aria-labelledby="game-share-title">
     <div class="modal-header">
-      <h3 id="game-share-title">Back To CEO 重回巅峰之路</h3>
+      <h3 id="game-share-title" data-i18n="Back To CEO 重回巅峰之路">Back To CEO 重回巅峰之路</h3>
       <form method="dialog">
-        <button class="modal-close" type="submit" aria-label="关闭分享预览">✕</button>
+        <button class="modal-close" type="submit" aria-label="关闭分享预览" data-i18n-aria="关闭分享预览">✕</button>
       </form>
     </div>
     <div class="modal-body">
-      <img class="share-poster" src="assets/back-to-ceo-poster.jpg" width="1200" height="630" loading="lazy" alt="黑皮衣主角手持卡牌，身后是董事会长桌和一张金色空椅。" />
+      <img class="share-poster" id="game-share-poster" src="assets/back-to-ceo-poster.jpg" width="1200" height="630" loading="lazy" alt="黑皮衣主角手持卡牌，身后是董事会长桌和一张金色空椅。" data-i18n-alt="黑皮衣主角手持卡牌，身后是董事会长桌和一张金色空椅。" />
       <label class="share-address">
-        <span id="game-share-url-label">游戏地址</span>
+        <span id="game-share-url-label" data-i18n="游戏地址">游戏地址</span>
         <input type="text" id="game-share-url" readonly />
       </label>
-      <p class="hint-text" id="game-share-local-hint" hidden>本地地址仅供预览。公开部署后，X 才能读取游戏链接和海报卡片。</p>
+      <p class="hint-text" id="game-share-local-hint" hidden data-i18n="本地地址仅供预览。公开部署后，X 才能读取游戏链接和海报卡片。">本地地址仅供预览。公开部署后，X 才能读取游戏链接和海报卡片。</p>
       <div class="end-actions">
-        <a class="btn-save btn-action-link" id="game-share-x" target="_blank" rel="noopener noreferrer">分享到 X</a>
-        <a class="btn-save btn-action-link btn-secondary" href="assets/back-to-ceo-poster.jpg" download>下载海报</a>
+        <a class="btn-save btn-action-link" id="game-share-x" target="_blank" rel="noopener noreferrer" data-i18n="分享到 X">分享到 X</a>
+        <button class="btn-save btn-secondary" id="btn-share-poster" type="button" hidden data-i18n="分享海报">分享海报</button>
+        <a class="btn-save btn-action-link btn-secondary" href="assets/back-to-ceo-poster.jpg" download data-i18n="下载海报">下载海报</a>
+      </div>
+      <p class="hint-text" id="poster-share-status" role="status" hidden data-i18n="分享未完成，可以先下载海报。">分享未完成，可以先下载海报。</p>
+    </div>
+  </dialog>
+
+  <dialog class="modal share-modal language-modal" id="language-dialog" aria-labelledby="language-title">
+    <div class="modal-body">
+      <div class="game-wordmark"><span lang="en">Back To CEO</span><small data-i18n="重回巅峰之路">重回巅峰之路</small></div>
+      <h2 id="language-title" tabindex="-1" autofocus><span lang="zh-CN">选择语言</span><span lang="en">Choose a language</span></h2>
+      <div class="language-options">
+        <button class="btn-save btn-secondary" type="button" data-game-language="zh-CN" lang="zh-CN">简体中文</button>
+        <button class="btn-save btn-secondary" type="button" data-game-language="en" lang="en">English</button>
       </div>
     </div>
   </dialog>
 
   <script src="sound.js?v=202611172115"></script>
-  <script src="ai.js?v=20261118-challenge"></script>
-  <script src="game.js?v=20261118-game-share"></script>
+  <script src="i18n.js?v=20261118-global"></script>
+  <script src="ai.js?v=20261118-global"></script>
+  <script src="game.js?v=20261118-global"></script>
 </body>
 </html>

@@ -41,12 +41,12 @@ const AI_BOSS_POOL = [
         const pSeat = state.seats.find(s => s.owner === 'player' && !s.locked);
         if (pSeat) {
           pSeat.owner = 'neutral';
-          return { text: `舆论绞肉机：影响力不足 35，${pSeat.name} 动摇中立`, targetSeatId: pSeat.id };
+          return { text: translate("舆论绞肉机：影响力不足 35，{0} 动摇中立", translate(pSeat.name)), targetSeatId: pSeat.id };
         }
       }
       const loss = Math.min(state.influence, 6);
       state.influence -= loss;
-      return { text: `舆论绞肉机：扣除 ${loss} 🌟影响力` };
+      return { text: translate("舆论绞肉机：扣除 {0} 🌟影响力", loss) };
     }
   },
   {
@@ -59,16 +59,16 @@ const AI_BOSS_POOL = [
     tauntStart: '“这里归华盛顿管！每一张牌都要过我的合规审查。”',
     onTurnEnd(state) {
       if (state.stage === 3 && state.turn === 1) {
-        return { text: '合规铁幕：下回合起锁定敌方席位' };
+        return { text: translate("合规铁幕：下回合起锁定敌方席位") };
       }
       const unlockEnemy = state.seats.find(s => s.owner === 'enemy' && !s.locked && !s.isCore);
       if (unlockEnemy) {
         unlockEnemy.locked = true;
-        return { text: `合规铁幕：锁定敌席 ${unlockEnemy.name}`, targetSeatId: unlockEnemy.id };
+        return { text: translate("合规铁幕：锁定敌席 {0}", translate(unlockEnemy.name)), targetSeatId: unlockEnemy.id };
       }
       const loss = Math.min(state.cash, 400);
       state.cash -= loss;
-      return { text: `合规铁幕：征收合规罚款 $${loss}万` };
+      return { text: translate("合规铁幕：征收合规罚款 {0}", formatCash(loss)) };
     }
   },
   {
@@ -84,11 +84,11 @@ const AI_BOSS_POOL = [
       const target = state.seats.find(s => s.owner === 'neutral') || (pVotes >= 3 ? state.seats.find(s => s.owner === 'player' && !s.locked) : null);
       if (target) {
         target.owner = 'enemy';
-        return { text: `算力霸权：吞并了 ${target.name}`, targetSeatId: target.id };
+        return { text: translate("算力霸权：吞并了 {0}", translate(target.name)), targetSeatId: target.id };
       }
       const loss = Math.min(state.influence, 10);
       state.influence -= loss;
-      return { text: `算力霸权：全网封锁，扣除 ${loss} 🌟影响力` };
+      return { text: translate("算力霸权：全网封锁，扣除 {0} 🌟影响力", loss) };
     }
   },
   {
@@ -106,10 +106,10 @@ const AI_BOSS_POOL = [
         const n = state.seats.find(s => s.owner === 'neutral');
         if (n) {
           n.owner = 'enemy';
-          return { text: `恶意做空：扣除 $${loss}万 并抢走 ${n.name}`, targetSeatId: n.id };
+          return { text: translate("恶意做空：扣除 {0} 并抢走 {1}", formatCash(loss), translate(n.name)), targetSeatId: n.id };
         }
       }
-      return { text: `恶意做空：资金 -$${loss}万` };
+      return { text: translate("恶意做空：资金 -{0}", formatCash(loss)) };
     }
   },
   {
@@ -126,11 +126,11 @@ const AI_BOSS_POOL = [
         const e = state.seats.find(s => s.owner === 'enemy' && !s.locked && !s.isCore);
         if (e) {
           e.locked = true;
-          return { text: `安全红线：触发审查，扣 8🌟 并锁定 ${e.name}`, targetSeatId: e.id };
+          return { text: translate("安全红线：触发审查，扣 8🌟 并锁定 {0}", translate(e.name)), targetSeatId: e.id };
         }
-        return { text: '安全红线：触发安全审查，扣除 8 🌟影响力' };
+        return { text: translate("安全红线：触发安全审查，扣除 8 🌟影响力") };
       }
-      return { text: '安全红线：手牌数量合规，本回合未触发审查' };
+      return { text: translate("安全红线：手牌数量合规，本回合未触发审查") };
     }
   },
   {
@@ -145,11 +145,11 @@ const AI_BOSS_POOL = [
       const pSeat = state.seats.find(s => s.owner === 'player' && !s.locked);
       if (pSeat && Math.random() < 0.6) {
         pSeat.owner = 'neutral';
-        return { text: `桃色幽灵：爆料新照片，${pSeat.name} 动摇中立`, targetSeatId: pSeat.id };
+        return { text: translate("桃色幽灵：爆料新照片，{0} 动摇中立", translate(pSeat.name)), targetSeatId: pSeat.id };
       }
       const loss = Math.min(state.cash, 400);
       state.cash -= loss;
-      return { text: `桃色幽灵：支付 $${loss}万 封口费` };
+      return { text: translate("桃色幽灵：支付 {0} 封口费", formatCash(loss)) };
     }
   },
   {
@@ -166,12 +166,12 @@ const AI_BOSS_POOL = [
         const pSeat = state.seats.find(s => s.owner === 'player' && !s.locked);
         if (pSeat) {
           pSeat.owner = 'enemy';
-          return { text: `祖宗之法：元老反扑，抢回 ${pSeat.name}`, targetSeatId: pSeat.id };
+          return { text: translate("祖宗之法：元老反扑，抢回 {0}", translate(pSeat.name)), targetSeatId: pSeat.id };
         }
       }
       const loss = Math.min(state.influence, 5);
       state.influence -= loss;
-      return { text: `祖宗之法：元老发表公开信，影响力 -${loss}🌟` };
+      return { text: translate("祖宗之法：元老发表公开信，影响力 -{0}🌟", loss) };
     }
   },
   {
@@ -186,9 +186,9 @@ const AI_BOSS_POOL = [
       const n = state.seats.find(s => s.owner === 'neutral');
       if (n) {
         n.owner = 'enemy';
-        return { text: `晶圆断供：以产能要挟，拉拢了 ${n.name}`, targetSeatId: n.id };
+        return { text: translate("晶圆断供：以产能要挟，拉拢了 {0}", translate(n.name)), targetSeatId: n.id };
       }
-      return { text: '晶圆断供：供应链全面收紧' };
+      return { text: translate("晶圆断供：供应链全面收紧") };
     }
   },
   {
@@ -206,10 +206,10 @@ const AI_BOSS_POOL = [
         const pSeat = state.seats.find(s => s.owner === 'player' && !s.locked);
         if (pSeat) {
           pSeat.owner = 'neutral';
-          return { text: `天眼审计：资金不足扣 $${loss}万 且 ${pSeat.name} 动摇`, targetSeatId: pSeat.id };
+          return { text: translate("天眼审计：资金不足扣 {0} 且 {1} 动摇", formatCash(loss), translate(pSeat.name)), targetSeatId: pSeat.id };
         }
       }
-      return { text: `天眼审计：冻结并扣除 $${loss}万 调查保证金` };
+      return { text: translate("天眼审计：冻结并扣除 {0} 调查保证金", formatCash(loss)) };
     }
   },
   {
@@ -225,12 +225,12 @@ const AI_BOSS_POOL = [
         const n = state.seats.find(s => s.owner === 'neutral');
         if (n) {
           n.owner = 'enemy';
-          return { text: `钞能力碾压：砸钱买下 ${n.name}`, targetSeatId: n.id };
+          return { text: translate("钞能力碾压：砸钱买下 {0}", translate(n.name)), targetSeatId: n.id };
         }
       }
       const loss = Math.min(state.influence, 7);
       state.influence -= loss;
-      return { text: `钞能力碾压：资本压制，影响力 -${loss}🌟` };
+      return { text: translate("钞能力碾压：资本压制，影响力 -{0}🌟", loss) };
     }
   },
   {
@@ -247,10 +247,10 @@ const AI_BOSS_POOL = [
         const n = state.seats.find(s => s.owner === 'neutral');
         if (n) {
           n.owner = 'enemy';
-          return { text: `价格战倾销：扣 8🌟 并抢走 ${n.name}`, targetSeatId: n.id };
+          return { text: translate("价格战倾销：扣 8🌟 并抢走 {0}", translate(n.name)), targetSeatId: n.id };
         }
       }
-      return { text: '价格战倾销：影响力 -8🌟' };
+      return { text: translate("价格战倾销：影响力 -8🌟") };
     }
   }
 ];
@@ -352,7 +352,7 @@ function executeEnemyEffects(card, state) {
     if (neutral) {
       neutral.owner = 'enemy';
       targetSeatId = neutral.id;
-      floatParts.push('敌方+1席');
+      floatParts.push(translate("敌方+1席"));
     }
   }
 
@@ -364,7 +364,7 @@ function executeEnemyEffects(card, state) {
       const t = pool[Math.floor(Math.random() * pool.length)];
       t.owner = 'enemy';
       targetSeatId = t.id;
-      floatParts.push('敌方夺1席!');
+      floatParts.push(translate("敌方夺1席!"));
     }
   }
 
@@ -374,7 +374,7 @@ function executeEnemyEffects(card, state) {
       const t = pSeats[Math.floor(Math.random() * pSeats.length)];
       t.owner = 'neutral';
       targetSeatId = t.id;
-      floatParts.push('席位动摇!');
+      floatParts.push(translate("席位动摇!"));
     }
   }
 
@@ -387,12 +387,12 @@ function executeEnemyEffects(card, state) {
   if (fx.drainCash) {
     const loss = Math.min(state.cash, fx.drainCash);
     state.cash -= loss;
-    if (loss > 0) floatParts.push(`-$${loss}万`);
+    if (loss > 0) floatParts.push(translate("-{0}", formatCash(loss)));
   }
 
   return {
     targetSeatId,
-    floatText: floatParts.join(' · ') || '稳固防线'
+    floatText: floatParts.join(' · ') || translate("稳固防线")
   };
 }
 
@@ -441,16 +441,20 @@ async function runLlmAi(state, cfg, excludedCardIds, boss = null) {
   if (!cfg.key || !cfg.url) return runBuiltinAi(state, cfg.personality || 'balanced', excludedCardIds);
 
   const pool = getAiCardPool(state, excludedCardIds);
-  const menu = pool.map(c => `- ${c.id}: ${c.name} (${c.desc})`).join('\n');
+  const menu = pool.map(c => `- ${c.id}: ${translate(c.name)} (${translate(c.desc)})`).join('\n');
 
   const pCount = state.seats.filter(s => s.owner === 'player').length;
   const eCount = state.seats.filter(s => s.owner === 'enemy').length;
 
-  const prompt = `你是商战卡牌游戏第${state.stage}/3关的对手“${boss?.name || 'Marcus'}”（${boss?.roleTitle || ''}）。
-当前第 ${state.turn}/${state.maxTurns} 回合，Gesen 占 ${pCount} 席，你占 ${eCount} 席，Gesen 资金 $${state.cash}万，影响力 ${state.influence}。
-请从以下高命中反制牌选 1 张打出，并给一句符合身份的嘲讽（不超过25字）：
-${menu}
-严格返回JSON：{"card_id":"id","taunt":"台词"}`;
+  const prompt = translate(
+    `你是商战卡牌游戏第 {0}/3 关的对手“{1}”（{2}）。
+当前第 {3}/{4} 回合，Gesen 占 {5} 席，你占 {6} 席，Gesen 资金 {7}，影响力 {8}。
+请从以下反制牌选 1 张打出，并给一句符合身份的简体中文嘲讽（不超过 25 字）：
+{9}
+严格返回 JSON：{"card_id":"id","taunt":"台词"}`,
+    state.stage, boss?.name || 'Marcus', translate(boss?.roleTitle || ''), state.turn, state.maxTurns,
+    pCount, eCount, formatCash(state.cash), state.influence, menu
+  );
 
   try {
     const controller = new AbortController();

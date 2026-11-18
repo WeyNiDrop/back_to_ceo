@@ -114,7 +114,7 @@ function getEnemyCardCount(turnState) {
 
 function getStageGoalText() {
   const instantSeats = INSTANT_WIN_SEATS[state.stage - 1];
-  return `占 ${instantSeats} 席或锁 ${BOARD_MAJORITY} 席即胜（第 ${state.maxTurns} 回合末 ≥${BOARD_MAJORITY} 席晋级）`;
+  return translate("占 {0} 席或锁 {1} 席即胜（第 {2} 回合末 ≥{3} 席晋级）", instantSeats, BOARD_MAJORITY, state.maxTurns, BOARD_MAJORITY);
 }
 
 function portraitSrc(portrait) {
@@ -135,13 +135,13 @@ function getEffectiveCosts(item) {
 }
 
 function getUnplayableReason(costs) {
-  if (state.gameOver) return '本局已结束';
-  if (isAnimating) return isEnemyTurn ? '对手回合演出中' : '出牌动画播放中';
+  if (state.gameOver) return translate("本局已结束");
+  if (isAnimating) return isEnemyTurn ? translate("对手回合演出中") : translate("出牌动画播放中");
   const reasons = [];
-  if (state.ap < costs.ap) reasons.push(`缺体力(需${costs.ap}💎)`);
-  if (state.cash < costs.cash) reasons.push(`缺资金(需$${costs.cash}万)`);
+  if (state.ap < costs.ap) reasons.push(translate("缺体力(需{0}💎)", costs.ap));
+  if (state.cash < costs.cash) reasons.push(translate("缺资金(需{0})", formatCash(costs.cash)));
   const needInf = Math.max(costs.inf, costs.infReq || 0);
-  if (state.influence < needInf) reasons.push(`缺影响力(需${needInf}🌟)`);
+  if (state.influence < needInf) reasons.push(translate("缺影响力(需{0}🌟)", needInf));
   return reasons.join(' · ');
 }
 
@@ -149,18 +149,18 @@ function formatCardDesc(card, item) {
   const fx = card.effects || {};
   const parts = [];
   if (fx.gainAp) parts.push(`+${fx.gainAp}💎`);
-  if (fx.gainCash) parts.push(`+$${fx.gainCash}万`);
+  if (fx.gainCash) parts.push(translate("+{0}", formatCash(fx.gainCash)));
   if (fx.gainInf) parts.push(`+${fx.gainInf}🌟`);
-  if (fx.draw) parts.push(`摸${fx.draw}牌`);
-  if (fx.claimNeutral) parts.push(`抢${fx.claimNeutral}中立席`);
-  if (fx.claimNeutralOrSteal) parts.push(`抢${fx.claimNeutralOrSteal}任意席`);
-  if (fx.stealEnemy) parts.push(`强抢${fx.stealEnemy}敌席`);
-  if (fx.stealOrClaim) parts.push(`夺取${fx.stealOrClaim}席`);
-  if (fx.demoteEnemy) parts.push(`动摇1敌席`);
-  if (fx.lockClaimed) parts.push(`并锁定🔒`);
-  if (fx.weakenAi) parts.push(`敌方减牌${fx.weakenAi}张（至少${MIN_ENEMY_CARDS}张）`);
-  if (fx.freezeAi) parts.push(`敌方只出${MIN_ENEMY_CARDS}张，冻结 Boss 被动`);
-  if (item?.affix) parts.push(`(${item.affix.desc})`);
+  if (fx.draw) parts.push(translate("摸{0}牌", fx.draw));
+  if (fx.claimNeutral) parts.push(translate("抢{0}中立席", fx.claimNeutral));
+  if (fx.claimNeutralOrSteal) parts.push(translate("抢{0}任意席", fx.claimNeutralOrSteal));
+  if (fx.stealEnemy) parts.push(translate("强抢{0}敌席", fx.stealEnemy));
+  if (fx.stealOrClaim) parts.push(translate("夺取{0}席", fx.stealOrClaim));
+  if (fx.demoteEnemy) parts.push(translate("动摇1敌席"));
+  if (fx.lockClaimed) parts.push(translate("并锁定🔒"));
+  if (fx.weakenAi) parts.push(translate("敌方减牌{0}张（至少{1}张）", fx.weakenAi, MIN_ENEMY_CARDS));
+  if (fx.freezeAi) parts.push(translate("敌方只出{0}张，冻结 Boss 被动", MIN_ENEMY_CARDS));
+  if (item?.affix) parts.push(`(${translate(item.affix.desc)})`);
   return parts.join(' ');
 }
 
@@ -174,7 +174,7 @@ function executeCardEffects(item, s) {
   if (card.category === 'influence' && !s.heroPassiveUsedThisTurn) {
     s.heroPassiveUsedThisTurn = true;
     s.influence = Math.min(100, s.influence + 5);
-    toastParts.push('皮衣被动+5🌟');
+    toastParts.push(translate("皮衣被动+5🌟"));
   }
 
   const totalAp = (fx.gainAp || 0) + (mod.bonusAp || 0);
@@ -187,7 +187,7 @@ function executeCardEffects(item, s) {
   const totalCash = (fx.gainCash || 0) + (mod.bonusCash || 0);
   if (totalCash > 0) {
     s.cash += totalCash;
-    toastParts.push(`+$${totalCash}万`);
+    toastParts.push(translate("+{0}", formatCash(totalCash)));
   }
 
   const infGain = (fx.gainInf || 0) + (mod.bonusInf || 0);
@@ -203,14 +203,14 @@ function executeCardEffects(item, s) {
     if (missing > 0) {
       const cashFine = missing * 50;
       s.cash = Math.max(0, s.cash - cashFine);
-      toastParts.push(`公关补缴-$${cashFine}万`);
+      toastParts.push(translate("公关补缴-{0}", formatCash(cashFine)));
     }
   }
 
   const totalDraw = (fx.draw || 0) + (mod.bonusDraw || 0);
   if (totalDraw > 0) {
     drawCards(totalDraw);
-    toastParts.push(`摸${totalDraw}牌`);
+    toastParts.push(translate("摸{0}牌", totalDraw));
     SoundFX.playDeal(totalDraw);
   }
 
@@ -222,7 +222,7 @@ function executeCardEffects(item, s) {
       if (seat) {
         if (shouldLock) seat.locked = true;
         lastSeat = seat;
-        toastParts.push('+1席!');
+        toastParts.push(translate("+1席!"));
       }
     }
   }
@@ -232,7 +232,7 @@ function executeCardEffects(item, s) {
       if (seat) {
         if (shouldLock) seat.locked = true;
         lastSeat = seat;
-        toastParts.push('+1席!');
+        toastParts.push(translate("+1席!"));
       }
     }
   }
@@ -242,7 +242,7 @@ function executeCardEffects(item, s) {
       if (seat) {
         if (shouldLock) seat.locked = true;
         lastSeat = seat;
-        toastParts.push(shouldLock ? '抢锁+1席!' : '抢回+1席!');
+        toastParts.push(shouldLock ? translate("抢锁+1席!") : translate("抢回+1席!"));
       }
     }
   }
@@ -256,7 +256,7 @@ function executeCardEffects(item, s) {
         gained++;
       }
     }
-    if (gained > 0) toastParts.push(shouldLock ? `夺锁+${gained}席!` : `夺取+${gained}席!`);
+    if (gained > 0) toastParts.push(shouldLock ? translate("夺锁+{0}席!", gained) : translate("夺取+{0}席!", gained));
   }
 
   const totalDemote = (fx.demoteEnemy || 0) + (mod.bonusDemote || 0);
@@ -265,23 +265,23 @@ function executeCardEffects(item, s) {
     if (enemy) {
       enemy.owner = 'neutral';
       lastSeat = enemy;
-      toastParts.push('敌席动摇!');
+      toastParts.push(translate("敌席动摇!"));
     }
   }
 
   const totalWeaken = (fx.weakenAi || 0) + (mod.bonusWeaken || 0);
   if (totalWeaken > 0) {
     s.aiPenalty = Math.min(2, s.aiPenalty + totalWeaken);
-    toastParts.push('对手减牌');
+    toastParts.push(translate("对手减牌"));
   }
 
   if (fx.freezeAi) {
     s.aiFrozen = true;
-    toastParts.push('Boss 被动冻结');
+    toastParts.push(translate("Boss 被动冻结"));
   }
 
   return {
-    effect: toastParts.join(' ') || '已生效',
+    effect: toastParts.join(' ') || translate("已生效"),
     targetSeatId: lastSeat?.id
   };
 }
@@ -392,7 +392,7 @@ function initGame() {
 
 function clearStage() {
   const stage = document.getElementById('clash-stage');
-  stage.innerHTML = `<div class="stage-placeholder">第 ${state.stage} / 3 关 · ${getStageGoalText()}</div>`;
+  stage.innerHTML = `<div class="stage-placeholder"><strong>${translate("第 {0} / 3 关", state.stage)}</strong><span>${getStageGoalText()}</span></div>`;
 }
 
 function sleep(ms) {
@@ -411,12 +411,13 @@ async function showCardAnimation(cardObj, effectText, isEnemy, targetSeatId) {
   }).join('');
 
   const artPng = (cardObj.art || '').replace('.svg', '.png');
+  const cardTitle = translate(cardObj.title || cardObj.name);
   stage.innerHTML = `
     <div class="clash-shockwave ${isEnemy ? 'enemy' : ''}"></div>
     ${particles}
     <div class="stage-card ${isEnemy ? 'enemy-card' : ''}">
-      <img src="${artPng}" onerror="this.onerror=null;this.src='${cardObj.art}';" alt="${cardObj.title || cardObj.name}" />
-      <div class="sc-title">${cardObj.category === 'rumor' ? '【风闻】' : ''}${cardObj.title || cardObj.name}</div>
+      <img src="${artPng}" onerror="this.onerror=null;this.src='${cardObj.art}';" alt="" />
+      <div class="sc-title">${cardObj.category === 'rumor' ? translate("【风闻】") : ''}${cardTitle}</div>
       <div class="sc-effect">${effectText}</div>
     </div>
     <div class="float-toast ${isEnemy ? 'bad' : ''}">${effectText}</div>
@@ -444,15 +445,17 @@ function renderSeats(flashSeatId = null) {
   state.seats.forEach(s => {
     const div = document.createElement('div');
     div.className = `seat-node owner-${s.owner} ${s.locked ? 'locked' : ''} ${flashSeatId === s.id ? 'flash-anim' : ''}`;
-    const tag = s.owner === 'player' ? '我方' : s.owner === 'enemy' ? '敌方' : '中立';
+    const tag = s.owner === 'player' ? translate("我方") : s.owner === 'enemy' ? translate("敌方") : translate("中立");
     const portrait = s.isCore ? boss.portrait : s.portrait;
-    const nameLabel = s.isCore ? `${s.name} · ${boss.name}` : s.name;
+    const name = translate(s.name);
+    const nameLabel = s.isCore ? `${name} · ${boss.name}` : name;
+    const lockLabel = translate("席位已锁定");
     div.innerHTML = `
       <span class="seat-portrait-frame">
         <img class="seat-portrait" src="${portraitSrc(portrait)}" alt="${s.isCore ? boss.name : ''}" />
-        ${s.locked ? '<span class="seat-lock" role="img" aria-label="席位已锁定" title="席位已锁定">🔒</span>' : ''}
+        ${s.locked ? `<span class="seat-lock" role="img" aria-label="${lockLabel}" title="${lockLabel}">🔒</span>` : ''}
       </span>
-      <span class="seat-name" title="${nameLabel}">${s.name}</span>
+      <span class="seat-name" title="${nameLabel}">${name}</span>
       <span class="seat-tag">${tag}</span>
     `;
     row.appendChild(div);
@@ -465,9 +468,9 @@ function renderAll() {
   const enemySeats = state.seats.filter(s => s.owner === 'enemy');
   const enemyLocked = enemySeats.filter(s => s.locked).length;
 
-  document.getElementById('stage-badge').textContent = `第 ${state.stage} / 3 关`;
+  document.getElementById('stage-badge').textContent = translate("第 {0} / 3 关", state.stage);
   document.getElementById('stage-win-rule').textContent = getStageGoalText();
-  document.getElementById('turn-display').textContent = `第 ${state.turn} / ${state.maxTurns} 回合 · ${TURN_LABELS[state.turn - 1]}`;
+  document.getElementById('turn-display').textContent = translate("第 {0} / {1} 回合 · {2}", state.turn, state.maxTurns, translate(TURN_LABELS[state.turn - 1]));
 
   const bossPortrait = document.getElementById('boss-portrait');
   const bossPortraitSrc = portraitSrc(boss.portrait);
@@ -476,26 +479,26 @@ function renderAll() {
     bossPortrait.alt = boss.name;
   }
   document.getElementById('boss-name').textContent = boss.name;
-  document.getElementById('boss-title').textContent = `第 ${state.stage} 关 · ${boss.roleTitle}`;
+  document.getElementById('boss-title').textContent = translate("第 {0} 关 · {1}", state.stage, translate(boss.roleTitle));
   const bossPassiveEl = document.getElementById('boss-passive');
-  bossPassiveEl.textContent = `被动：${boss.passiveName}`;
-  bossPassiveEl.dataset.tooltip = `${boss.name} · ${boss.passiveName}\n${boss.passiveDesc}`;
+  bossPassiveEl.textContent = translate("被动：{0}", translate(boss.passiveName));
+  bossPassiveEl.dataset.tooltip = `${boss.name} · ${translate(boss.passiveName)}\n${translate(boss.passiveDesc)}`;
   bossPassiveEl.style.cursor = 'help';
 
   const heroPassiveEl = document.querySelector('.hero-passive');
   if (heroPassiveEl) {
-    heroPassiveEl.dataset.tooltip = '皮衣光环：每回合首次打出影响力牌时，额外 +5🌟 影响力';
+    heroPassiveEl.dataset.tooltip = translate("皮衣光环：每回合首次打出影响力牌时，额外 +5🌟 影响力");
   }
 
   document.getElementById('player-votes').textContent = playerSeats.length;
   document.getElementById('enemy-votes').textContent = enemySeats.length;
   document.getElementById('enemy-votes-bar').textContent = enemySeats.length;
-  document.getElementById('player-lock-progress').textContent = `锁定 ${playerSeats.filter(s => s.locked).length} / ${BOARD_MAJORITY}`;
+  document.getElementById('player-lock-progress').textContent = translate("锁定 {0} / {1}", playerSeats.filter(s => s.locked).length, BOARD_MAJORITY);
   const enemyLockProgress = document.getElementById('enemy-lock-progress');
-  enemyLockProgress.textContent = `锁定 ${enemyLocked} / ${BOARD_MAJORITY}`;
+  enemyLockProgress.textContent = translate("锁定 {0} / {1}", enemyLocked, BOARD_MAJORITY);
   enemyLockProgress.dataset.danger = String(enemyLocked >= BOARD_MAJORITY - 1);
-  document.getElementById('enemy-taunt').textContent = state.enemyTaunt;
-  document.getElementById('stat-cash').textContent = `$${state.cash.toLocaleString()}万`;
+  document.getElementById('enemy-taunt').textContent = translate(state.enemyTaunt);
+  document.getElementById('stat-cash').textContent = formatCash(state.cash);
   document.getElementById('stat-inf').textContent = `${state.influence}`;
   document.getElementById('stat-ap').textContent = `${state.ap} / ${state.maxAp}`;
 
@@ -510,19 +513,19 @@ function renderAll() {
   const jacketBtn = document.getElementById('btn-hero-jacket');
   document.getElementById('jacket-uses').textContent = `${state.jacketUses}/2`;
   jacketBtn.disabled = state.gameOver || isAnimating || state.jacketUses <= 0 || state.powersUsedThisTurn.jacket || state.ap < 2;
-  jacketBtn.dataset.tooltip = state.jacketUses <= 0 ? '皮衣直播次数已用完（每关限2次）' : state.powersUsedThisTurn.jacket ? '本回合已使用过皮衣直播（每回合限1次）' : state.ap < 2 ? '无法使用：需要 2💎 体力' : '消耗 2💎，获得 +20🌟影响力并摸 1 张牌';
+  jacketBtn.dataset.tooltip = state.jacketUses <= 0 ? translate("皮衣直播次数已用完（每关限2次）") : state.powersUsedThisTurn.jacket ? translate("本回合已使用过皮衣直播（每回合限1次）") : state.ap < 2 ? translate("无法使用：需要 2💎 体力") : translate("消耗 2💎，获得 +20🌟影响力并摸 1 张牌");
 
   const equityBtn = document.getElementById('btn-hero-equity');
   document.getElementById('equity-uses').textContent = `${state.equityUses}/2`;
   const hasUnlockPlayerSeat = state.seats.some(s => s.owner === 'player' && !s.locked);
   equityBtn.disabled = state.gameOver || isAnimating || state.equityUses <= 0 || state.powersUsedThisTurn.equity || state.ap < 1 || !hasUnlockPlayerSeat;
-  equityBtn.dataset.tooltip = state.equityUses <= 0 ? '股权加锁次数已用完（每关限2次）' : state.powersUsedThisTurn.equity ? '本回合已使用过股权加锁（每回合限1次）' : !hasUnlockPlayerSeat ? '无法使用：场上暂无未锁定的我方席位' : state.ap < 1 ? '无法使用：需要 1💎 体力' : '消耗 1💎，永久锁定 1 个我方席位防止被对手抢走';
+  equityBtn.dataset.tooltip = state.equityUses <= 0 ? translate("股权加锁次数已用完（每关限2次）") : state.powersUsedThisTurn.equity ? translate("本回合已使用过股权加锁（每回合限1次）") : !hasUnlockPlayerSeat ? translate("无法使用：场上暂无未锁定的我方席位") : state.ap < 1 ? translate("无法使用：需要 1💎 体力") : translate("消耗 1💎，永久锁定 1 个我方席位防止被对手抢走");
 
   const rallyBtn = document.getElementById('btn-hero-rally');
   document.getElementById('rally-uses').textContent = `${state.rallyUses}/2`;
   const hasTargetSeat = state.seats.some(s => s.owner === 'neutral' || (s.owner === 'enemy' && !s.locked && !s.isCore));
   rallyBtn.disabled = state.gameOver || isAnimating || state.rallyUses <= 0 || state.powersUsedThisTurn.rally || state.influence < 15 || !hasTargetSeat;
-  rallyBtn.dataset.tooltip = state.rallyUses <= 0 ? '舆论号召次数已用完（每关限2次）' : state.powersUsedThisTurn.rally ? '本回合已使用过舆论号召（每回合限1次）' : state.influence < 15 ? `无法使用：需要 15🌟 影响力（当前 ${state.influence}🌟）` : !hasTargetSeat ? '无法使用：场上已无可用席位' : '消耗 15🌟 影响力（0💎体力），直接抢占 1 个中立或敌方未锁定席位！';
+  rallyBtn.dataset.tooltip = state.rallyUses <= 0 ? translate("舆论号召次数已用完（每关限2次）") : state.powersUsedThisTurn.rally ? translate("本回合已使用过舆论号召（每回合限1次）") : state.influence < 15 ? translate("无法使用：需要 15🌟 影响力（当前 {0}🌟）", state.influence) : !hasTargetSeat ? translate("无法使用：场上已无可用席位") : translate("消耗 15🌟 影响力（0💎体力），直接抢占 1 个中立或敌方未锁定席位！");
 
   renderSeats();
 
@@ -531,7 +534,7 @@ function renderAll() {
   const mulliganBtn = document.getElementById('btn-mulligan');
   if (mulliganBtn) {
     mulliganBtn.disabled = state.gameOver || isAnimating || state.mulliganUsedThisTurn || state.hand.length === 0;
-    mulliganBtn.textContent = isDiscardMode ? '取消换牌' : state.mulliganUsedThisTurn ? '已换牌 (0/1)' : '换 1 张牌';
+    mulliganBtn.textContent = isDiscardMode ? translate("取消换牌") : state.mulliganUsedThisTurn ? translate("已换牌 (0/1)") : translate("换 1 张牌");
   }
   const handEl = document.getElementById('hand-cards');
   handEl.className = `hand-cards${isDiscardMode ? ' discard-mode' : ''}`;
@@ -547,30 +550,30 @@ function renderAll() {
     div.className = `hs-card rarity-${c.rarity} ${ok ? 'playable' : 'unplayable'}`;
     div.dataset.uid = item.uid;
     if (isDiscardMode) {
-      div.dataset.tooltip = '点击弃掉此牌并重抽 1 张';
+      div.dataset.tooltip = translate("点击弃掉此牌并重抽 1 张");
     } else if (!ok) {
-      div.dataset.tooltip = `暂不可打出：${reason}`;
+      div.dataset.tooltip = translate("暂不可打出：{0}", reason);
       div.dataset.tooltipWarn = '1';
     } else if (item.affix) {
-      div.dataset.tooltip = `${item.affix.isNeg ? '负面新闻' : '随机词条'} · ${item.affix.name}：${item.affix.desc}`;
+      div.dataset.tooltip = `${item.affix.isNeg ? translate("负面新闻") : translate("随机词条")} · ${translate(item.affix.name)}\n${translate(item.affix.desc)}`;
       if (item.affix.isNeg) div.dataset.tooltipWarn = '1';
     }
 
     const costBadges = [
       `<span class="gem-cost">${costs.ap}💎</span>`,
       costs.inf > 0 ? `<span class="inf-cost">${costs.inf}🌟</span>` : '',
-      costs.cash > 0 ? `<span class="cash-cost">$${costs.cash}万</span>` : ''
+      costs.cash > 0 ? `<span class="cash-cost">${formatCash(costs.cash)}</span>` : ''
     ].filter(Boolean).join('');
 
     const pngArt = c.art.replace('.svg', '.png');
     div.innerHTML = `
       <div class="card-costs">
         ${costBadges}
-        <span class="cat-badge" style="color:${cat.color};border-color:${cat.color}44">${cat.label}</span>
+        <span class="cat-badge" style="color:${cat.color};border-color:${cat.color}44">${translate(cat.label)}</span>
       </div>
-      <img src="${pngArt}" onerror="this.onerror=null;this.src='${c.art}';" alt="${c.title}" />
-      <div class="hs-card-title">${c.title} <span class="rarity-gem">${RARITY_LABELS[c.rarity]}</span></div>
-      ${item.affix ? `<div class="affix-tag ${item.affix.isNeg ? 'negative' : ''}">${item.affix.isNeg ? '⚠️' : '✨'} ${item.affix.name}</div>` : ''}
+      <img src="${pngArt}" onerror="this.onerror=null;this.src='${c.art}';" alt="" />
+      <div class="hs-card-title">${translate(c.title)} <span class="rarity-gem">${translate(RARITY_LABELS[c.rarity])}</span></div>
+      ${item.affix ? `<div class="affix-tag ${item.affix.isNeg ? 'negative' : ''}">${item.affix.isNeg ? '⚠️' : '✨'} ${translate(item.affix.name)}</div>` : ''}
       ${!ok && !isDiscardMode ? `<div class="unplayable-reason">🚫 ${reason}</div>` : ''}
       <div class="hs-card-desc">${formatCardDesc(c, item)}</div>
     `;
@@ -578,14 +581,15 @@ function renderAll() {
   });
 
   const endBtn = document.getElementById('btn-end-turn');
+  document.getElementById('btn-language').disabled = isAnimating;
   endBtn.disabled = state.gameOver || isAnimating;
-  endBtn.textContent = isEnemyTurn ? '对手出牌中...' : '结束回合';
+  endBtn.textContent = isEnemyTurn ? translate("对手出牌中...") : translate("结束回合");
   const enemyTurnPreview = document.getElementById('enemy-turn-preview');
   enemyTurnPreview.hidden = state.gameOver || isEnemyTurn;
-  enemyTurnPreview.textContent = `敌方将出 ${getEnemyCardCount(state)} 张牌`;
+  enemyTurnPreview.textContent = translate("敌方将出 {0} 张牌", getEnemyCardCount(state));
 
   const cfg = getAiConfig();
-  document.getElementById('ai-mode-text').textContent = cfg.engine === 'llm' && cfg.key ? `模型(${cfg.model})` : '对手设置';
+  document.getElementById('ai-mode-text').textContent = cfg.engine === 'llm' && cfg.key ? translate("模型({0})", cfg.model) : translate("对手设置");
 }
 
 function checkStageWin() {
@@ -602,10 +606,10 @@ function checkStageDefeat() {
   const eLocked = state.seats.filter(s => s.owner === 'enemy' && s.locked).length;
   if (eLocked >= BOARD_MAJORITY) {
     showEndModal(
-      `止步第 ${state.stage} 关`,
-      `对手已锁定 ${eLocked} 个席位，场上剩余席位已不足 ${BOARD_MAJORITY} 席，本关夺权失败。`,
+      translate("止步第 {0} 关", state.stage),
+      translate("对手已锁定 {0} 个席位，场上剩余席位已不足 {1} 席，本关夺权失败。", eLocked, BOARD_MAJORITY),
       false,
-      '重新开始'
+      translate("重新开始")
     );
     return true;
   }
@@ -614,25 +618,25 @@ function checkStageDefeat() {
 
 function handleStageCleared(pVotes, pLocked = 0) {
   const boss = getCurrentBoss();
-  const score = `第 ${state.turn} 回合拿下 ${pVotes}/9 席，锁定 ${pLocked} 席。`;
-  const winReason = pLocked >= BOARD_MAJORITY ? `锁定 ${pLocked} 席直接控制董事会` : `以 ${pVotes} / 9 席拿下本关`;
+  const score = translate("第 {0} 回合拿下 {1}/9 席，锁定 {2} 席。", state.turn, pVotes, pLocked);
+  const winReason = pLocked >= BOARD_MAJORITY ? translate("锁定 {0} 席直接控制董事会", pLocked) : translate("以 {0} / 9 席拿下本关", pVotes);
   if (state.stage < 3) {
     const nextBoss = state.runBosses[state.stage];
     showEndModal(
-      `击败第 ${state.stage} 关：${boss.name}`,
-      `你${winReason}，按 50% 结余保留资金并获得 $2,500万 战利品补助（保底 $4,500万）。下一关对手：${nextBoss.name}（${nextBoss.roleTitle}）。`,
+      translate("击败第 {0} 关：{1}", state.stage, boss.name),
+      translate("你{0}，按 50% 结余保留资金并获得 $2,500万 战利品补助（保底 $4,500万）。下一关对手：{1}（{2}）。", winReason, nextBoss.name, translate(nextBoss.roleTitle)),
       true,
-      `进入第 ${state.stage + 1} 关`,
-      `我在《${document.title}》第 ${state.stage} 关击败了 ${boss.name}！${score}`
+      translate("进入第 {0} 关", state.stage + 1),
+      translate("我在《{0}》第 {1} 关击败了 {2}！{3}", document.title, state.stage, boss.name, score)
     );
   } else {
     const names = state.runBosses.map(b => b.name).join(' → ');
     showEndModal(
-      `连克三关，重返 CEO 宝座`,
-      `你从 0 席起步，连续击败 ${names}，重新执掌董事会。`,
+      translate("连克三关，重返 CEO 宝座"),
+      translate("你从 0 席起步，连续击败 {0}，重新执掌董事会。", names),
       true,
-      '再来一局',
-      `我在《${document.title}》连克三关，重返 CEO 宝座！\n对手：${names}\n决胜关：${score}`
+      translate("再来一局"),
+      translate("我在《{0}》连克三关，重返 CEO 宝座！\n对手：{1}\n决胜关：{2}", document.title, names, score)
     );
   }
 }
@@ -645,7 +649,21 @@ function getXShareUrl(text, pageUrl = '') {
   return intent.href;
 }
 
-function showEndModal(title, desc, isWin = false, btnLabel = '🔄 再来一局', shareText = '') {
+function getGameShareAddress() {
+  const canonical = document.querySelector('meta[property="og:url"]').content.trim();
+  const pageUrl = new URL(canonical || window.location.href);
+  pageUrl.search = '';
+  pageUrl.hash = '';
+  pageUrl.username = '';
+  pageUrl.password = '';
+
+  const host = pageUrl.hostname.replace(/\.$/, '');
+  const isLocalHost = !host.includes('.') || /\.(local|localhost)$/.test(host) || /^(\d+\.){3}\d+$/.test(host);
+  const isPublic = /^https?:$/.test(pageUrl.protocol) && (Boolean(canonical) || !isLocalHost);
+  return { address: pageUrl.href, publicUrl: isPublic ? pageUrl.href : '' };
+}
+
+function showEndModal(title, desc, isWin = false, btnLabel = translate("🔄 再来一局"), shareText = '') {
   state.gameOver = true;
   SoundFX.playEnd(isWin);
   renderAll();
@@ -670,7 +688,7 @@ function showEndModal(title, desc, isWin = false, btnLabel = '🔄 再来一局'
   if (shareLink.hidden) {
     shareLink.removeAttribute('href');
   } else {
-    shareLink.href = getXShareUrl(shareText);
+    shareLink.href = getXShareUrl(shareText, getGameShareAddress().publicUrl);
   }
   document.getElementById('modal-end').style.display = 'flex';
 }
@@ -769,7 +787,7 @@ document.getElementById('btn-hero-jacket').addEventListener('click', async () =>
   drawCards(1);
   SoundFX.playDeal(1);
   renderAll();
-  if (!await showCardAnimation({ art: 'assets/card_pr.svg', title: '🧥 传说皮衣·厨房直播' }, '+20🌟 & 摸1牌!', false, null)) return;
+  if (!await showCardAnimation({ art: 'assets/card_pr.svg', title: translate("🧥 传说皮衣·厨房直播") }, translate("+20🌟 & 摸1牌!"), false, null)) return;
   isAnimating = false;
   renderAll();
 });
@@ -785,7 +803,7 @@ document.getElementById('btn-hero-equity').addEventListener('click', async () =>
   state.powersUsedThisTurn.equity = true;
   target.locked = true;
   renderAll();
-  if (!await showCardAnimation({ art: 'assets/card_banquet.svg', title: '📜 1.5% 股权加锁' }, `🔒 永久锁住 ${target.name}!`, false, target.id)) return;
+  if (!await showCardAnimation({ art: 'assets/card_banquet.svg', title: translate("📜 1.5% 股权加锁") }, translate("🔒 永久锁住 {0}!", translate(target.name)), false, target.id)) return;
   isAnimating = false;
   if (!checkStageWin()) renderAll();
 });
@@ -800,7 +818,7 @@ document.getElementById('btn-hero-rally').addEventListener('click', async () => 
   state.powersUsedThisTurn.rally = true;
   state.influence -= 15;
   renderAll();
-  if (!await showCardAnimation({ art: 'assets/card_pr.svg', title: '📣 舆论号召' }, `消耗15🌟 抢占${seat.name}!`, false, seat.id)) return;
+  if (!await showCardAnimation({ art: 'assets/card_pr.svg', title: translate("📣 舆论号召") }, translate("消耗15🌟 抢占{0}!", translate(seat.name)), false, seat.id)) return;
   isAnimating = false;
   if (!checkStageWin()) renderAll();
 });
@@ -842,7 +860,7 @@ document.getElementById('btn-end-turn').addEventListener('click', async () => {
     }
 
     if (freezeBoss) {
-      state.enemyTaunt = '“可恶……700人联名信压下了我的额外行动！”';
+      state.enemyTaunt = translate("“可恶……700人联名信压下了我的额外行动！”");
     } else {
       const passiveRes = boss.onTurnEnd(state);
       if (passiveRes) {
@@ -863,7 +881,7 @@ document.getElementById('btn-end-turn').addEventListener('click', async () => {
       if (pVotes >= BOARD_MAJORITY) {
         handleStageCleared(pVotes, pLocked);
       } else {
-        showEndModal(`止步第 ${state.stage} 关`, `${state.maxTurns} 回合结束，你仅获得 ${pVotes} 席（未满 ${BOARD_MAJORITY} 席），未能击败 ${boss.name}。`, false, '重新开始');
+        showEndModal(translate("止步第 {0} 关", state.stage), translate("{0} 回合结束，你仅获得 {1} 席（未满 {2} 席），未能击败 {3}。", state.maxTurns, pVotes, BOARD_MAJORITY, boss.name), false, translate("重新开始"));
       }
       return;
     }
@@ -881,7 +899,7 @@ document.getElementById('btn-end-turn').addEventListener('click', async () => {
     SoundFX.playDeal(2);
     clearStage();
   } catch (err) {
-    console.error('结束回合执行出错:', err);
+    console.error(translate("结束回合执行出错:"), err);
   } finally {
     if (state === turnState) {
       isEnemyTurn = false;
@@ -891,9 +909,13 @@ document.getElementById('btn-end-turn').addEventListener('click', async () => {
   }
 });
 
-document.getElementById('btn-sound-toggle').addEventListener('click', () => {
-  const muted = SoundFX.toggleMute();
-  document.getElementById('btn-sound-toggle').textContent = muted ? '🔇 静音' : '🔊 音效开';
+const soundButton = document.getElementById('btn-sound-toggle');
+function renderSoundButton() {
+  soundButton.textContent = SoundFX.isMuted() ? translate("🔇 静音") : translate("🔊 音效开");
+}
+soundButton.addEventListener('click', () => {
+  SoundFX.toggleMute();
+  renderSoundButton();
 });
 
 document.getElementById('btn-restart').addEventListener('click', () => {
@@ -901,25 +923,47 @@ document.getElementById('btn-restart').addEventListener('click', () => {
   SoundFX.playDeal(4);
 });
 
-document.getElementById('btn-share-game').addEventListener('click', () => {
-  const canonical = document.querySelector('meta[property="og:url"]').content.trim();
-  const pageUrl = new URL(canonical || window.location.href);
-  pageUrl.search = '';
-  pageUrl.hash = '';
-  pageUrl.username = '';
-  pageUrl.password = '';
+const posterShareButton = document.getElementById('btn-share-poster');
+const posterShareStatus = document.getElementById('poster-share-status');
+let posterShareData;
 
-  const host = pageUrl.hostname.replace(/\.$/, '');
-  const isLocalHost = !host.includes('.') || /\.(local|localhost)$/.test(host) || /^(\d+\.){3}\d+$/.test(host);
-  const isPublic = /^https?:$/.test(pageUrl.protocol) && (Boolean(canonical) || !isLocalHost);
-  const publicUrl = isPublic ? pageUrl.href : '';
-  document.getElementById('game-share-url-label').textContent = isPublic ? '分享链接' : '当前地址';
-  document.getElementById('game-share-url').value = pageUrl.href;
-  document.getElementById('game-share-local-hint').hidden = isPublic;
+document.getElementById('btn-share-game').addEventListener('click', async () => {
+  const { address, publicUrl } = getGameShareAddress();
+  const shareTitle = document.title;
+  document.getElementById('game-share-url-label').textContent = publicUrl ? translate("分享链接") : translate("当前地址");
+  document.getElementById('game-share-url').value = address;
+  document.getElementById('game-share-local-hint').hidden = Boolean(publicUrl);
   const shareLink = document.getElementById('game-share-x');
-  shareLink.href = getXShareUrl(document.title, publicUrl);
-  shareLink.textContent = isPublic ? '分享到 X' : '测试 X 发帖';
-  document.getElementById('game-share-dialog').showModal();
+  shareLink.href = getXShareUrl(shareTitle, publicUrl);
+  shareLink.textContent = publicUrl ? translate("分享到 X") : translate("测试 X 发帖");
+  posterShareButton.hidden = true;
+  posterShareStatus.hidden = true;
+  const dialog = document.getElementById('game-share-dialog');
+  dialog.showModal();
+
+  if (!publicUrl || !window.isSecureContext || !navigator.share || !navigator.canShare) return;
+  try {
+    const poster = document.getElementById('game-share-poster');
+    const response = await fetch(poster.src);
+    if (!response.ok) return;
+    const file = new File([await response.blob()], 'back-to-ceo-poster.jpg', { type: 'image/jpeg' });
+    const data = { title: shareTitle, text: shareTitle, url: publicUrl, files: [file] };
+    if (dialog.open && shareLink.href === getXShareUrl(shareTitle, publicUrl) && navigator.canShare(data)) {
+      posterShareData = data;
+      posterShareButton.hidden = false;
+    }
+  } catch {
+    // 下载与 X 分享入口在文件分享不可用时仍可使用。
+  }
+});
+
+posterShareButton.addEventListener('click', async () => {
+  posterShareStatus.hidden = true;
+  try {
+    await navigator.share(posterShareData);
+  } catch (error) {
+    posterShareStatus.hidden = error.name === 'AbortError';
+  }
 });
 
 document.getElementById('btn-play-again').addEventListener('click', e => {
@@ -962,4 +1006,24 @@ document.getElementById('btn-save-ai').addEventListener('click', () => {
   renderAll();
 });
 
+const languageDialog = document.getElementById('language-dialog');
+document.getElementById('btn-language').addEventListener('click', () => languageDialog.showModal());
+languageDialog.addEventListener('cancel', event => {
+  if (!selectedLanguage) event.preventDefault();
+});
+document.querySelectorAll('[data-game-language]').forEach(button => {
+  button.addEventListener('click', () => {
+    const language = button.dataset.gameLanguage;
+    if (language !== getGameLanguage()) state.enemyTaunt = getCurrentBoss().tauntStart;
+    setGameLanguage(language);
+    renderSoundButton();
+    clearStage();
+    renderAll();
+    languageDialog.close();
+  });
+});
+
+applyPageLanguage();
+renderSoundButton();
 initGame();
+if (!selectedLanguage) languageDialog.showModal();
