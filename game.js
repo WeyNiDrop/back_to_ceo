@@ -57,6 +57,7 @@ const NEGATIVE_AFFIXES = [
   { name: '国会闭门问询', categories: ['politics'], desc: '需影响力 ≥20🌟', isNeg: true, mod: { infReqPenalty: 20 } },
   { name: '芯片出口调查', categories: ['spy', 'politics'], desc: '律师费 +$400万', isNeg: true, mod: { cashPenalty: 400 } },
   { name: '微波炉蒸鱼未加盖', categories: ['stamina'], desc: '打出后 -5🌟', isNeg: true, mod: { infPenalty: 5 } },
+  { name: '疑似强迫员工吃牛腩', categories: ['stamina'], desc: '打出后 -5🌟', isNeg: true, mod: { infPenalty: 5 } },
   { name: '团队沟通失当', categories: ['influence', 'spy'], desc: '体力 +1💎 且打出后 -6🌟', isNeg: true, mod: { apPenalty: 1, infPenalty: 6 } },
   { name: '董事会问责', categories: ['politics'], desc: '需 ≥25🌟 且额外 -$400万', isNeg: true, mod: { infReqPenalty: 25, cashPenalty: 400 } }
 ];

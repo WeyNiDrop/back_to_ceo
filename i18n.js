@@ -48,6 +48,7 @@ const ENGLISH_TEXT = {
   "芯片出口调查": "Chip Export Investigation",
   "律师费 +$400万": "+$4M legal fees",
   "微波炉蒸鱼未加盖": "Microwaved Fish, No Lid",
+  "疑似强迫员工吃牛腩": "Alleged Forced Brisket for Staff",
   "打出后 -5🌟": "Lose 5 🌟 after play",
   "团队沟通失当": "Team Communication Breakdown",
   "体力 +1💎 且打出后 -6🌟": "+1 💎 cost, lose 6 🌟 after play",
