@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240">
+  <defs>
+    <radialGradient id="bgV" cx="50%" cy="40%" r="70%">
+      <stop offset="0%" stop-color="#3b1018"/>
+      <stop offset="60%" stop-color="#19080e"/>
+      <stop offset="100%" stop-color="#090407"/>
+    </radialGradient>
+    <linearGradient id="skinV" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#f2d5c4"/>
+      <stop offset="70%" stop-color="#cfa38a"/>
+      <stop offset="100%" stop-color="#8c624d"/>
+    </linearGradient>
+    <filter id="neonR"><feGaussianBlur stdDeviation="2.5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+  </defs>
+  <rect width="240" height="240" fill="url(#bgV)"/>
+  <!-- K线下跌背景 -->
+  <path d="M18 65 L58 80 L98 62 L148 96 L220 120" stroke="#ef4444" stroke-width="2.5" fill="none" opacity="0.55"/>
+  <circle cx="120" cy="112" r="88" fill="none" stroke="#ef4444" stroke-width="2.5" opacity="0.45" filter="url(#neonR)"/>
+  <!-- 粗墨线西装 -->
+  <path d="M24 240 L44 166 Q80 148 120 148 Q160 148 196 166 L216 240 Z" fill="#182132" stroke="#05070a" stroke-width="4"/>
+  <path d="M28 238 L46 168 Q68 154 96 151" fill="none" stroke="#ef4444" stroke-width="3" opacity="0.85" filter="url(#neonR)"/>
+  <path d="M212 238 L194 168 Q172 154 144 151" fill="none" stroke="#ef4444" stroke-width="3" opacity="0.85" filter="url(#neonR)"/>
+  <path d="M98 152 L120 228 L142 152 Z" fill="#f8fafc" stroke="#05070a" stroke-width="3"/>
+  <path d="M114 158 L126 158 L129 218 L120 234 L111 218 Z" fill="#dc2626" stroke="#05070a" stroke-width="2.5"/>
+  <!-- 脸部 -->
+  <rect x="104" y="132" width="32" height="26" rx="6" fill="#ba8c73" stroke="#05070a" stroke-width="3"/>
+  <path d="M80 86 Q80 46 120 46 Q160 46 160 86 L156 124 Q146 148 120 150 Q94 148 84 124 Z" fill="url(#skinV)" stroke="#05070a" stroke-width="3.5"/>
+  <path d="M76 88 Q74 42 120 35 Q166 42 164 88 Q152 60 120 58 Q88 60 76 88 Z" fill="#1e293b" stroke="#05070a" stroke-width="3.5"/>
+  <!-- 锐利眉眼与冷笑 -->
+  <path d="M86 84 L110 91" stroke="#05070a" stroke-width="3.6" stroke-linecap="round"/>
+  <path d="M154 84 L130 91" stroke="#05070a" stroke-width="3.6" stroke-linecap="round"/>
+  <circle cx="99" cy="96" r="4" fill="#0f172a"/><circle cx="100" cy="95" r="1.2" fill="#ef4444"/>
+  <circle cx="141" cy="96" r="4" fill="#0f172a"/><circle cx="142" cy="95" r="1.2" fill="#ef4444"/>
+  <path d="M120 96 L117 115 L124 117" stroke="#7c5542" stroke-width="2.2" fill="none"/>
+  <path d="M104 129 Q122 123 138 130" stroke="#450a0a" stroke-width="3" fill="none" stroke-linecap="round"/>
+</svg>

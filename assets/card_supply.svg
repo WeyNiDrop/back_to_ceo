@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 160">
+  <defs>
+    <linearGradient id="bgS" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#1a1428"/><stop offset="100%" stop-color="#0b101b"/></linearGradient>
+    <filter id="gS"><feGaussianBlur stdDeviation="2" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+  </defs>
+  <rect width="240" height="160" fill="url(#bgS)"/>
+  <path d="M12 128 L58 96 L104 108 L156 54 L224 22" stroke="#22c55e" stroke-width="3.5" fill="none" filter="url(#gS)"/>
+  <path d="M50 144 L64 88 L130 88 L144 144 Z" fill="#b45309" stroke="#05070a" stroke-width="3.5"/>
+  <path d="M56 106 H138" stroke="#fbbf24" stroke-width="3"/>
+  <circle cx="78" cy="82" r="15" fill="#f59e0b" stroke="#05070a" stroke-width="3"/>
+  <circle cx="100" cy="75" r="16" fill="#d97706" stroke="#05070a" stroke-width="3"/>
+  <circle cx="118" cy="84" r="14" fill="#f59e0b" stroke="#05070a" stroke-width="3"/>
+  <rect x="154" y="70" width="42" height="72" rx="6" fill="#fbbf24" stroke="#05070a" stroke-width="3.5"/>
+  <path d="M150 70 Q164 54 176 66 Q188 52 200 70 Z" fill="#f8fafc" stroke="#05070a" stroke-width="3"/>
+  <path d="M196 86 h12 v30 h-12" fill="none" stroke="#fde68a" stroke-width="3.5"/>
+</svg>

@@ -1,0 +1,70 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240">
+  <defs>
+    <radialGradient id="bgHero" cx="50%" cy="40%" r="70%">
+      <stop offset="0%" stop-color="#133a3a"/>
+      <stop offset="55%" stop-color="#0a1922"/>
+      <stop offset="100%" stop-color="#050b10"/>
+    </radialGradient>
+    <linearGradient id="skinCel" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#f7cf86"/>
+      <stop offset="65%" stop-color="#e3a954"/>
+      <stop offset="100%" stop-color="#b8762c"/>
+    </linearGradient>
+    <linearGradient id="jacketCel" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#28313e"/>
+      <stop offset="50%" stop-color="#141922"/>
+      <stop offset="100%" stop-color="#090c11"/>
+    </linearGradient>
+    <filter id="neonG"><feGaussianBlur stdDeviation="2.5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+  </defs>
+  <rect width="240" height="240" fill="url(#bgHero)"/>
+  <!-- 赛博终端背景 -->
+  <rect x="10" y="20" width="54" height="44" rx="4" fill="#071a1c" stroke="#10b981" stroke-width="1.5" opacity="0.7"/>
+  <path d="M16 32 H54 M16 40 H44 M16 48 H50" stroke="#34d399" stroke-width="2" opacity="0.7"/>
+  <rect x="176" y="28" width="52" height="58" rx="4" fill="#071a1c" stroke="#38bdf8" stroke-width="1.5" opacity="0.65"/>
+  <path d="M182 40 H220 M182 50 H210 M182 60 H216" stroke="#38bdf8" stroke-width="2" opacity="0.6"/>
+  <!-- 霓虹背光环 -->
+  <circle cx="120" cy="112" r="88" fill="none" stroke="#10b981" stroke-width="2.5" opacity="0.4" filter="url(#neonG)"/>
+  <!-- 黑色鳄鱼皮衣（粗墨线漫画风） -->
+  <path d="M24 240 L44 166 Q75 148 120 148 Q165 148 196 166 L216 240 Z" fill="url(#jacketCel)" stroke="#05070a" stroke-width="4"/>
+  <!-- 青绿边缘反光 -->
+  <path d="M28 238 L46 168 Q68 154 96 151" fill="none" stroke="#34d399" stroke-width="3" opacity="0.85" filter="url(#neonG)"/>
+  <path d="M212 238 L194 168 Q172 154 144 151" fill="none" stroke="#38bdf8" stroke-width="3" opacity="0.85" filter="url(#neonG)"/>
+  <!-- 鳄鱼皮格纹 -->
+  <g stroke="#0b0e14" stroke-width="2" fill="#202833" opacity="0.85">
+    <rect x="52" y="178" width="18" height="13" rx="2"/><rect x="74" y="176" width="18" height="14" rx="2"/>
+    <rect x="148" y="176" width="18" height="14" rx="2"/><rect x="170" y="178" width="18" height="13" rx="2"/>
+    <rect x="44" y="198" width="20" height="14" rx="2"/><rect x="68" y="198" width="20" height="14" rx="2"/>
+    <rect x="152" y="198" width="20" height="14" rx="2"/><rect x="176" y="198" width="20" height="14" rx="2"/>
+  </g>
+  <!-- 内搭与拉链 -->
+  <path d="M96 152 L120 232 L144 152 Z" fill="#181e28" stroke="#05070a" stroke-width="3"/>
+  <line x1="120" y1="168" x2="120" y2="240" stroke="#94a3b8" stroke-width="3.5" stroke-dasharray="5 3"/>
+  <!-- 翻领 -->
+  <path d="M94 148 L70 176 L104 196 Z" fill="#242c3a" stroke="#05070a" stroke-width="3"/>
+  <path d="M146 148 L170 176 L136 196 Z" fill="#242c3a" stroke="#05070a" stroke-width="3"/>
+  <!-- 脖子与脸部（美漫厚涂阴影） -->
+  <rect x="103" y="132" width="34" height="28" rx="6" fill="#c7883f" stroke="#05070a" stroke-width="3"/>
+  <path d="M77 88 Q77 44 120 44 Q163 44 163 88 L159 124 Q152 148 120 150 Q88 148 81 124 Z" fill="url(#skinCel)" stroke="#05070a" stroke-width="3.5"/>
+  <!-- 右侧青色赛博反光 -->
+  <path d="M159 90 L156 122 Q150 142 132 147" fill="none" stroke="#38bdf8" stroke-width="3" opacity="0.8"/>
+  <!-- 银灰背头 -->
+  <path d="M72 90 Q66 44 106 34 Q142 26 168 50 Q174 70 165 92 Q152 60 120 58 Q88 60 72 90 Z" fill="#cbd5e1" stroke="#05070a" stroke-width="3.5"/>
+  <path d="M84 52 Q118 40 150 54" stroke="#475569" stroke-width="2.5" fill="none"/>
+  <path d="M100 42 Q128 34 156 48" stroke="#f8fafc" stroke-width="2" fill="none" opacity="0.8"/>
+  <!-- 眉眼与矩形细框眼镜 -->
+  <path d="M86 83 Q98 78 109 84" stroke="#0f172a" stroke-width="3.2" fill="none" stroke-linecap="round"/>
+  <path d="M131 84 Q142 78 154 83" stroke="#0f172a" stroke-width="3.2" fill="none" stroke-linecap="round"/>
+  <circle cx="98" cy="95" r="4" fill="#0f172a"/><circle cx="99" cy="94" r="1.3" fill="#fff"/>
+  <circle cx="142" cy="95" r="4" fill="#0f172a"/><circle cx="143" cy="94" r="1.3" fill="#fff"/>
+  <g stroke="#e2e8f0" stroke-width="2.4" fill="rgba(56,189,248,0.16)">
+    <rect x="81" y="87" width="33" height="17" rx="3"/>
+    <rect x="126" y="87" width="33" height="17" rx="3"/>
+    <line x1="114" y1="94" x2="126" y2="94"/>
+    <line x1="74" y1="93" x2="81" y2="93"/>
+    <line x1="159" y1="93" x2="166" y2="93"/>
+  </g>
+  <!-- 鼻子与自信微笑 -->
+  <path d="M120 95 L117 115 L124 117" stroke="#854d0e" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+  <path d="M104 126 Q120 135 137 125" stroke="#451a03" stroke-width="3" fill="none" stroke-linecap="round"/>
+</svg>

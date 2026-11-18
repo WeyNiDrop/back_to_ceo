@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <title>BACK TO CEO · 董事会夺权战</title>
+  <link rel="stylesheet" href="style.css?v=20261118-portraits" />
+</head>
+<body>
+  <div class="hs-table">
+    <!-- 顶部极简目标与连战进度 -->
+    <header class="top-bar">
+      <div class="goal-banner">
+        <span class="goal-tag" id="stage-badge">第 1 / 3 关</span>
+        <span>连胜 3 关夺回 CEO · 占 <strong>6</strong> 席或锁 <strong>5</strong> 席即胜（6回合末 ≥5 席晋级）</span>
+      </div>
+
+      <div class="turn-pill" id="turn-display">第 1 / 6 回合 · DAY 1 白天</div>
+
+      <div class="top-btns">
+        <button class="btn-top" id="btn-sound-toggle">🔊 音效开</button>
+        <button class="btn-top" id="btn-ai-config">⚙️ <span id="ai-mode-text">对手设置</span></button>
+        <button class="btn-top" id="btn-restart">🔄 重开</button>
+      </div>
+    </header>
+
+    <!-- 上半区：当前关底 Boss 对手 + 敌方被动 -->
+    <section class="enemy-hero-zone">
+      <div class="hero-pod enemy-pod" id="enemy-pod">
+        <img id="boss-portrait" src="assets/portraits/boss-elena.jpg" alt="Elena Sterling" class="hero-portrait enemy-border" />
+        <div class="hero-meta">
+          <div class="hero-title"><span id="boss-name">Elena Sterling</span> <small id="boss-title">第 1 关</small></div>
+          <div class="seat-score enemy-score">敌方席位：<strong id="enemy-votes">3</strong></div>
+          <div class="passive-pill enemy-passive" id="boss-passive">被动：舆论绞肉机</div>
+        </div>
+        <div class="speech-bubble" id="enemy-taunt">“第一关就是我！热搜榜已经全是我买的通稿了。”</div>
+      </div>
+    </section>
+
+    <!-- 中央对战区：9席董事会 + 卡牌碰撞舞台 -->
+    <section class="battlefield">
+      <div class="score-bar-wrap">
+        <span class="side-label player-side">我方 <strong id="player-votes">0</strong></span>
+        <div class="seats-row" id="seats-row"></div>
+        <span class="side-label enemy-side"><strong id="enemy-votes-bar">3</strong> 敌方</span>
+      </div>
+
+      <div class="clash-stage" id="clash-stage">
+        <div class="stage-placeholder" id="stage-placeholder">打出手中卡牌争夺席位，抢下 ≥5 席即可击败本关对手</div>
+      </div>
+    </section>
+
+    <!-- 下半区：我方英雄 + 手牌 + 体力水晶 + 结束回合 -->
+    <section class="player-zone">
+      <div class="player-hero-dock">
+        <div class="hero-pod player-pod" id="player-pod">
+          <img src="assets/hero_gesen.png" onerror="this.onerror=null;this.src='assets/hero_gesen.svg?v=202611172120';" alt="Gesen Yellow" class="hero-portrait player-border" />
+          <div class="hero-meta">
+            <div class="hero-title">Gesen Yellow <small>前任CEO</small></div>
+            <div class="cash-badge">💰 资金：<strong id="stat-cash">$5,000万</strong></div>
+            <div class="inf-badge">🌟 影响力：<strong id="stat-inf">20</strong></div>
+            <div class="passive-pill hero-passive">🧥 被动：皮衣光环(+5🌟)</div>
+          </div>
+        </div>
+
+        <div class="hero-powers">
+          <button class="power-btn" id="btn-hero-jacket">
+            <span class="p-icon">🧥</span>
+            <span class="p-name">皮衣直播 <small id="jacket-uses">2/2</small></span>
+            <span class="p-cost">2💎 (+20🌟抽1)</span>
+          </button>
+          <button class="power-btn equity-power" id="btn-hero-equity">
+            <span class="p-icon">📜</span>
+            <span class="p-name">股权加锁 <small id="equity-uses">2/2</small></span>
+            <span class="p-cost">1💎 (锁1席)</span>
+          </button>
+          <button class="power-btn inf-power" id="btn-hero-rally">
+            <span class="p-icon">📣</span>
+            <span class="p-name">舆论号召 <small id="rally-uses">2/2</small></span>
+            <span class="p-cost">15🌟 (0💎抢1席)</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="hand-zone">
+        <div class="hand-info">
+          <span>我的手牌</span>
+          <div class="hand-actions">
+            <button class="btn-mulligan" id="btn-mulligan" type="button">换 1 张牌</button>
+            <span>牌库：<strong id="deck-count">17</strong> 张 · 弃牌：<strong id="discard-count">0</strong></span>
+          </div>
+        </div>
+        <div class="hand-cards" id="hand-cards"></div>
+      </div>
+
+      <div class="end-turn-dock">
+        <div class="mana-tray">
+          <div class="mana-text">体力水晶 <strong id="stat-ap">4 / 4</strong></div>
+          <div class="mana-gems" id="mana-gems"></div>
+        </div>
+        <button class="end-turn-btn" id="btn-end-turn">结束回合</button>
+      </div>
+    </section>
+  </div>
+
+  <!-- AI 配置弹窗 -->
+  <div class="modal-backdrop" id="modal-ai" style="display:none;">
+    <div class="modal">
+      <div class="modal-header">
+        <h3>对手设置</h3>
+        <button class="modal-close" id="btn-close-ai">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="radio-row">
+          <label class="radio-card">
+            <input type="radio" name="ai-engine" value="builtin" checked />
+            <span><strong>标准对手</strong>（本地策略）</span>
+          </label>
+          <label class="radio-card">
+            <input type="radio" name="ai-engine" value="llm" />
+            <span><strong>自定义大模型接口</strong>（实时生成台词与出牌）</span>
+          </label>
+        </div>
+        <div id="builtin-settings" class="settings-section">
+          <label>对手风格</label>
+          <select id="ai-personality">
+            <option value="balanced">稳健反制型（均衡出牌）</option>
+            <option value="scandal">舆论攻势型（主攻影响力与席位）</option>
+            <option value="coverup">资金封锁型（主攻资金冻结）</option>
+          </select>
+        </div>
+        <div id="llm-settings" class="settings-section" style="display:none;">
+          <p class="hint-text">支持 OpenAI / DeepSeek 等兼容接口，Key 仅保存在本地。</p>
+          <input type="text" id="llm-url" value="https://api.openai.com/v1/chat/completions" placeholder="API Base URL" />
+          <input type="text" id="llm-model" value="gpt-4o-mini" placeholder="Model" />
+          <input type="password" id="llm-key" placeholder="API Key (sk-...)" />
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-save" id="btn-save-ai">保存设置</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 过关 / 胜负结算弹窗 -->
+  <div class="modal-backdrop" id="modal-end" style="display:none;">
+    <div class="modal modal-end">
+      <div class="modal-header"><h3 id="end-title">游戏结束</h3></div>
+      <div class="modal-body">
+        <img id="end-scene-img" class="end-scene-img" src="assets/ending_victory.png" alt="结局场景" style="display:none;" />
+        <p id="end-desc" class="end-desc"></p>
+        <button class="btn-save" id="btn-play-again">进入下一关</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="sound.js?v=202611172115"></script>
+  <script src="ai.js?v=20261118-portraits"></script>
+  <script src="game.js?v=20261118-portraits"></script>
+</body>
+</html>
