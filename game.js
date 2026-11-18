@@ -51,11 +51,11 @@ const STANCES = {
 
 // 按卡牌类别匹配的虚构商战负面新闻词条
 const NEGATIVE_AFFIXES = [
-  { name: '间谍门泄密', categories: ['spy'], desc: '打出后 -8🌟', isNeg: true, mod: { infPenalty: 8 } },
-  { name: '酒店录像曝光', categories: ['spy', 'influence'], desc: '体力消耗 +1💎', isNeg: true, mod: { apPenalty: 1 } },
+  { name: '涉外安全审查', categories: ['spy'], desc: '打出后 -8🌟', isNeg: true, mod: { infPenalty: 8 } },
+  { name: '酒店录像传闻', categories: ['spy', 'influence'], desc: '体力消耗 +1💎', isNeg: true, mod: { apPenalty: 1 } },
   { name: '开支预算争议', categories: ['stamina', 'politics'], desc: '额外 -$500万', isNeg: true, mod: { cashPenalty: 500 } },
-  { name: '国会闭门听证', categories: ['politics'], desc: '需影响力 ≥20🌟', isNeg: true, mod: { infReqPenalty: 20 } },
-  { name: 'DOJ三线调查', categories: ['spy', 'politics'], desc: '律师费 +$400万', isNeg: true, mod: { cashPenalty: 400 } },
+  { name: '国会闭门问询', categories: ['politics'], desc: '需影响力 ≥20🌟', isNeg: true, mod: { infReqPenalty: 20 } },
+  { name: '芯片出口调查', categories: ['spy', 'politics'], desc: '律师费 +$400万', isNeg: true, mod: { cashPenalty: 400 } },
   { name: '微波炉蒸鱼未加盖', categories: ['stamina'], desc: '打出后 -5🌟', isNeg: true, mod: { infPenalty: 5 } },
   { name: '团队沟通失当', categories: ['influence', 'spy'], desc: '体力 +1💎 且打出后 -6🌟', isNeg: true, mod: { apPenalty: 1, infPenalty: 6 } },
   { name: '董事会问责', categories: ['politics'], desc: '需 ≥25🌟 且额外 -$400万', isNeg: true, mod: { infReqPenalty: 25, cashPenalty: 400 } }
