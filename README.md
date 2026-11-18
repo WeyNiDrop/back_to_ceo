@@ -1,5 +1,7 @@
 # Back To CEO · 重回巅峰之路
 
+**简体中文** · [English](README.en.md)
+
 一款以董事会席位争夺为核心的单人策略卡牌游戏。你扮演前任 CEO Gesen Yellow，从 0 席起步，在三场连战中夺回董事会的控制权。
 
 [在线游玩](https://btceo.create-ai.cc/) · [完整玩法与开发文档](PROJECT_DOC.md) · [MIT License](LICENSE)
