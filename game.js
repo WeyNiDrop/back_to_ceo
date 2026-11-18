@@ -643,8 +643,10 @@ function handleStageCleared(pVotes, pLocked = 0) {
 }
 
 function getXShareUrl(text, pageUrl = '') {
+  const { posterUrl } = getGameShareAddress();
+  const postText = posterUrl ? `${text}\n\n${translate("海报原图")} ${posterUrl}` : text;
   const intent = new URL('https://twitter.com/intent/tweet');
-  intent.searchParams.set('text', text);
+  intent.searchParams.set('text', postText);
   intent.searchParams.set('hashtags', 'BackToCEO');
   if (pageUrl) intent.searchParams.set('url', pageUrl);
   return intent.href;
@@ -662,6 +664,12 @@ function renderCampaignShareLinks() {
   document.querySelectorAll('.campaign-share').forEach(link => { link.href = shareUrl; });
 }
 
+function isPublicShareUrl(url) {
+  const host = url.hostname.replace(/\.$/, '');
+  return /^https?:$/.test(url.protocol) && host.includes('.') &&
+    !/\.(local|localhost)$/.test(host) && !/^(\d+\.){3}\d+$/.test(host);
+}
+
 function getGameShareAddress() {
   const canonical = document.querySelector('meta[property="og:url"]').content.trim();
   const pageUrl = new URL(canonical || window.location.href);
@@ -670,10 +678,17 @@ function getGameShareAddress() {
   pageUrl.username = '';
   pageUrl.password = '';
 
-  const host = pageUrl.hostname.replace(/\.$/, '');
-  const isLocalHost = !host.includes('.') || /\.(local|localhost)$/.test(host) || /^(\d+\.){3}\d+$/.test(host);
-  const isPublic = /^https?:$/.test(pageUrl.protocol) && (Boolean(canonical) || !isLocalHost);
-  return { address: pageUrl.href, publicUrl: isPublic ? pageUrl.href : '' };
+  const isPublic = /^https?:$/.test(pageUrl.protocol) && (Boolean(canonical) || isPublicShareUrl(pageUrl));
+  const poster = document.getElementById('game-share-poster');
+  const displayedPosterUrl = new URL(poster.src);
+  const posterUrl = isPublicShareUrl(displayedPosterUrl) ? displayedPosterUrl : new URL(poster.getAttribute('src'), pageUrl);
+  posterUrl.username = '';
+  posterUrl.password = '';
+  return {
+    address: pageUrl.href,
+    publicUrl: isPublic ? pageUrl.href : '',
+    posterUrl: isPublicShareUrl(posterUrl) ? posterUrl.href : ''
+  };
 }
 
 function showEndModal(title, desc, isWin = false, btnLabel = translate("🔄 再来一局"), shareText = '') {

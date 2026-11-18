@@ -312,6 +312,7 @@ const ENGLISH_TEXT = {
   "游戏地址": "Game URL",
   "本地地址仅供预览。公开部署后，X 才能读取游戏链接和海报卡片。": "This is a local preview. Deploy the game publicly to show the game link and poster card on X.",
   "分享海报": "Share Poster",
+  "海报原图": "Full-size poster",
   "下载海报": "Download Poster",
   "分享未完成，可以先下载海报。": "Couldn't complete sharing. You can download the poster.",
   "黑皮衣主角手持卡牌，身后是董事会长桌和一张金色空椅。": "A card player in a black jacket stands before a boardroom table and an empty golden CEO chair.",
