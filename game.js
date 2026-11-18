@@ -49,22 +49,22 @@ const STANCES = {
   }
 };
 
-// 从真实新闻提炼的6个负面新闻词条
+// 按卡牌类别匹配的虚构商战负面新闻词条
 const NEGATIVE_AFFIXES = [
-  { name: '间谍门泄密', desc: '打出后 -8🌟', isNeg: true, mod: { infPenalty: 8 } },
-  { name: '酒店录像曝光', desc: '体力消耗 +1💎', isNeg: true, mod: { apPenalty: 1 } },
-  { name: '50/50分产危机', desc: '额外 -$500万', isNeg: true, mod: { cashPenalty: 500 } },
-  { name: '国会闭门听证', desc: '需影响力 ≥20🌟', isNeg: true, mod: { infReqPenalty: 20 } },
-  { name: 'DOJ三线调查', desc: '律师费 +$400万', isNeg: true, mod: { cashPenalty: 400 } },
-  { name: '60人直管过劳', desc: '打出后 -5🌟', isNeg: true, mod: { infPenalty: 5 } },
-  { name: '与女下属有染', desc: '体力 +1💎 且打出后 -6🌟', isNeg: true, mod: { apPenalty: 1, infPenalty: 6 } },
-  { name: '诅咒董事去死', desc: '需 ≥25🌟 且额外 -$400万', isNeg: true, mod: { infReqPenalty: 25, cashPenalty: 400 } }
+  { name: '间谍门泄密', categories: ['spy'], desc: '打出后 -8🌟', isNeg: true, mod: { infPenalty: 8 } },
+  { name: '酒店录像曝光', categories: ['spy', 'influence'], desc: '体力消耗 +1💎', isNeg: true, mod: { apPenalty: 1 } },
+  { name: '开支预算争议', categories: ['stamina', 'politics'], desc: '额外 -$500万', isNeg: true, mod: { cashPenalty: 500 } },
+  { name: '国会闭门听证', categories: ['politics'], desc: '需影响力 ≥20🌟', isNeg: true, mod: { infReqPenalty: 20 } },
+  { name: 'DOJ三线调查', categories: ['spy', 'politics'], desc: '律师费 +$400万', isNeg: true, mod: { cashPenalty: 400 } },
+  { name: '管理行程超载', categories: ['stamina', 'influence'], desc: '打出后 -5🌟', isNeg: true, mod: { infPenalty: 5 } },
+  { name: '团队沟通失当', categories: ['influence', 'spy'], desc: '体力 +1💎 且打出后 -6🌟', isNeg: true, mod: { apPenalty: 1, infPenalty: 6 } },
+  { name: '董事会问责', categories: ['politics'], desc: '需 ≥25🌟 且额外 -$400万', isNeg: true, mod: { infReqPenalty: 25, cashPenalty: 400 } }
 ];
 
 // 19张统一4大类卡牌库（支持 apCost / cashCost / infCost 消耗）
 const CARD_DB = {
-  chimaek: { id: 'chimaek', title: '炸鸡啤酒套餐', category: 'stamina', rarity: 'common', art: 'assets/card_supply.svg', apCost: 0, cashCost: 100, infCost: 0, effects: { gainAp: 2 } },
-  coffee: { id: 'coffee', title: 'Denny\'s 苦咖啡', category: 'stamina', rarity: 'common', art: 'assets/card_supply.svg', apCost: 0, cashCost: 0, infCost: 0, effects: { gainAp: 1, draw: 1 } },
+  chimaek: { id: 'chimaek', title: '炸鸡啤酒套餐', category: 'stamina', rarity: 'common', art: 'assets/card_supply.svg', apCost: 0, cashCost: 100, infCost: 0, allowNegativeAffix: false, effects: { gainAp: 2 } },
+  coffee: { id: 'coffee', title: 'Denny\'s 苦咖啡', category: 'stamina', rarity: 'common', art: 'assets/card_supply.svg', apCost: 0, cashCost: 0, infCost: 0, allowNegativeAffix: false, effects: { gainAp: 1, draw: 1 } },
   nightmarket: { id: 'nightmarket', title: '夜市微服私访', category: 'stamina', rarity: 'common', art: 'assets/card_supply.svg', apCost: 1, cashCost: 100, infCost: 0, effects: { gainAp: 1, gainCash: 500, gainInf: 5 } },
   banquet: { id: 'banquet', title: '古早味·兆元宴', category: 'stamina', rarity: 'rare', art: 'assets/card_banquet.svg', apCost: 2, cashCost: 300, infCost: 0, effects: { gainCash: 1400, gainInf: 10 } },
 
@@ -77,7 +77,7 @@ const CARD_DB = {
   spy_tail: { id: 'spy_tail', title: '私家侦探盯梢', category: 'spy', rarity: 'common', art: 'assets/card_intel.svg', apCost: 1, cashCost: 400, infCost: 0, effects: { draw: 2, weakenAi: 1 } },
   spy_precision_cut: { id: 'spy_precision_cut', title: '精准一刀', category: 'spy', rarity: 'rare', art: 'assets/card_precision_cut.svg', apCost: 1, cashCost: 0, infCost: 20, effects: { gainCash: 1000 } },
   spy_wiretap: { id: 'spy_wiretap', title: '会议室窃听器', category: 'spy', rarity: 'rare', art: 'assets/card_intel.svg', apCost: 1, cashCost: 600, infCost: 0, effects: { gainInf: 10, stealEnemy: 1 } },
-  spy_cctv: { id: 'spy_cctv', title: '酒店监控实锤', category: 'spy', rarity: 'rare', art: 'assets/card_intel.svg', apCost: 2, cashCost: 800, infCost: 0, effects: { stealEnemy: 1, gainInf: 10 } },
+  spy_cctv: { id: 'spy_cctv', title: '酒店监控实锤', category: 'spy', rarity: 'rare', art: 'assets/card_intel.svg', apCost: 2, cashCost: 800, infCost: 0, effects: { stealEnemy: 1, gainInf: 10, weakenAi: 1 } },
   spy_honeypot: { id: 'spy_honeypot', title: '反间谍舆论战', category: 'spy', rarity: 'rare', art: 'assets/card_intel.svg', apCost: 2, cashCost: 700, infCost: 0, effects: { claimNeutral: 1, demoteEnemy: 1 } },
   spy_turncoat: { id: 'spy_turncoat', title: '策反男间谍', category: 'spy', rarity: 'legendary', art: 'assets/card_intel.svg', apCost: 2, cashCost: 1000, infCost: 15, effects: { stealEnemy: 2 } },
 
@@ -198,9 +198,9 @@ function formatCardDesc(card, item) {
   if (fx.gainInf) parts.push(`+${fx.gainInf}🌟`);
   if (fx.draw) parts.push(translate("摸{0}牌", fx.draw));
   if (fx.claimNeutral) parts.push(translate("抢{0}中立席", fx.claimNeutral));
-  if (fx.claimNeutralOrSteal) parts.push(translate("抢{0}任意席", fx.claimNeutralOrSteal));
-  if (fx.stealEnemy) parts.push(translate("强抢{0}敌席", fx.stealEnemy));
-  if (fx.stealOrClaim) parts.push(translate("夺取{0}席", fx.stealOrClaim));
+  if (fx.claimNeutralOrSteal) parts.push(translate("夺{0}席（中立优先）", fx.claimNeutralOrSteal));
+  const enemyFirstSeats = (fx.stealEnemy || 0) + (fx.stealOrClaim || 0);
+  if (enemyFirstSeats) parts.push(translate("夺{0}席（敌席优先）", enemyFirstSeats));
   if (fx.demoteEnemy) parts.push(translate("动摇1敌席"));
   if (fx.lockClaimed) parts.push(translate("并锁定🔒"));
   if (fx.weakenAi) parts.push(translate("敌方减牌{0}张（至少{1}张）", fx.weakenAi, MIN_ENEMY_CARDS));
@@ -218,14 +218,15 @@ function executeCardEffects(item, s) {
 
   if (card.category === 'influence' && !s.heroPassiveUsedThisTurn) {
     s.heroPassiveUsedThisTurn = true;
-    s.influence = Math.min(100, s.influence + 5);
-    toastParts.push(translate("皮衣被动+5🌟"));
+    const gained = Math.min(5, 100 - s.influence);
+    s.influence += gained;
+    if (gained > 0) toastParts.push(translate("皮衣被动+{0}🌟", gained));
   }
 
-  const totalAp = (fx.gainAp || 0) + (mod.bonusAp || 0);
-  if (totalAp > 0) {
-    s.ap = Math.min(8, s.ap + totalAp);
-    toastParts.push(`+${totalAp}💎`);
+  const gainedAp = Math.min(8 - s.ap, (fx.gainAp || 0) + (mod.bonusAp || 0));
+  if (gainedAp > 0) {
+    s.ap += gainedAp;
+    toastParts.push(`+${gainedAp}💎`);
     SoundFX.playManaRefresh();
   }
 
@@ -235,28 +236,30 @@ function executeCardEffects(item, s) {
     toastParts.push(translate("+{0}", formatCash(totalCash)));
   }
 
-  const infGain = (fx.gainInf || 0) + (mod.bonusInf || 0);
-  if (infGain !== 0) {
-    s.influence = Math.max(0, Math.min(100, s.influence + infGain));
-    toastParts.push(`+${infGain}🌟`);
+  const gainedInfluence = Math.min(100 - s.influence, (fx.gainInf || 0) + (mod.bonusInf || 0));
+  if (gainedInfluence > 0) {
+    s.influence += gainedInfluence;
+    toastParts.push(`+${gainedInfluence}🌟`);
   }
   if (mod.infPenalty > 0) {
     const paid = Math.min(s.influence, mod.infPenalty);
     const missing = mod.infPenalty - paid;
     s.influence -= paid;
     if (paid > 0) toastParts.push(`-${paid}🌟`);
-    if (missing > 0) {
-      const cashFine = missing * 50;
-      s.cash = Math.max(0, s.cash - cashFine);
+    const cashFine = Math.min(s.cash, missing * 50);
+    if (cashFine > 0) {
+      s.cash -= cashFine;
       toastParts.push(translate("公关补缴-{0}", formatCash(cashFine)));
     }
   }
 
   const totalDraw = (fx.draw || 0) + (mod.bonusDraw || 0);
   if (totalDraw > 0) {
-    drawCards(totalDraw);
-    toastParts.push(translate("摸{0}牌", totalDraw));
-    SoundFX.playDeal(totalDraw);
+    const drawn = drawCards(totalDraw);
+    if (drawn > 0) {
+      toastParts.push(translate("摸{0}牌", drawn));
+      SoundFX.playDeal(drawn);
+    }
   }
 
   const shouldLock = !!(fx.lockClaimed || mod.bonusLock);
@@ -326,7 +329,7 @@ function executeCardEffects(item, s) {
   }
 
   return {
-    effect: toastParts.join(' ') || translate("已生效"),
+    effect: toastParts.join(' ') || translate("未触发效果"),
     targetSeatId: lastSeat?.id
   };
 }
@@ -361,7 +364,9 @@ function stealEnemySeat(s) {
 function rollAffixForStance(stanceId, card = null) {
   const r = Math.random();
   if (r < 0.25) {
-    return NEGATIVE_AFFIXES[Math.floor(Math.random() * NEGATIVE_AFFIXES.length)];
+    if (card?.allowNegativeAffix === false) return null;
+    const pool = card ? NEGATIVE_AFFIXES.filter(affix => affix.categories.includes(card.category)) : NEGATIVE_AFFIXES;
+    return pool[Math.floor(Math.random() * pool.length)] ?? null;
   }
   if (r < 0.75) {
     let pool = STANCES[stanceId]?.affixes || STANCES.geek.affixes;
@@ -374,6 +379,7 @@ function rollAffixForStance(stanceId, card = null) {
 }
 
 function drawCards(count) {
+  const handSize = state.hand.length;
   for (let i = 0; i < count; i++) {
     if (state.hand.length >= 5) break;
     if (state.deck.length === 0) {
@@ -388,6 +394,7 @@ function drawCards(count) {
       affix: rollAffixForStance(state.stance, CARD_DB[key])
     });
   }
+  return state.hand.length - handSize;
 }
 
 function startStage(stageNum, keepResources = false) {
@@ -867,11 +874,15 @@ document.getElementById('btn-hero-jacket').addEventListener('click', async () =>
   state.ap -= 2;
   state.jacketUses -= 1;
   state.powersUsedThisTurn.jacket = true;
-  state.influence = Math.min(100, state.influence + 20);
-  drawCards(1);
-  SoundFX.playDeal(1);
+  const gained = Math.min(20, 100 - state.influence);
+  state.influence += gained;
+  const drawn = drawCards(1);
+  if (drawn > 0) SoundFX.playDeal(drawn);
+  const effects = [];
+  if (gained > 0) effects.push(`+${gained}🌟`);
+  if (drawn > 0) effects.push(translate("摸{0}牌", drawn));
   renderAll();
-  if (!await showCardAnimation({ art: 'assets/card_pr.svg', title: translate("🧥 传说皮衣·厨房直播") }, translate("+20🌟 & 摸1牌!"), false, null)) return;
+  if (!await showCardAnimation({ art: 'assets/card_pr.svg', title: translate("🧥 传说皮衣·厨房直播") }, effects.join(' ') || translate("未触发效果"), false, null)) return;
   isAnimating = false;
   renderAll();
 });
