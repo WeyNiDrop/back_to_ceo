@@ -43,7 +43,7 @@ const STANCES = {
     desc: '抽到的手牌有概率附带【顺手加锁】【威慑压制】【回魂咖啡】等词条。',
     affixes: [
       { name: '顺手加锁', desc: '抢席后锁定🔒', mod: { bonusLock: true } },
-      { name: '威慑压制', desc: '对手下回合少出1牌', mod: { bonusWeaken: 1 } },
+      { name: '威慑压制', desc: '敌方减牌1张（至少2张）', mod: { bonusWeaken: 1 } },
       { name: '回魂咖啡', desc: '额外+1💎', mod: { bonusAp: 1 } }
     ]
   }
@@ -94,6 +94,8 @@ const DECK_RECIPE = [
   'pol_notice', 'pol_filibuster', 'pol_lobby', 'pol_revolt'
 ];
 
+const MIN_ENEMY_CARDS = 2;
+
 let state = {};
 let isAnimating = false;
 let isEnemyTurn = false;
@@ -101,6 +103,11 @@ let isDiscardMode = false;
 
 function getCurrentBoss() {
   return (state.runBosses && state.runBosses[state.stage - 1]) || AI_BOSS_POOL[0];
+}
+
+function getEnemyCardCount(turnState) {
+  if (turnState.aiFrozen) return MIN_ENEMY_CARDS;
+  return Math.max(MIN_ENEMY_CARDS, turnState.cardsPlayedThisTurn - turnState.aiPenalty);
 }
 
 function portraitSrc(portrait) {
@@ -144,8 +151,8 @@ function formatCardDesc(card, item) {
   if (fx.stealOrClaim) parts.push(`夺取${fx.stealOrClaim}席`);
   if (fx.demoteEnemy) parts.push(`动摇1敌席`);
   if (fx.lockClaimed) parts.push(`并锁定🔒`);
-  if (fx.weakenAi) parts.push(`对手少出1牌`);
-  if (fx.freezeAi) parts.push(`冻结对手行动`);
+  if (fx.weakenAi) parts.push(`敌方减牌${fx.weakenAi}张（至少${MIN_ENEMY_CARDS}张）`);
+  if (fx.freezeAi) parts.push(`敌方只出${MIN_ENEMY_CARDS}张，冻结 Boss 被动`);
   if (item?.affix) parts.push(`(${item.affix.desc})`);
   return parts.join(' ');
 }
@@ -263,7 +270,7 @@ function executeCardEffects(item, s) {
 
   if (fx.freezeAi) {
     s.aiFrozen = true;
-    toastParts.push('对手行动冻结');
+    toastParts.push('Boss 被动冻结');
   }
 
   return {
@@ -355,6 +362,7 @@ function startStage(stageNum, keepResources = false) {
     heroPassiveUsedThisTurn: false,
     aiFrozen: false,
     aiPenalty: 0,
+    cardsPlayedThisTurn: 0,
     gameOver: false,
     seats: makeSeats(baseEnemyCount, extraLocks),
     deck: shuffle(DECK_RECIPE),
@@ -385,6 +393,7 @@ function sleep(ms) {
 }
 
 async function showCardAnimation(cardObj, effectText, isEnemy, targetSeatId) {
+  const activeState = state;
   SoundFX.playSlam(isEnemy);
   const stage = document.getElementById('clash-stage');
   const particles = Array.from({ length: 8 }, (_, i) => {
@@ -400,7 +409,7 @@ async function showCardAnimation(cardObj, effectText, isEnemy, targetSeatId) {
     ${particles}
     <div class="stage-card ${isEnemy ? 'enemy-card' : ''}">
       <img src="${artPng}" onerror="this.onerror=null;this.src='${cardObj.art}';" alt="${cardObj.title || cardObj.name}" />
-      <div class="sc-title">${cardObj.title || cardObj.name}</div>
+      <div class="sc-title">${cardObj.category === 'rumor' ? '【风闻】' : ''}${cardObj.title || cardObj.name}</div>
       <div class="sc-effect">${effectText}</div>
     </div>
     <div class="float-toast ${isEnemy ? 'bad' : ''}">${effectText}</div>
@@ -418,6 +427,7 @@ async function showCardAnimation(cardObj, effectText, isEnemy, targetSeatId) {
     renderSeats(targetSeatId);
   }
   await sleep(900);
+  return state === activeState;
 }
 
 function renderSeats(flashSeatId = null) {
@@ -557,6 +567,9 @@ function renderAll() {
   const endBtn = document.getElementById('btn-end-turn');
   endBtn.disabled = state.gameOver || isAnimating;
   endBtn.textContent = isEnemyTurn ? '对手出牌中...' : '结束回合';
+  const enemyTurnPreview = document.getElementById('enemy-turn-preview');
+  enemyTurnPreview.hidden = state.gameOver || isEnemyTurn;
+  enemyTurnPreview.textContent = `敌方将出 ${getEnemyCardCount(state)} 张牌`;
 
   const cfg = getAiConfig();
   document.getElementById('ai-mode-text').textContent = cfg.engine === 'llm' && cfg.key ? `模型(${cfg.model})` : '对手设置';
@@ -705,10 +718,11 @@ document.getElementById('hand-cards').addEventListener('click', async e => {
   state.influence -= costs.inf;
   state.hand.splice(idx, 1);
   state.discard.push(item.key);
+  state.cardsPlayedThisTurn += 1;
 
   const res = executeCardEffects(item, state);
   renderAll();
-  await showCardAnimation(tpl, res.effect, false, res.targetSeatId);
+  if (!await showCardAnimation(tpl, res.effect, false, res.targetSeatId)) return;
 
   isAnimating = false;
   if (!checkStageWin()) renderAll();
@@ -724,7 +738,7 @@ document.getElementById('btn-hero-jacket').addEventListener('click', async () =>
   drawCards(1);
   SoundFX.playDeal(1);
   renderAll();
-  await showCardAnimation({ art: 'assets/card_pr.svg', title: '🧥 传说皮衣·厨房直播' }, '+20🌟 & 摸1牌!', false, null);
+  if (!await showCardAnimation({ art: 'assets/card_pr.svg', title: '🧥 传说皮衣·厨房直播' }, '+20🌟 & 摸1牌!', false, null)) return;
   isAnimating = false;
   renderAll();
 });
@@ -740,7 +754,7 @@ document.getElementById('btn-hero-equity').addEventListener('click', async () =>
   state.powersUsedThisTurn.equity = true;
   target.locked = true;
   renderAll();
-  await showCardAnimation({ art: 'assets/card_banquet.svg', title: '📜 1.5% 股权加锁' }, `🔒 永久锁住 ${target.name}!`, false, target.id);
+  if (!await showCardAnimation({ art: 'assets/card_banquet.svg', title: '📜 1.5% 股权加锁' }, `🔒 永久锁住 ${target.name}!`, false, target.id)) return;
   isAnimating = false;
   if (!checkStageWin()) renderAll();
 });
@@ -755,49 +769,57 @@ document.getElementById('btn-hero-rally').addEventListener('click', async () => 
   state.powersUsedThisTurn.rally = true;
   state.influence -= 15;
   renderAll();
-  await showCardAnimation({ art: 'assets/card_pr.svg', title: '📣 舆论号召' }, `消耗15🌟 抢占${seat.name}!`, false, seat.id);
+  if (!await showCardAnimation({ art: 'assets/card_pr.svg', title: '📣 舆论号召' }, `消耗15🌟 抢占${seat.name}!`, false, seat.id)) return;
   isAnimating = false;
   if (!checkStageWin()) renderAll();
 });
 
 document.getElementById('btn-end-turn').addEventListener('click', async () => {
   if (isAnimating || state.gameOver) return;
+  const turnState = state;
   isAnimating = true;
   isEnemyTurn = true;
   renderAll();
 
   try {
     const boss = getCurrentBoss();
-    if (state.aiFrozen) {
-      state.aiFrozen = false;
-      state.aiPenalty = 0;
-      state.enemyTaunt = '“可恶……700人联名信把我的手脚全卡死了！”';
-      await sleep(700);
-    } else {
-      const cfg = getAiConfig();
-      const aiCount = Math.max(0, 2 - state.aiPenalty);
-      state.aiPenalty = 0;
-      let lastId = null;
+    const aiCount = getEnemyCardCount(state);
+    const freezeBoss = state.aiFrozen;
+    const cfg = getAiConfig();
+    const playedCardIds = new Set();
+    let lastCardId = null;
+    state.aiFrozen = false;
+    state.aiPenalty = 0;
 
-      for (let i = 0; i < aiCount; i++) {
-        const aiRes = cfg.engine === 'llm' && cfg.key
-          ? await runLlmAi(state, cfg, lastId, boss)
-          : runBuiltinAi(state, cfg.personality || 'balanced', lastId);
-
-        lastId = aiRes.card.id;
-        state.enemyTaunt = aiRes.taunt;
-        const outcome = executeEnemyEffects(aiRes.card, state);
-        renderAll();
-        await showCardAnimation(aiRes.card, outcome.floatText, true, outcome.targetSeatId);
-        if (checkStageDefeat()) return;
+    for (let i = 0; i < aiCount; i++) {
+      if (playedCardIds.size === AI_CARDS.length) {
+        playedCardIds.clear();
+        playedCardIds.add(lastCardId);
       }
+      const aiRes = cfg.engine === 'llm' && cfg.key
+        ? await runLlmAi(state, cfg, playedCardIds, boss)
+        : runBuiltinAi(state, cfg.personality || 'balanced', playedCardIds);
+      if (state !== turnState) return;
 
+      lastCardId = aiRes.card.id;
+      playedCardIds.add(lastCardId);
+      state.enemyTaunt = aiRes.taunt;
+      const outcome = executeEnemyEffects(aiRes.card, state);
+      renderAll();
+      if (!await showCardAnimation(aiRes.card, outcome.floatText, true, outcome.targetSeatId)) return;
+      if (checkStageDefeat()) return;
+    }
+
+    if (freezeBoss) {
+      state.enemyTaunt = '“可恶……700人联名信压下了我的额外行动！”';
+    } else {
       const passiveRes = boss.onTurnEnd(state);
       if (passiveRes) {
         state.enemyTaunt = passiveRes.text;
-        renderSeats(passiveRes.targetSeatId);
         renderAll();
+        renderSeats(passiveRes.targetSeatId);
         await sleep(650);
+        if (state !== turnState) return;
         if (checkStageDefeat()) return;
       }
     }
@@ -821,6 +843,7 @@ document.getElementById('btn-end-turn').addEventListener('click', async () => {
     state.heroPassiveUsedThisTurn = false;
     state.powersUsedThisTurn = { jacket: false, equity: false, rally: false };
     state.mulliganUsedThisTurn = false;
+    state.cardsPlayedThisTurn = 0;
     isDiscardMode = false;
     drawCards(2);
     SoundFX.playManaRefresh();
@@ -829,9 +852,11 @@ document.getElementById('btn-end-turn').addEventListener('click', async () => {
   } catch (err) {
     console.error('结束回合执行出错:', err);
   } finally {
-    isEnemyTurn = false;
-    isAnimating = false;
-    renderAll();
+    if (state === turnState) {
+      isEnemyTurn = false;
+      isAnimating = false;
+      renderAll();
+    }
   }
 });
 

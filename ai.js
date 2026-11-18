@@ -306,6 +306,36 @@ const AI_CARDS = [
     taunt: '“极客们都在转发你穿铆钉皮衣的假照！”',
     canHit: s => s.influence >= 10,
     effects: { drainInf: 15 }
+  },
+  {
+    id: 'ai_forced_brisket',
+    name: '散布强迫员工吃牛腩新闻',
+    category: 'rumor',
+    art: 'assets/card_ai_counter.svg',
+    desc: '散播员工被强迫吃牛腩的风闻，扣除玩家 20 🌟影响力',
+    taunt: '“牛腩菜单已经上了热搜，你准备怎么回应？”',
+    canHit: s => s.influence >= 20,
+    effects: { drainInf: 20 }
+  },
+  {
+    id: 'ai_budget_rumor',
+    name: '散布预算失控风闻',
+    category: 'rumor',
+    art: 'assets/card_ai_counter.svg',
+    desc: '扣除玩家 $600万 资金与 6 🌟影响力',
+    taunt: '“预算表传开了，股东等着你解释。”',
+    canHit: s => s.cash >= 600 && s.influence >= 6,
+    effects: { drainCash: 600, drainInf: 6 }
+  },
+  {
+    id: 'ai_supplier_rumor',
+    name: '散布供应商撤单风闻',
+    category: 'rumor',
+    art: 'assets/card_ai_counter.svg',
+    desc: '拉拢 1 个中立席位倒向敌方，并扣除玩家 $300万 资金',
+    taunt: '“撤单传闻已经传进董事会，有人坐不住了。”',
+    canHit: s => s.cash >= 300 && s.seats.some(x => x.owner === 'neutral'),
+    effects: { claimNeutral: 1, drainCash: 300 }
   }
 ];
 
@@ -375,16 +405,21 @@ function saveAiConfig(cfg) {
   localStorage.setItem('backtoceo_ai_config', JSON.stringify(cfg));
 }
 
-function runBuiltinAi(state, personality = 'balanced', excludeId = null) {
-  const validPool = AI_CARDS.filter(c => c.id !== excludeId && c.canHit(state));
-  const pool = validPool.length > 0 ? validPool : AI_CARDS.filter(c => c.id !== excludeId);
+function getAiCardPool(state, excludedCardIds = new Set()) {
+  const available = AI_CARDS.filter(card => !excludedCardIds.has(card.id));
+  const valid = available.filter(card => card.canHit(state));
+  return valid.length > 0 ? valid : available;
+}
 
+function runBuiltinAi(state, personality = 'balanced', excludedCardIds) {
+  const pool = getAiCardPool(state, excludedCardIds);
   const pCount = state.seats.filter(s => s.owner === 'player' && !s.locked).length;
   const find = id => pool.find(c => c.id === id);
   let chosen = null;
 
   if (personality === 'scandal') {
     if (pCount >= 1 && find('ai_scandal') && Math.random() < 0.75) chosen = find('ai_scandal');
+    else if (find('ai_forced_brisket') && Math.random() < 0.5) chosen = find('ai_forced_brisket');
     else if (find('ai_fake_photo') && Math.random() < 0.65) chosen = find('ai_fake_photo');
   } else if (personality === 'coverup') {
     if (state.cash >= 1000 && find('ai_sec') && Math.random() < 0.75) chosen = find('ai_sec');
@@ -399,11 +434,10 @@ function runBuiltinAi(state, personality = 'balanced', excludeId = null) {
   return { card: chosen, taunt: chosen.taunt, source: 'builtin' };
 }
 
-async function runLlmAi(state, cfg, excludeId = null, boss = null) {
-  if (!cfg.key || !cfg.url) return runBuiltinAi(state, cfg.personality || 'balanced', excludeId);
+async function runLlmAi(state, cfg, excludedCardIds, boss = null) {
+  if (!cfg.key || !cfg.url) return runBuiltinAi(state, cfg.personality || 'balanced', excludedCardIds);
 
-  const validPool = AI_CARDS.filter(c => c.id !== excludeId && c.canHit(state));
-  const pool = validPool.length > 0 ? validPool : AI_CARDS.filter(c => c.id !== excludeId);
+  const pool = getAiCardPool(state, excludedCardIds);
   const menu = pool.map(c => `- ${c.id}: ${c.name} (${c.desc})`).join('\n');
 
   const pCount = state.seats.filter(s => s.owner === 'player').length;
@@ -439,6 +473,6 @@ ${menu}
     const card = pool.find(c => c.id === parsed.card_id) || pool[0];
     return { card, taunt: parsed.taunt || card.taunt, source: 'llm' };
   } catch (err) {
-    return runBuiltinAi(state, cfg.personality || 'balanced', excludeId);
+    return runBuiltinAi(state, cfg.personality || 'balanced', excludedCardIds);
   }
 }
