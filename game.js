@@ -614,6 +614,7 @@ function checkStageDefeat() {
 
 function handleStageCleared(pVotes, pLocked = 0) {
   const boss = getCurrentBoss();
+  const score = `第 ${state.turn} 回合拿下 ${pVotes}/9 席，锁定 ${pLocked} 席。`;
   const winReason = pLocked >= BOARD_MAJORITY ? `锁定 ${pLocked} 席直接控制董事会` : `以 ${pVotes} / 9 席拿下本关`;
   if (state.stage < 3) {
     const nextBoss = state.runBosses[state.stage];
@@ -621,7 +622,8 @@ function handleStageCleared(pVotes, pLocked = 0) {
       `击败第 ${state.stage} 关：${boss.name}`,
       `你${winReason}，按 50% 结余保留资金并获得 $2,500万 战利品补助（保底 $4,500万）。下一关对手：${nextBoss.name}（${nextBoss.roleTitle}）。`,
       true,
-      `进入第 ${state.stage + 1} 关`
+      `进入第 ${state.stage + 1} 关`,
+      `我在《BACK TO CEO》第 ${state.stage} 关击败了 ${boss.name}！${score}`
     );
   } else {
     const names = state.runBosses.map(b => b.name).join(' → ');
@@ -629,12 +631,13 @@ function handleStageCleared(pVotes, pLocked = 0) {
       `连克三关，重返 CEO 宝座`,
       `你从 0 席起步，连续击败 ${names}，重新执掌董事会。`,
       true,
-      '再来一局'
+      '再来一局',
+      `我在《BACK TO CEO》连克三关，重返 CEO 宝座！\n对手：${names}\n决胜关：${score}`
     );
   }
 }
 
-function showEndModal(title, desc, isWin = false, btnLabel = '🔄 再来一局') {
+function showEndModal(title, desc, isWin = false, btnLabel = '🔄 再来一局', shareText = '') {
   state.gameOver = true;
   SoundFX.playEnd(isWin);
   renderAll();
@@ -654,6 +657,16 @@ function showEndModal(title, desc, isWin = false, btnLabel = '🔄 再来一局'
   btn.textContent = btnLabel;
   btn.dataset.nextStage = isWin && state.stage < 3 ? String(state.stage + 1) : '1';
   btn.dataset.keep = isWin && state.stage < 3 ? '1' : '0';
+  const shareLink = document.getElementById('btn-share-x');
+  shareLink.hidden = !isWin || !shareText;
+  if (shareLink.hidden) {
+    shareLink.removeAttribute('href');
+  } else {
+    const intent = new URL('https://twitter.com/intent/tweet');
+    intent.searchParams.set('text', shareText);
+    intent.searchParams.set('hashtags', 'BackToCEO');
+    shareLink.href = intent.href;
+  }
   document.getElementById('modal-end').style.display = 'flex';
 }
 

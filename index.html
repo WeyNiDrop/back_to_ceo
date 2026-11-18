@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
   <title>BACK TO CEO · 董事会夺权战</title>
-  <link rel="stylesheet" href="style.css?v=20261118-challenge" />
+  <link rel="stylesheet" href="style.css?v=20261118-x-share" />
 </head>
 <body>
   <div class="hs-table">
@@ -151,13 +151,16 @@
       <div class="modal-body">
         <img id="end-scene-img" class="end-scene-img" src="assets/ending_victory.png" alt="结局场景" style="display:none;" />
         <p id="end-desc" class="end-desc"></p>
-        <button class="btn-save" id="btn-play-again">进入下一关</button>
+        <div class="end-actions">
+          <button class="btn-save" id="btn-play-again">进入下一关</button>
+          <a class="btn-save btn-share-x" id="btn-share-x" target="_blank" rel="noopener noreferrer" hidden>分享到 X</a>
+        </div>
       </div>
     </div>
   </div>
 
   <script src="sound.js?v=202611172115"></script>
   <script src="ai.js?v=20261118-challenge"></script>
-  <script src="game.js?v=20261118-challenge"></script>
+  <script src="game.js?v=20261118-x-share"></script>
 </body>
 </html>

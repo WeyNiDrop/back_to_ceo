@@ -236,6 +236,7 @@
 - 出牌动画和敌方回合期间，手牌、英雄技能、换牌和结束回合按钮无法操作。
 - **即时 Tooltip**：全局监听 `mouseover / mousemove / mouseout` 读取 `data-tooltip` 与 `data-tooltipWarn`，动态跟随鼠标展示无法出牌原因、词条详情及英雄/Boss 被动说明。
 - **视觉资源**：Boss 和董事会头像使用 `assets/portraits/` 的 JPEG。主角、卡牌及结局图继续优先加载 `.png`，加载失败时使用对应 `.svg`。
+- 单关获胜和三关通关时，点击结算弹窗的「分享到 X」会在新标签页打开 X 发帖页，预填对手、回合、席位战绩和 `#BackToCEO`。玩家可以在发帖页编辑并发布战报。
 
 ## 9. 已知问题
 
