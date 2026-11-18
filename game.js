@@ -397,7 +397,7 @@ function getFinalShareUrl(elapsed) {
 }
 
 function getXShareUrl(lines) {
-  const intent = new URL('https://twitter.com/intent/tweet');
+  const intent = new URL('https://x.com/intent/tweet');
   intent.searchParams.set('text', lines.filter(Boolean).join('\n'));
   intent.searchParams.set('hashtags', 'BackToCEO');
   return intent.href;
