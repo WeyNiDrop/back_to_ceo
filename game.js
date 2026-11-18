@@ -618,26 +618,29 @@ function checkStageDefeat() {
 }
 
 function handleStageCleared(pVotes, pLocked = 0) {
-  const boss = getCurrentBoss();
-  const score = translate("第 {0} 回合拿下 {1}/9 席，锁定 {2} 席。", state.turn, pVotes, pLocked);
-  const winReason = pLocked >= BOARD_MAJORITY ? translate("锁定 {0} 席直接控制董事会", pLocked) : translate("以 {0} / 9 席拿下本关", pVotes);
   if (state.stage < 3) {
+    const boss = getCurrentBoss();
     const nextBoss = state.runBosses[state.stage];
+    const score = translate("第 {0} 回合拿下 {1}/9 席，锁定 {2} 席。", state.turn, pVotes, pLocked);
+    const winReason = pLocked >= BOARD_MAJORITY ? translate("锁定 {0} 席直接控制董事会", pLocked) : translate("以 {0} / 9 席拿下本关", pVotes);
+    const shareText = translate("我在《{0}》第 {1} 关击败了 {2}！{3}", document.title, state.stage, boss.name, score);
     showEndModal(
       translate("击败第 {0} 关：{1}", state.stage, boss.name),
       translate("你{0}，按 50% 结余保留资金并获得 $2,500万 战利品补助（保底 $4,500万）。下一关对手：{1}（{2}）。", winReason, nextBoss.name, translate(nextBoss.roleTitle)),
       true,
       translate("进入第 {0} 关", state.stage + 1),
-      translate("我在《{0}》第 {1} 关击败了 {2}！{3}", document.title, state.stage, boss.name, score)
+      getGameXShareUrl(shareText)
     );
   } else {
     const names = state.runBosses.map(b => b.name).join(' → ');
+    const { publicUrl, posterUrl } = getGameShareAddress();
+    const shareText = translate("我在《{0}》连克三关，帮助黄仁勋重返 CEO 宝座！", document.title);
     showEndModal(
       translate("连克三关，重返 CEO 宝座"),
       translate("你从 0 席起步，连续击败 {0}，重新执掌董事会。", names),
       true,
       translate("再来一局"),
-      translate("我在《{0}》连克三关，重返 CEO 宝座！\n对手：{1}\n决胜关：{2}", document.title, names, score)
+      getXShareUrl([shareText, publicUrl, posterUrl])
     );
   }
 }
@@ -690,7 +693,7 @@ function getGameShareAddress() {
   };
 }
 
-function showEndModal(title, desc, isWin = false, btnLabel = translate("🔄 再来一局"), shareText = '') {
+function showEndModal(title, desc, isWin = false, btnLabel = translate("🔄 再来一局"), shareUrl = '') {
   state.gameOver = true;
   SoundFX.playEnd(isWin);
   renderAll();
@@ -711,11 +714,11 @@ function showEndModal(title, desc, isWin = false, btnLabel = translate("🔄 再
   btn.dataset.nextStage = isWin && state.stage < 3 ? String(state.stage + 1) : '1';
   btn.dataset.keep = isWin && state.stage < 3 ? '1' : '0';
   const shareLink = document.getElementById('btn-share-x');
-  shareLink.hidden = !isWin || !shareText;
+  shareLink.hidden = !isWin || !shareUrl;
   if (shareLink.hidden) {
     shareLink.removeAttribute('href');
   } else {
-    shareLink.href = getGameXShareUrl(shareText);
+    shareLink.href = shareUrl;
   }
   document.getElementById('modal-end').style.display = 'flex';
 }

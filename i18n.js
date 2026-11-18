@@ -148,7 +148,7 @@ const ENGLISH_TEXT = {
   "连克三关，重返 CEO 宝座": "Three Stages Down · CEO Again",
   "你从 0 席起步，连续击败 {0}，重新执掌董事会。": "Starting from zero seats, you defeated {0} and retook the board.",
   "再来一局": "Play Again",
-  "我在《{0}》连克三关，重返 CEO 宝座！\n对手：{1}\n决胜关：{2}": "I cleared all 3 stages of {0}!\nOpponents: {1}\nFinal: {2}",
+  "我在《{0}》连克三关，帮助黄仁勋重返 CEO 宝座！": "I cleared all three stages of {0} and helped Jensen Huang reclaim the CEO chair!",
   "🔄 再来一局": "🔄 Play Again",
   "🧥 传说皮衣·厨房直播": "🧥 Kitchen Jacket Stream",
   "+20🌟 & 摸1牌!": "+20 🌟 and draw a card!",
