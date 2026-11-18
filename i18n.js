@@ -47,7 +47,7 @@ const ENGLISH_TEXT = {
   "需影响力 ≥20🌟": "Requires ≥20 🌟",
   "DOJ三线调查": "DOJ Triple Inquiry",
   "律师费 +$400万": "+$4M legal fees",
-  "管理行程超载": "Overbooked Schedule",
+  "微波炉蒸鱼未加盖": "Microwaved Fish, No Lid",
   "打出后 -5🌟": "Lose 5 🌟 after play",
   "团队沟通失当": "Team Communication Breakdown",
   "体力 +1💎 且打出后 -6🌟": "+1 💎 cost, lose 6 🌟 after play",
