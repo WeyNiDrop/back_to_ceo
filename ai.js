@@ -401,7 +401,7 @@ function getAiConfig() {
     const raw = localStorage.getItem('backtoceo_ai_config');
     if (raw) return JSON.parse(raw);
   } catch (e) {}
-  return { engine: 'builtin', personality: 'balanced', url: 'https://api.openai.com/v1/chat/completions', model: 'gpt-4o-mini', key: '' };
+  return { engine: 'builtin', url: 'https://api.openai.com/v1/chat/completions', model: 'gpt-4o-mini', key: '' };
 }
 
 function saveAiConfig(cfg) {
@@ -414,31 +414,24 @@ function getAiCardPool(state, excludedCardIds = new Set()) {
   return valid.length > 0 ? valid : available;
 }
 
-function runBuiltinAi(state, personality = 'balanced', excludedCardIds) {
+function runBuiltinAi(state, excludedCardIds) {
   const pool = getAiCardPool(state, excludedCardIds);
   const pCount = state.seats.filter(s => s.owner === 'player' && !s.locked).length;
   const find = id => pool.find(c => c.id === id);
   let chosen = null;
 
-  if (personality === 'scandal') {
-    if (pCount >= 1 && find('ai_scandal') && Math.random() < 0.75) chosen = find('ai_scandal');
-    else if (find('ai_forced_brisket') && Math.random() < 0.5) chosen = find('ai_forced_brisket');
-    else if (find('ai_fake_photo') && Math.random() < 0.65) chosen = find('ai_fake_photo');
-  } else if (personality === 'coverup') {
-    if (state.cash >= 1000 && find('ai_sec') && Math.random() < 0.75) chosen = find('ai_sec');
-    else if (find('ai_bribe') && Math.random() < 0.6) chosen = find('ai_bribe');
-  } else {
-    if (pCount >= 2 && find('ai_scandal') && Math.random() < 0.65) chosen = find('ai_scandal');
-    else if (find('ai_bribe') && Math.random() < 0.6) chosen = find('ai_bribe');
-    else if (state.cash >= 2200 && find('ai_sec')) chosen = find('ai_sec');
-  }
+  const scandal = find('ai_scandal');
+  const bribe = find('ai_bribe');
+  if (pCount >= 2 && scandal && Math.random() < 0.65) chosen = scandal;
+  else if (bribe && Math.random() < 0.6) chosen = bribe;
+  else if (state.cash >= 2200) chosen = find('ai_sec');
 
   if (!chosen) chosen = pool[Math.floor(Math.random() * pool.length)];
   return { card: chosen, taunt: chosen.taunt, source: 'builtin' };
 }
 
 async function runLlmAi(state, cfg, excludedCardIds, boss = null) {
-  if (!cfg.key || !cfg.url) return runBuiltinAi(state, cfg.personality || 'balanced', excludedCardIds);
+  if (!cfg.key || !cfg.url) return runBuiltinAi(state, excludedCardIds);
 
   const pool = getAiCardPool(state, excludedCardIds);
   const menu = pool.map(c => `- ${c.id}: ${translate(c.name)} (${translate(c.desc)})`).join('\n');
@@ -480,6 +473,6 @@ async function runLlmAi(state, cfg, excludedCardIds, boss = null) {
     const card = pool.find(c => c.id === parsed.card_id) || pool[0];
     return { card, taunt: parsed.taunt || card.taunt, source: 'llm' };
   } catch (err) {
-    return runBuiltinAi(state, cfg.personality || 'balanced', excludedCardIds);
+    return runBuiltinAi(state, excludedCardIds);
   }
 }

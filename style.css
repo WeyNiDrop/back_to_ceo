@@ -526,7 +526,6 @@ body {
   padding: 8px;
   font-size: 15px;
 }
-.enemy-turn-preview { color: var(--muted); font-size: 12px; text-align: center; }
 
 /* 弹窗 */
 .modal-backdrop { position: fixed; inset: 0; background: #030906db; display: flex; align-items: center; justify-content: center; z-index: 99; padding: 16px; }

@@ -639,9 +639,6 @@ function renderAll() {
   bossPassiveEl.disabled = isAnimating;
   endBtn.disabled = state.gameOver || isAnimating;
   endBtn.textContent = isEnemyTurn ? translate("对手出牌中...") : translate("结束回合");
-  const enemyTurnPreview = document.getElementById('enemy-turn-preview');
-  enemyTurnPreview.hidden = state.gameOver || isEnemyTurn;
-  enemyTurnPreview.textContent = translate("敌方将出 {0} 张牌", getEnemyCardCount(state));
 
   const cfg = getAiConfig();
   document.getElementById('ai-mode-text').textContent = cfg.engine === 'llm' && cfg.key ? translate("模型({0})", cfg.model) : translate("对手设置");
@@ -946,7 +943,7 @@ document.getElementById('btn-end-turn').addEventListener('click', async () => {
       }
       const aiRes = cfg.engine === 'llm' && cfg.key
         ? await runLlmAi(state, cfg, playedCardIds, boss)
-        : runBuiltinAi(state, cfg.personality || 'balanced', playedCardIds);
+        : runBuiltinAi(state, playedCardIds);
       if (state !== turnState) return;
 
       lastCardId = aiRes.card.id;
@@ -1079,18 +1076,15 @@ const modalAi = document.getElementById('modal-ai');
 document.getElementById('btn-ai-config').addEventListener('click', () => {
   const cfg = getAiConfig();
   document.querySelector(`input[name="ai-engine"][value="${cfg.engine}"]`).checked = true;
-  document.getElementById('ai-personality').value = cfg.personality || 'balanced';
   document.getElementById('llm-url').value = cfg.url || 'https://api.openai.com/v1/chat/completions';
   document.getElementById('llm-model').value = cfg.model || 'gpt-4o-mini';
   document.getElementById('llm-key').value = cfg.key || '';
-  document.getElementById('builtin-settings').style.display = cfg.engine === 'builtin' ? 'flex' : 'none';
   document.getElementById('llm-settings').style.display = cfg.engine === 'llm' ? 'flex' : 'none';
   modalAi.style.display = 'flex';
 });
 document.getElementById('btn-close-ai').addEventListener('click', () => (modalAi.style.display = 'none'));
 document.querySelectorAll('input[name="ai-engine"]').forEach(r => {
   r.addEventListener('change', e => {
-    document.getElementById('builtin-settings').style.display = e.target.value === 'builtin' ? 'flex' : 'none';
     document.getElementById('llm-settings').style.display = e.target.value === 'llm' ? 'flex' : 'none';
   });
 });
@@ -1098,7 +1092,6 @@ document.getElementById('btn-save-ai').addEventListener('click', () => {
   const engine = document.querySelector('input[name="ai-engine"]:checked').value;
   saveAiConfig({
     engine,
-    personality: document.getElementById('ai-personality').value,
     url: document.getElementById('llm-url').value,
     model: document.getElementById('llm-model').value,
     key: document.getElementById('llm-key').value

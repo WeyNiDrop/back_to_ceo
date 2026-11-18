@@ -37,7 +37,7 @@
       "isAccessibleForFree": true
     }
   </script>
-  <link rel="stylesheet" href="style.css?v=20261118-timer" />
+  <link rel="stylesheet" href="style.css?v=20261118-opponent-settings" />
 </head>
 <body>
   <div class="hs-table">
@@ -145,7 +145,6 @@
           <div class="mana-gems" id="mana-gems"></div>
         </div>
         <button class="end-turn-btn" id="btn-end-turn">结束回合</button>
-        <p class="enemy-turn-preview" id="enemy-turn-preview">敌方将出 2 张牌</p>
       </div>
     </section>
     <footer class="project-links">
@@ -171,14 +170,6 @@
             <input type="radio" name="ai-engine" value="llm" />
             <span><strong data-i18n="自定义大模型接口">自定义大模型接口</strong><small data-i18n="（实时生成台词与出牌）">（实时生成台词与出牌）</small></span>
           </label>
-        </div>
-        <div id="builtin-settings" class="settings-section">
-          <label for="ai-personality" data-i18n="对手风格">对手风格</label>
-          <select id="ai-personality">
-            <option value="balanced" data-i18n="稳健反制型（均衡出牌）">稳健反制型（均衡出牌）</option>
-            <option value="scandal" data-i18n="舆论攻势型（主攻影响力与席位）">舆论攻势型（主攻影响力与席位）</option>
-            <option value="coverup" data-i18n="资金封锁型（主攻资金冻结）">资金封锁型（主攻资金冻结）</option>
-          </select>
         </div>
         <div id="llm-settings" class="settings-section" style="display:none;">
           <p class="hint-text" data-i18n="支持 OpenAI / DeepSeek 等兼容接口，Key 仅保存在本地。">支持 OpenAI / DeepSeek 等兼容接口，Key 仅保存在本地。</p>
@@ -328,8 +319,8 @@
   </template>
 
   <script src="sound.js?v=202611172115"></script>
-  <script src="i18n.js?v=20261118-brisket-affix"></script>
-  <script src="ai.js?v=20261118-guide"></script>
-  <script src="game.js?v=20261118-brisket-affix"></script>
+  <script src="i18n.js?v=20261118-opponent-settings"></script>
+  <script src="ai.js?v=20261118-opponent-settings"></script>
+  <script src="game.js?v=20261118-opponent-settings"></script>
 </body>
 </html>
