@@ -68,7 +68,7 @@ body {
   border-radius: 999px;
 }
 
-.top-btns { display: flex; gap: 6px; }
+.top-btns { display: flex; flex-wrap: wrap; gap: 6px; }
 .btn-top {
   background: var(--card-bg);
   border: 1px solid var(--border);
@@ -481,8 +481,13 @@ input[type="text"], input[type="password"], select { background: var(--bg); bord
 .end-desc { font-size: 14px; line-height: 1.6; }
 .end-actions { display: flex; flex-wrap: wrap; gap: 8px; }
 .end-actions > * { flex: 1 1 130px; }
-.btn-share-x { background: var(--card-bg); border: 1px solid var(--border); text-align: center; text-decoration: none; }
-.btn-share-x:hover { border-color: var(--muted); }
+.btn-action-link { text-align: center; text-decoration: none; }
+.btn-secondary { background: var(--card-bg); border: 1px solid var(--border); }
+.btn-secondary:hover { border-color: var(--muted); }
+.share-modal { margin: auto; width: calc(100% - 32px); max-width: 560px; max-height: calc(100% - 32px); overflow: auto; color: var(--text); }
+.share-modal::backdrop { background: rgba(0, 0, 0, 0.78); }
+.share-poster { display: block; width: 100%; height: auto; border-radius: 8px; }
+.share-address { display: grid; gap: 5px; font-size: 12px; color: var(--muted); }
 
 .inf-badge { font-size: 12px; color: #d8b4fe; }
 .cat-badge {

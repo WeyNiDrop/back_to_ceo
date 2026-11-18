@@ -1,5 +1,5 @@
 /**
- * BACK TO CEO // 11选3随机Boss + 消耗影响力技能与高阶牌 + 即时Tooltip
+ * Back To CEO 重回巅峰之路
  */
 
 const TURN_LABELS = [
@@ -623,7 +623,7 @@ function handleStageCleared(pVotes, pLocked = 0) {
       `你${winReason}，按 50% 结余保留资金并获得 $2,500万 战利品补助（保底 $4,500万）。下一关对手：${nextBoss.name}（${nextBoss.roleTitle}）。`,
       true,
       `进入第 ${state.stage + 1} 关`,
-      `我在《BACK TO CEO》第 ${state.stage} 关击败了 ${boss.name}！${score}`
+      `我在《${document.title}》第 ${state.stage} 关击败了 ${boss.name}！${score}`
     );
   } else {
     const names = state.runBosses.map(b => b.name).join(' → ');
@@ -632,9 +632,17 @@ function handleStageCleared(pVotes, pLocked = 0) {
       `你从 0 席起步，连续击败 ${names}，重新执掌董事会。`,
       true,
       '再来一局',
-      `我在《BACK TO CEO》连克三关，重返 CEO 宝座！\n对手：${names}\n决胜关：${score}`
+      `我在《${document.title}》连克三关，重返 CEO 宝座！\n对手：${names}\n决胜关：${score}`
     );
   }
+}
+
+function getXShareUrl(text, pageUrl = '') {
+  const intent = new URL('https://twitter.com/intent/tweet');
+  intent.searchParams.set('text', text);
+  intent.searchParams.set('hashtags', 'BackToCEO');
+  if (pageUrl) intent.searchParams.set('url', pageUrl);
+  return intent.href;
 }
 
 function showEndModal(title, desc, isWin = false, btnLabel = '🔄 再来一局', shareText = '') {
@@ -662,10 +670,7 @@ function showEndModal(title, desc, isWin = false, btnLabel = '🔄 再来一局'
   if (shareLink.hidden) {
     shareLink.removeAttribute('href');
   } else {
-    const intent = new URL('https://twitter.com/intent/tweet');
-    intent.searchParams.set('text', shareText);
-    intent.searchParams.set('hashtags', 'BackToCEO');
-    shareLink.href = intent.href;
+    shareLink.href = getXShareUrl(shareText);
   }
   document.getElementById('modal-end').style.display = 'flex';
 }
@@ -895,6 +900,28 @@ document.getElementById('btn-restart').addEventListener('click', () => {
   initGame();
   SoundFX.playDeal(4);
 });
+
+document.getElementById('btn-share-game').addEventListener('click', () => {
+  const canonical = document.querySelector('meta[property="og:url"]').content.trim();
+  const pageUrl = new URL(canonical || window.location.href);
+  pageUrl.search = '';
+  pageUrl.hash = '';
+  pageUrl.username = '';
+  pageUrl.password = '';
+
+  const host = pageUrl.hostname.replace(/\.$/, '');
+  const isLocalHost = !host.includes('.') || /\.(local|localhost)$/.test(host) || /^(\d+\.){3}\d+$/.test(host);
+  const isPublic = /^https?:$/.test(pageUrl.protocol) && (Boolean(canonical) || !isLocalHost);
+  const publicUrl = isPublic ? pageUrl.href : '';
+  document.getElementById('game-share-url-label').textContent = isPublic ? '分享链接' : '当前地址';
+  document.getElementById('game-share-url').value = pageUrl.href;
+  document.getElementById('game-share-local-hint').hidden = isPublic;
+  const shareLink = document.getElementById('game-share-x');
+  shareLink.href = getXShareUrl(document.title, publicUrl);
+  shareLink.textContent = isPublic ? '分享到 X' : '测试 X 发帖';
+  document.getElementById('game-share-dialog').showModal();
+});
+
 document.getElementById('btn-play-again').addEventListener('click', e => {
   const nextStage = Number(e.target.dataset.nextStage || 1);
   const keep = e.target.dataset.keep === '1';

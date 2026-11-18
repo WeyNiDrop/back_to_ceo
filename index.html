@@ -1,11 +1,25 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="zh-CN" prefix="og: https://ogp.me/ns#">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
-  <title>BACK TO CEO · 董事会夺权战</title>
-  <link rel="stylesheet" href="style.css?v=20261118-x-share" />
+  <title>Back To CEO 重回巅峰之路</title>
+  <meta name="description" content="用手牌争夺董事会九席，连克三关，重返 CEO 宝座。" />
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="Back To CEO 重回巅峰之路" />
+  <meta property="og:description" content="用手牌争夺董事会九席，连克三关，重返 CEO 宝座。" />
+  <meta property="og:url" content="" />
+  <meta property="og:image" content="assets/back-to-ceo-poster.jpg" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:image:alt" content="黑皮衣主角手持卡牌，身后是董事会长桌和一张金色空椅。" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Back To CEO 重回巅峰之路" />
+  <meta name="twitter:description" content="用手牌争夺董事会九席，连克三关，重返 CEO 宝座。" />
+  <meta name="twitter:image" content="assets/back-to-ceo-poster.jpg" />
+  <meta name="twitter:image:alt" content="黑皮衣主角手持卡牌，身后是董事会长桌和一张金色空椅。" />
+  <link rel="stylesheet" href="style.css?v=20261118-game-share" />
 </head>
 <body>
   <div class="hs-table">
@@ -19,6 +33,7 @@
       <div class="turn-pill" id="turn-display">第 1 / 6 回合 · DAY 1 白天</div>
 
       <div class="top-btns">
+        <button class="btn-top" id="btn-share-game" type="button" aria-haspopup="dialog">分享游戏</button>
         <button class="btn-top" id="btn-sound-toggle">🔊 音效开</button>
         <button class="btn-top" id="btn-ai-config">⚙️ <span id="ai-mode-text">对手设置</span></button>
         <button class="btn-top" id="btn-restart">🔄 重开</button>
@@ -153,14 +168,35 @@
         <p id="end-desc" class="end-desc"></p>
         <div class="end-actions">
           <button class="btn-save" id="btn-play-again">进入下一关</button>
-          <a class="btn-save btn-share-x" id="btn-share-x" target="_blank" rel="noopener noreferrer" hidden>分享到 X</a>
+          <a class="btn-save btn-action-link btn-secondary" id="btn-share-x" target="_blank" rel="noopener noreferrer" hidden>分享到 X</a>
         </div>
       </div>
     </div>
   </div>
 
+  <dialog class="modal share-modal" id="game-share-dialog" aria-labelledby="game-share-title">
+    <div class="modal-header">
+      <h3 id="game-share-title">Back To CEO 重回巅峰之路</h3>
+      <form method="dialog">
+        <button class="modal-close" type="submit" aria-label="关闭分享预览">✕</button>
+      </form>
+    </div>
+    <div class="modal-body">
+      <img class="share-poster" src="assets/back-to-ceo-poster.jpg" width="1200" height="630" loading="lazy" alt="黑皮衣主角手持卡牌，身后是董事会长桌和一张金色空椅。" />
+      <label class="share-address">
+        <span id="game-share-url-label">游戏地址</span>
+        <input type="text" id="game-share-url" readonly />
+      </label>
+      <p class="hint-text" id="game-share-local-hint" hidden>本地地址仅供预览。公开部署后，X 才能读取游戏链接和海报卡片。</p>
+      <div class="end-actions">
+        <a class="btn-save btn-action-link" id="game-share-x" target="_blank" rel="noopener noreferrer">分享到 X</a>
+        <a class="btn-save btn-action-link btn-secondary" href="assets/back-to-ceo-poster.jpg" download>下载海报</a>
+      </div>
+    </div>
+  </dialog>
+
   <script src="sound.js?v=202611172115"></script>
   <script src="ai.js?v=20261118-challenge"></script>
-  <script src="game.js?v=20261118-x-share"></script>
+  <script src="game.js?v=20261118-game-share"></script>
 </body>
 </html>

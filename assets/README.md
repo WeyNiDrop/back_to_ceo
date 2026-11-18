@@ -1,4 +1,12 @@
-# BACK TO CEO 卡牌与角色资源包
+# Back To CEO 重回巅峰之路 · 美术资源
+
+## 游戏宣传海报
+
+`back-to-ceo-poster.jpg` 由内置 ImageGen 生成并导出为 1200 × 630 JPEG，用于游戏分享预览和 X 大图卡片。
+
+**生成提示词**
+
+> Use case: ads-marketing. Generate one wide landscape promotional poster for a Chinese-language satirical boardroom strategy card game, sized and composed for a 1200×630 social link preview, near 2:1. Art-direct it as a premium editorial graphic novel cover with engraved dark inks, warm antique brass typography and emerald rim light on a charcoal boardroom. On the right, feature the fictional protagonist Gesen Yellow, an older East Asian executive with swept gray hair, subtle rectangular glasses and a textured black leather jacket. He sits at the edge of a nine-seat board table with a confident subtle smile, one hand holding three small illustrated strategy cards, city lights and opposing directors in soft silhouette beyond him. Accompany him with a single amber-lit empty chair suggesting the CEO seat. Keep the left half simple and dark for a two-line headline. In the upper-middle left, render precisely the only words in the image: first line “Back To CEO” in bold high-contrast cream typography, second line “重回巅峰之路” in large warm brass Chinese characters. Carefully check every Chinese character: 重 回 巅 峰 之 路, without inserted spaces. Restrained charcoal/emerald/gold palette, strong graphic contrast with one red accent, clean spacing, legible on a phone. Keep all lettering and the character’s face within the central 72% of image height and away from the canvas edges for flexible cropping. Full bleed, no border, no third-party brands, no X logo, no other letters, no watermark.
 
 ## Boss 与董事会头像
 

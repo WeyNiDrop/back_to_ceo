@@ -1,9 +1,9 @@
-# BACK TO CEO 项目机制与全设定开发文档
+# Back To CEO 重回巅峰之路 · 项目机制与开发文档
 
 ## 1. 项目概述与技术架构
 
 ### 1.1 基本信息
-- **项目名称**：BACK TO CEO // 3关连战卡牌对决
+- **项目名称**为 Back To CEO 重回巅峰之路，一款三关连战卡牌游戏。
 - **技术栈**：纯前端原生 HTML5 + CSS3 + Vanilla JavaScript（ES6+），零外部构建工具与第三方运行时依赖。
 - **数据持久化**：使用浏览器 `localStorage` 存储 AI 引擎配置（键名：`backtoceo_ai_config`），无后端服务依赖。
 - 用浏览器打开 `index.html` 即可开始游戏。标准对手在本地运行，自定义大模型对手会向设置中的接口发起请求。
@@ -237,6 +237,18 @@
 - **即时 Tooltip**：全局监听 `mouseover / mousemove / mouseout` 读取 `data-tooltip` 与 `data-tooltipWarn`，动态跟随鼠标展示无法出牌原因、词条详情及英雄/Boss 被动说明。
 - **视觉资源**：Boss 和董事会头像使用 `assets/portraits/` 的 JPEG。主角、卡牌及结局图继续优先加载 `.png`，加载失败时使用对应 `.svg`。
 - 单关获胜和三关通关时，点击结算弹窗的「分享到 X」会在新标签页打开 X 发帖页，预填对手、回合、席位战绩和 `#BackToCEO`。玩家可以在发帖页编辑并发布战报。
+
+### 8.3 游戏分享
+
+顶部「分享游戏」随时可打开分享预览，显示标题、宣传海报和当前地址。本地打开时可测试 X 发帖文案和下载海报。X 大图卡片需要 X 能访问游戏页面和海报。
+
+公开部署时，用 Node 将正式访问地址写入静态分享标签。将示例地址换成实际用于打开游戏的 URL（目录地址保留末尾的斜线），再部署 `index.html` 和素材。
+
+```sh
+node scripts/set-share-url.mjs https://games.example.com/back-to-ceo/
+```
+
+脚本会写入 `og:url`、`og:image` 和 `twitter:image`，将海报解析为同站点的绝对地址。分享按钮优先使用该公开地址。
 
 ## 9. 已知问题
 
