@@ -37,7 +37,7 @@
       "isAccessibleForFree": true
     }
   </script>
-  <link rel="stylesheet" href="style.css?v=20261118-opponent-settings" />
+  <link rel="stylesheet" href="style.css?v=20261118-leaderboard" />
 </head>
 <body>
   <div class="hs-table">
@@ -57,10 +57,12 @@
         <div class="run-timer">
           <span data-i18n="当前用时">当前用时</span>
           <time id="run-time" datetime="PT0S">00:00</time>
+          <span id="ranked-run-label" data-i18n="排位挑战" hidden>排位挑战</span>
         </div>
       </div>
 
       <div class="top-btns">
+        <button class="btn-top" id="btn-leaderboard" type="button" aria-haspopup="dialog" data-i18n="排行榜">排行榜</button>
         <button class="btn-top" id="btn-share-game" type="button" aria-haspopup="dialog" data-i18n="分享游戏">分享游戏</button>
         <button class="btn-top" id="btn-tutorial" type="button" aria-haspopup="dialog" data-i18n="新手教学">新手教学</button>
         <button class="btn-top" id="btn-language" type="button" aria-haspopup="dialog" data-i18n="语言">语言</button>
@@ -106,6 +108,9 @@
             <div class="cash-badge"><span data-i18n="💰 资金">💰 资金</span> <strong id="stat-cash">$5,000万</strong></div>
             <div class="inf-badge"><span data-i18n="🌟 影响力">🌟 影响力</span> <strong id="stat-inf">20</strong></div>
             <div class="passive-pill hero-passive" data-i18n="🧥 被动：皮衣光环(+5🌟)">🧥 被动：皮衣光环(+5🌟)</div>
+            <button class="btn-top player-name-button" id="btn-player-name" type="button" aria-haspopup="dialog">
+              <span data-i18n="玩家名称">玩家名称</span> <bdi id="player-name-display" hidden></bdi>
+            </button>
           </div>
         </div>
 
@@ -196,6 +201,8 @@
           <span data-i18n="通关用时">通关用时</span>
           <time id="final-run-time" datetime="PT0S">00:00</time>
         </p>
+        <p class="hint-text" id="end-ranked-status" role="status"></p>
+        <button class="btn-save btn-secondary" id="btn-retry-ranked" type="button" data-i18n="重试保存成绩" hidden>重试保存成绩</button>
         <div class="end-actions">
           <button class="btn-save" id="btn-play-again">进入下一关</button>
           <a class="btn-save btn-action-link btn-secondary" id="btn-share-x" target="_blank" rel="noopener noreferrer" hidden data-i18n="分享到 X">分享到 X</a>
@@ -238,6 +245,42 @@
         <button class="btn-save btn-secondary" type="button" data-game-language="en" lang="en">English</button>
       </div>
     </div>
+  </dialog>
+
+  <dialog class="modal share-modal leaderboard-modal" id="leaderboard-dialog" aria-labelledby="leaderboard-title">
+    <div class="modal-header">
+      <h2 id="leaderboard-title" data-i18n="排行榜">排行榜</h2>
+      <form method="dialog">
+        <button class="modal-close" type="submit" data-i18n-aria-label="关闭" aria-label="关闭">×</button>
+      </form>
+    </div>
+    <div class="modal-body">
+      <p id="leaderboard-status" role="status"></p>
+      <ol id="leaderboard-entries" class="leaderboard-entries" hidden></ol>
+      <p class="hint-text" data-i18n="排位挑战使用内置对手，从第一关重新计时。连胜三关后自动提交成绩。">排位挑战使用内置对手，从第一关重新计时。连胜三关后自动提交成绩。</p>
+      <p class="hint-text" id="ranked-start-status" role="status"></p>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-save" id="btn-start-ranked" type="button" data-i18n="开始排位挑战" disabled>开始排位挑战</button>
+    </div>
+  </dialog>
+
+  <dialog class="modal share-modal player-name-modal" id="player-name-dialog" aria-labelledby="player-name-title">
+    <div class="modal-header">
+      <h2 id="player-name-title" data-i18n="设置玩家名称">设置玩家名称</h2>
+    </div>
+    <form id="player-name-form">
+      <div class="modal-body">
+        <label for="player-name-input" data-i18n="玩家名称">玩家名称</label>
+        <input id="player-name-input" type="text" autocomplete="nickname" maxlength="48" required autofocus aria-describedby="player-name-hint" />
+        <p class="hint-text" id="player-name-hint" data-i18n="名称保存在此浏览器，最多 24 个字符。通关排位挑战后会显示在公开排行榜。">名称保存在此浏览器，最多 24 个字符。通关排位挑战后会显示在公开排行榜。</p>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-save btn-secondary" id="btn-cancel-player-name" type="button" data-i18n="取消" hidden>取消</button>
+        <button class="btn-save btn-secondary" id="btn-random-player-name" type="button" data-i18n="随机名称">随机名称</button>
+        <button class="btn-save" type="submit" data-i18n="保存名称">保存名称</button>
+      </div>
+    </form>
   </dialog>
 
   <dialog class="modal share-modal tutorial-modal" id="tutorial-dialog" aria-labelledby="tutorial-title">
@@ -320,8 +363,8 @@
   </template>
 
   <script src="sound.js?v=202611172115"></script>
-  <script src="i18n.js?v=20261118-defeat-message"></script>
-  <script src="ai.js?v=20261118-opponent-settings"></script>
-  <script src="game.js?v=20261118-defeat-message"></script>
+  <script src="i18n.js?v=20261118-leaderboard"></script>
+  <script src="ai.js?v=20261118-leaderboard"></script>
+  <script type="module" src="game.js?v=20261118-leaderboard"></script>
 </body>
 </html>

@@ -1,3 +1,12 @@
+import {
+  BOARD_MAJORITY, CARD_ANIMATION_MS, CARD_DB, countLockedEnemySeats, createGameRules,
+  getPlayerScore, INSTANT_WIN_SEATS, isInstantWin,
+  MIN_ENEMY_CARDS, normalizePlayerName, PASSIVE_ANIMATION_MS, seededRandom,
+} from './game-rules.mjs?v=20261118-leaderboard';
+
+const rules = createGameRules({ translate, formatCash });
+let rankedRun = null;
+
 /**
  * Back To CEO 重回巅峰之路
  */
@@ -15,89 +24,6 @@ const CATEGORY_META = {
   spy: { label: '🕵️ 间谍牌', color: '#38bdf8' },
   politics: { label: '🏛️ 政治牌', color: '#22c55e' }
 };
-
-const STANCES = {
-  geek: {
-    id: 'geek',
-    name: '⚡ 极客技术派',
-    desc: '抽到的手牌有概率附带【算力减费】【极客狂热】【架构共振】等词条。',
-    affixes: [
-      { name: '算力减费', desc: '本牌体力-1💎', mod: { apDiscount: 1 } },
-      { name: '极客狂热', desc: '额外+6🌟', mod: { bonusInf: 6 } },
-      { name: '架构共振', desc: '额外摸1牌', mod: { bonusDraw: 1 } }
-    ]
-  },
-  capital: {
-    id: 'capital',
-    name: '💰 华尔街资本派',
-    desc: '抽到的手牌有概率附带【现金回流】【溢价护盘】【做空狙击】等词条。',
-    affixes: [
-      { name: '现金回流', desc: '额外+$400万', mod: { bonusCash: 400 } },
-      { name: '溢价护盘', desc: '额外+8🌟', mod: { bonusInf: 8 } },
-      { name: '做空狙击', desc: '动摇1敌席', mod: { bonusDemote: 1 } }
-    ]
-  },
-  iron: {
-    id: 'iron',
-    name: '🕶️ 暗战铁腕派',
-    desc: '抽到的手牌有概率附带【顺手加锁】【威慑压制】【回魂咖啡】等词条。',
-    affixes: [
-      { name: '顺手加锁', desc: '抢席后锁定🔒', mod: { bonusLock: true } },
-      { name: '威慑压制', desc: '敌方减牌1张（至少2张）', mod: { bonusWeaken: 1 } },
-      { name: '回魂咖啡', desc: '额外+1💎', mod: { bonusAp: 1 } }
-    ]
-  }
-};
-
-// 按卡牌类别匹配的虚构商战负面新闻词条
-const NEGATIVE_AFFIXES = [
-  { name: '涉外安全审查', categories: ['spy'], desc: '打出后 -8🌟', isNeg: true, mod: { infPenalty: 8 } },
-  { name: '酒店录像传闻', categories: ['spy', 'influence'], desc: '体力消耗 +1💎', isNeg: true, mod: { apPenalty: 1 } },
-  { name: '开支预算争议', categories: ['stamina', 'politics'], desc: '额外 -$500万', isNeg: true, mod: { cashPenalty: 500 } },
-  { name: '国会闭门问询', categories: ['politics'], desc: '需影响力 ≥20🌟', isNeg: true, mod: { infReqPenalty: 20 } },
-  { name: '芯片出口调查', categories: ['spy', 'politics'], desc: '律师费 +$400万', isNeg: true, mod: { cashPenalty: 400 } },
-  { name: '微波炉蒸鱼未加盖', categories: ['stamina'], desc: '打出后 -5🌟', isNeg: true, mod: { infPenalty: 5 } },
-  { name: '疑似强迫员工吃牛腩', categories: ['stamina'], desc: '打出后 -5🌟', isNeg: true, mod: { infPenalty: 5 } },
-  { name: '团队沟通失当', categories: ['influence', 'spy'], desc: '体力 +1💎 且打出后 -6🌟', isNeg: true, mod: { apPenalty: 1, infPenalty: 6 } },
-  { name: '董事会问责', categories: ['politics'], desc: '需 ≥25🌟 且额外 -$400万', isNeg: true, mod: { infReqPenalty: 25, cashPenalty: 400 } }
-];
-
-// 19张统一4大类卡牌库（支持 apCost / cashCost / infCost 消耗）
-const CARD_DB = {
-  chimaek: { id: 'chimaek', title: '炸鸡啤酒套餐', category: 'stamina', rarity: 'common', art: 'assets/card_supply.svg', apCost: 0, cashCost: 100, infCost: 0, allowNegativeAffix: false, effects: { gainAp: 2 } },
-  coffee: { id: 'coffee', title: 'Denny\'s 苦咖啡', category: 'stamina', rarity: 'common', art: 'assets/card_supply.svg', apCost: 0, cashCost: 0, infCost: 0, allowNegativeAffix: false, effects: { gainAp: 1, draw: 1 } },
-  nightmarket: { id: 'nightmarket', title: '夜市微服私访', category: 'stamina', rarity: 'common', art: 'assets/card_supply.svg', apCost: 1, cashCost: 100, infCost: 0, effects: { gainAp: 1, gainCash: 500, gainInf: 5 } },
-  banquet: { id: 'banquet', title: '古早味·兆元宴', category: 'stamina', rarity: 'rare', art: 'assets/card_banquet.svg', apCost: 2, cashCost: 300, infCost: 0, effects: { gainCash: 1400, gainInf: 10 } },
-
-  pr_troll: { id: 'pr_troll', title: '硅谷水军控评', category: 'influence', rarity: 'common', art: 'assets/card_pr.svg', apCost: 1, cashCost: 400, infCost: 0, effects: { gainInf: 12, claimNeutral: 1 } },
-  inf_livestream: { id: 'inf_livestream', title: '深夜代码直播', category: 'influence', rarity: 'common', art: 'assets/card_pr.svg', apCost: 1, cashCost: 200, infCost: 0, effects: { gainInf: 15, draw: 1 } },
-  pr_interview: { id: 'pr_interview', title: '皮衣播客专访', category: 'influence', rarity: 'rare', art: 'assets/card_pr.svg', apCost: 2, cashCost: 0, infCost: 0, effects: { gainInf: 15, claimNeutral: 1, draw: 1 } },
-  pr_debunk: { id: 'pr_debunk', title: '假照辟谣反转', category: 'influence', rarity: 'rare', art: 'assets/card_pr.svg', apCost: 1, cashCost: 0, infCost: 12, effects: { claimNeutralOrSteal: 1, draw: 1 } },
-  pr_keynote: { id: 'pr_keynote', title: '算力核弹发布会', category: 'influence', rarity: 'legendary', art: 'assets/card_banquet.svg', apCost: 2, cashCost: 800, infCost: 20, effects: { stealOrClaim: 2, lockClaimed: true } },
-
-  spy_tail: { id: 'spy_tail', title: '私家侦探盯梢', category: 'spy', rarity: 'common', art: 'assets/card_intel.svg', apCost: 1, cashCost: 400, infCost: 0, effects: { draw: 2, weakenAi: 1 } },
-  spy_precision_cut: { id: 'spy_precision_cut', title: '精准一刀', category: 'spy', rarity: 'rare', art: 'assets/card_precision_cut.svg', apCost: 1, cashCost: 0, infCost: 20, effects: { gainCash: 1000 } },
-  spy_wiretap: { id: 'spy_wiretap', title: '会议室窃听器', category: 'spy', rarity: 'rare', art: 'assets/card_intel.svg', apCost: 1, cashCost: 600, infCost: 0, effects: { gainInf: 10, stealEnemy: 1 } },
-  spy_cctv: { id: 'spy_cctv', title: '酒店监控实锤', category: 'spy', rarity: 'rare', art: 'assets/card_intel.svg', apCost: 2, cashCost: 800, infCost: 0, effects: { stealEnemy: 1, gainInf: 10, weakenAi: 1 } },
-  spy_honeypot: { id: 'spy_honeypot', title: '反间谍舆论战', category: 'spy', rarity: 'rare', art: 'assets/card_intel.svg', apCost: 2, cashCost: 700, infCost: 0, effects: { claimNeutral: 1, demoteEnemy: 1 } },
-  spy_turncoat: { id: 'spy_turncoat', title: '策反男间谍', category: 'spy', rarity: 'legendary', art: 'assets/card_intel.svg', apCost: 2, cashCost: 1000, infCost: 15, effects: { stealEnemy: 2 } },
-
-  pol_notice: { id: 'pol_notice', title: '律师函禁制令', category: 'politics', rarity: 'common', art: 'assets/card_legal.svg', apCost: 1, cashCost: 600, infCost: 0, effects: { claimNeutral: 1, lockClaimed: true } },
-  pol_filibuster: { id: 'pol_filibuster', title: '程序拖延战术', category: 'politics', rarity: 'rare', art: 'assets/card_legal.svg', apCost: 1, cashCost: 500, infCost: 0, effects: { claimNeutralOrSteal: 1, weakenAi: 1 } },
-  pol_lobby: { id: 'pol_lobby', title: '国会山政客游说', category: 'politics', rarity: 'rare', art: 'assets/card_legal.svg', apCost: 2, cashCost: 1200, infCost: 0, effects: { stealEnemy: 1, lockClaimed: true } },
-  pol_revolt: { id: 'pol_revolt', title: '700人联名逼宫', category: 'politics', rarity: 'legendary', art: 'assets/card_legal.svg', apCost: 2, cashCost: 0, infCost: 25, effects: { stealOrClaim: 2, freezeAi: true } }
-};
-
-const DECK_RECIPE = [
-  'chimaek', 'chimaek', 'coffee', 'coffee', 'nightmarket', 'banquet',
-  'pr_troll', 'inf_livestream', 'pr_interview', 'pr_debunk', 'pr_keynote',
-  'spy_tail', 'spy_precision_cut', 'spy_wiretap', 'spy_cctv', 'spy_honeypot', 'spy_turncoat',
-  'pol_notice', 'pol_filibuster', 'pol_lobby', 'pol_revolt'
-];
-
-const MIN_ENEMY_CARDS = 2;
-const INSTANT_WIN_SEATS = [6, 7, 7];
-const BOARD_MAJORITY = 5;
 
 let state = {};
 let isAnimating = false;
@@ -150,12 +76,7 @@ function resetRunTimer() {
 }
 
 function getCurrentBoss() {
-  return (state.runBosses && state.runBosses[state.stage - 1]) || AI_BOSS_POOL[0];
-}
-
-function getEnemyCardCount(turnState) {
-  if (turnState.aiFrozen) return MIN_ENEMY_CARDS;
-  return Math.max(MIN_ENEMY_CARDS, turnState.cardsPlayedThisTurn - turnState.aiPenalty);
+  return rules.getCurrentBoss(state);
 }
 
 function getStageGoalText() {
@@ -168,16 +89,7 @@ function portraitSrc(portrait) {
 }
 
 function getEffectiveCosts(item) {
-  const c = CARD_DB[item.key];
-  const boss = getCurrentBoss();
-  let ap = Math.max(0, c.apCost - (item.affix?.mod?.apDiscount || 0) + (item.affix?.mod?.apPenalty || 0));
-  let cash = c.cashCost + (item.affix?.mod?.cashPenalty || 0);
-  let inf = c.infCost || 0;
-  let infReq = item.affix?.mod?.infReqPenalty || 0;
-  if (boss.id === 'cole_pol' && (c.category === 'spy' || c.category === 'politics')) cash += 200;
-  if (boss.id === 'sophia_supply' && c.category === 'stamina') cash += 200;
-  if (boss.id === 'miller_sec' && cash > 0) cash += 100;
-  return { ap, cash, inf, infReq };
+  return rules.getEffectiveCosts(state, item);
 }
 
 function getUnplayableReason(costs) {
@@ -210,237 +122,18 @@ function formatCardDesc(card, item) {
   return parts.join(' ');
 }
 
-function executeCardEffects(item, s) {
-  const card = CARD_DB[item.key];
-  const fx = card.effects || {};
-  const mod = item.affix?.mod || {};
-  const toastParts = [];
-  let lastSeat = null;
-
-  if (card.category === 'influence' && !s.heroPassiveUsedThisTurn) {
-    s.heroPassiveUsedThisTurn = true;
-    const gained = Math.min(5, 100 - s.influence);
-    s.influence += gained;
-    if (gained > 0) toastParts.push(translate("皮衣被动+{0}🌟", gained));
-  }
-
-  const gainedAp = Math.min(8 - s.ap, (fx.gainAp || 0) + (mod.bonusAp || 0));
-  if (gainedAp > 0) {
-    s.ap += gainedAp;
-    toastParts.push(`+${gainedAp}💎`);
-    SoundFX.playManaRefresh();
-  }
-
-  const totalCash = (fx.gainCash || 0) + (mod.bonusCash || 0);
-  if (totalCash > 0) {
-    s.cash += totalCash;
-    toastParts.push(translate("+{0}", formatCash(totalCash)));
-  }
-
-  const gainedInfluence = Math.min(100 - s.influence, (fx.gainInf || 0) + (mod.bonusInf || 0));
-  if (gainedInfluence > 0) {
-    s.influence += gainedInfluence;
-    toastParts.push(`+${gainedInfluence}🌟`);
-  }
-  if (mod.infPenalty > 0) {
-    const paid = Math.min(s.influence, mod.infPenalty);
-    const missing = mod.infPenalty - paid;
-    s.influence -= paid;
-    if (paid > 0) toastParts.push(`-${paid}🌟`);
-    const cashFine = Math.min(s.cash, missing * 50);
-    if (cashFine > 0) {
-      s.cash -= cashFine;
-      toastParts.push(translate("公关补缴-{0}", formatCash(cashFine)));
-    }
-  }
-
-  const totalDraw = (fx.draw || 0) + (mod.bonusDraw || 0);
-  if (totalDraw > 0) {
-    const drawn = drawCards(totalDraw);
-    if (drawn > 0) {
-      toastParts.push(translate("摸{0}牌", drawn));
-      SoundFX.playDeal(drawn);
-    }
-  }
-
-  const shouldLock = !!(fx.lockClaimed || mod.bonusLock);
-
-  if (fx.claimNeutral) {
-    for (let i = 0; i < fx.claimNeutral; i++) {
-      const seat = claimNeutralSeat(s);
-      if (seat) {
-        if (shouldLock) seat.locked = true;
-        lastSeat = seat;
-        toastParts.push(translate("+1席!"));
-      }
-    }
-  }
-  if (fx.claimNeutralOrSteal) {
-    for (let i = 0; i < fx.claimNeutralOrSteal; i++) {
-      const seat = claimNeutralSeat(s) || stealEnemySeat(s);
-      if (seat) {
-        if (shouldLock) seat.locked = true;
-        lastSeat = seat;
-        toastParts.push(translate("+1席!"));
-      }
-    }
-  }
-  if (fx.stealEnemy) {
-    for (let i = 0; i < fx.stealEnemy; i++) {
-      const seat = stealEnemySeat(s) || claimNeutralSeat(s);
-      if (seat) {
-        if (shouldLock) seat.locked = true;
-        lastSeat = seat;
-        toastParts.push(shouldLock ? translate("抢锁+1席!") : translate("抢回+1席!"));
-      }
-    }
-  }
-  if (fx.stealOrClaim) {
-    let gained = 0;
-    for (let i = 0; i < fx.stealOrClaim; i++) {
-      const seat = stealEnemySeat(s) || claimNeutralSeat(s);
-      if (seat) {
-        if (shouldLock) seat.locked = true;
-        lastSeat = seat;
-        gained++;
-      }
-    }
-    if (gained > 0) toastParts.push(shouldLock ? translate("夺锁+{0}席!", gained) : translate("夺取+{0}席!", gained));
-  }
-
-  const totalDemote = (fx.demoteEnemy || 0) + (mod.bonusDemote || 0);
-  for (let i = 0; i < totalDemote; i++) {
-    const enemy = s.seats.find(x => x.owner === 'enemy' && !x.locked && !x.isCore);
-    if (enemy) {
-      enemy.owner = 'neutral';
-      lastSeat = enemy;
-      toastParts.push(translate("敌席动摇!"));
-    }
-  }
-
-  const totalWeaken = (fx.weakenAi || 0) + (mod.bonusWeaken || 0);
-  if (totalWeaken > 0) {
-    s.aiPenalty = Math.min(2, s.aiPenalty + totalWeaken);
-    toastParts.push(translate("对手减牌"));
-  }
-
-  if (fx.freezeAi) {
-    s.aiFrozen = true;
-    toastParts.push(translate("Boss 被动冻结"));
-  }
-
-  return {
-    effect: toastParts.join(' ') || translate("未触发效果"),
-    targetSeatId: lastSeat?.id
-  };
-}
-
-function shuffle(arr) {
-  const copy = [...arr];
-  for (let i = copy.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [copy[i], copy[j]] = [copy[j], copy[i]];
-  }
-  return copy;
-}
-
-function claimNeutralSeat(s) {
-  const neutral = s.seats.find(x => x.owner === 'neutral');
-  if (neutral) {
-    neutral.owner = 'player';
-    return neutral;
-  }
-  return null;
-}
-
-function stealEnemySeat(s) {
-  const enemy = s.seats.find(x => x.owner === 'enemy' && !x.locked && !x.isCore);
-  if (enemy) {
-    enemy.owner = 'player';
-    return enemy;
-  }
-  return null;
-}
-
-function rollAffixForStance(stanceId, card = null) {
-  const r = Math.random();
-  if (r < 0.25) {
-    if (card?.allowNegativeAffix === false) return null;
-    const pool = card ? NEGATIVE_AFFIXES.filter(affix => affix.categories.includes(card.category)) : NEGATIVE_AFFIXES;
-    return pool[Math.floor(Math.random() * pool.length)] ?? null;
-  }
-  if (r < 0.75) {
-    let pool = STANCES[stanceId]?.affixes || STANCES.geek.affixes;
-    if (card && card.apCost === 0) {
-      pool = pool.filter(a => !a.mod?.apDiscount);
-    }
-    return pool[Math.floor(Math.random() * pool.length)];
-  }
-  return null;
-}
-
-function drawCards(count) {
-  const handSize = state.hand.length;
-  for (let i = 0; i < count; i++) {
-    if (state.hand.length >= 5) break;
-    if (state.deck.length === 0) {
-      if (state.discard.length === 0) break;
-      state.deck = shuffle(state.discard);
-      state.discard = [];
-    }
-    const key = state.deck.pop();
-    state.hand.push({
-      uid: `${key}_${Math.random().toString(36).slice(2, 7)}`,
-      key,
-      affix: rollAffixForStance(state.stance, CARD_DB[key])
-    });
-  }
-  return state.hand.length - handSize;
-}
-
-function startStage(stageNum, keepResources = false) {
+function startStage(stageNum, keepResources = false, random) {
   if (!keepResources) resetRunTimer();
-  const runBosses = (keepResources && state.runBosses) ? state.runBosses : pickRunBosses(3);
-  const boss = runBosses[stageNum - 1];
-  const baseEnemyCount = stageNum === 1 && boss.id !== 'baron_fund' ? 3 : 4;
-  const extraLocks = (stageNum === 3 || boss.id === 'arthur_old') ? [7] : [];
-
-  state = {
-    stage: stageNum,
-    runBosses,
-    stance: state.stance || 'geek',
-    turn: 1,
-    maxTurns: 6,
-    ap: 4,
-    maxAp: 4,
-    cash: keepResources ? Math.max(4500, Math.round(state.cash * 0.5) + 2500) : 5000,
-    influence: keepResources ? Math.min(50, Math.max(20, state.influence)) : 20,
-    jacketUses: 2,
-    equityUses: 2,
-    rallyUses: 2,
-    powersUsedThisTurn: { jacket: false, equity: false, rally: false },
-    mulliganUsedThisTurn: false,
-    heroPassiveUsedThisTurn: false,
-    aiFrozen: false,
-    aiPenalty: 0,
-    cardsPlayedThisTurn: 0,
-    gameOver: false,
-    seats: makeSeats(baseEnemyCount, extraLocks),
-    deck: shuffle(DECK_RECIPE),
-    hand: [],
-    discard: [],
-    enemyTaunt: boss.tauntStart
-  };
+  state = rules.makeStage(stageNum, keepResources ? state : null, random);
   isAnimating = false;
   isEnemyTurn = false;
   isDiscardMode = false;
-  drawCards(4);
   clearStage();
   renderAll();
 }
 
 function initGame() {
-  state.stance = state.stance || 'geek';
+  rankedRun = null;
   startStage(1, false);
 }
 
@@ -488,7 +181,7 @@ async function showCardAnimation(cardObj, effectText, isEnemy, targetSeatId) {
     SoundFX.playSeatCapture(!isEnemy);
     renderSeats(targetSeatId);
   }
-  await sleep(900);
+  await sleep(CARD_ANIMATION_MS);
   return state === activeState;
 }
 
@@ -642,20 +335,21 @@ function renderAll() {
 
   const cfg = getAiConfig();
   document.getElementById('ai-mode-text').textContent = cfg.engine === 'llm' && cfg.key ? translate("模型({0})", cfg.model) : translate("对手设置");
+  document.getElementById('btn-ai-config').disabled = Boolean(rankedRun);
+  document.getElementById('ranked-run-label').hidden = !rankedRun;
 }
 
 function checkStageWin() {
-  const pVotes = state.seats.filter(s => s.owner === 'player').length;
-  const pLocked = state.seats.filter(s => s.owner === 'player' && s.locked).length;
-  if (pVotes >= INSTANT_WIN_SEATS[state.stage - 1] || pLocked >= BOARD_MAJORITY) {
-    handleStageCleared(pVotes, pLocked);
+  const score = getPlayerScore(state);
+  if (isInstantWin(state.stage, score)) {
+    handleStageCleared(score.votes, score.locked);
     return true;
   }
   return false;
 }
 
 function checkStageDefeat() {
-  const eLocked = state.seats.filter(s => s.owner === 'enemy' && s.locked).length;
+  const eLocked = countLockedEnemySeats(state);
   if (eLocked >= BOARD_MAJORITY) {
     showEndModal(
       translate("止步第 {0} 关", state.stage),
@@ -685,16 +379,21 @@ function handleStageCleared(pVotes, pLocked = 0) {
   } else {
     const elapsed = formatRunTime(stopRunTimer());
     const names = state.runBosses.map(b => b.name).join(' → ');
-    const { publicUrl, posterUrl } = getGameShareAddress();
-    const shareText = translate("我在《{0}》用时 {1} 连克三关，帮助黄仁勋重返 CEO 宝座！", translate(GAME_TITLE), elapsed);
     showEndModal(
       translate("连克三关，重返 CEO 宝座"),
       translate("你从 0 席起步，连续击败 {0}，重新执掌董事会。", names),
       true,
       translate("再来一局"),
-      getXShareUrl([shareText, publicUrl, posterUrl])
+      getFinalShareUrl(elapsed)
     );
+    if (rankedRun) void submitRankedRun(rankedRun, state);
   }
+}
+
+function getFinalShareUrl(elapsed) {
+  const { publicUrl, posterUrl } = getGameShareAddress();
+  const shareText = translate("我在《{0}》用时 {1} 连克三关，帮助黄仁勋重返 CEO 宝座！", translate(GAME_TITLE), elapsed);
+  return getXShareUrl([shareText, publicUrl, posterUrl]);
 }
 
 function getXShareUrl(lines) {
@@ -754,6 +453,9 @@ function showEndModal(title, desc, isWin = false, btnLabel = translate("🔄 再
   document.getElementById('end-desc').textContent = desc;
   document.getElementById('end-defeat-message').hidden = isWin;
   const completionTime = document.getElementById('end-run-time');
+  document.getElementById('end-ranked-status').textContent = '';
+  retryRankedButton.hidden = true;
+  retryRankedButton.onclick = null;
   completionTime.hidden = !isWin || state.stage !== 3;
   if (!completionTime.hidden) renderRunTime('final-run-time', getRunSeconds());
   const sceneImg = document.getElementById('end-scene-img');
@@ -825,12 +527,9 @@ document.getElementById('hand-cards').addEventListener('click', async e => {
 
   const item = state.hand[idx];
   if (isDiscardMode) {
-    startRunTimer();
+    if (!rules.discardCard(state, idx)) return;
+    recordAction('discard', idx);
     isDiscardMode = false;
-    state.mulliganUsedThisTurn = true;
-    state.hand.splice(idx, 1);
-    state.discard.push(item.key);
-    drawCards(1);
     SoundFX.playDeal(1);
     renderAll();
     return;
@@ -849,16 +548,12 @@ document.getElementById('hand-cards').addEventListener('click', async e => {
     return;
   }
 
-  startRunTimer();
+  const res = rules.playCard(state, idx);
+  if (!res) return;
+  recordAction('card', idx);
   isAnimating = true;
-  state.ap -= costs.ap;
-  state.cash -= costs.cash;
-  state.influence -= costs.inf;
-  state.hand.splice(idx, 1);
-  state.discard.push(item.key);
-  state.cardsPlayedThisTurn += 1;
-
-  const res = executeCardEffects(item, state);
+  if (res.gainedAp > 0) SoundFX.playManaRefresh();
+  if (res.drawn > 0) SoundFX.playDeal(res.drawn);
   renderAll();
   if (!await showCardAnimation(tpl, res.effect, false, res.targetSeatId)) return;
 
@@ -867,15 +562,12 @@ document.getElementById('hand-cards').addEventListener('click', async e => {
 });
 
 document.getElementById('btn-hero-jacket').addEventListener('click', async () => {
-  if (isAnimating || state.gameOver || state.jacketUses <= 0 || state.powersUsedThisTurn.jacket || state.ap < 2) return;
-  startRunTimer();
+  if (isAnimating || state.gameOver) return;
+  const move = rules.useJacket(state);
+  if (!move) return;
+  recordAction('jacket');
   isAnimating = true;
-  state.ap -= 2;
-  state.jacketUses -= 1;
-  state.powersUsedThisTurn.jacket = true;
-  const gained = Math.min(20, 100 - state.influence);
-  state.influence += gained;
-  const drawn = drawCards(1);
+  const { drawn, gained } = move;
   if (drawn > 0) SoundFX.playDeal(drawn);
   const effects = [];
   if (gained > 0) effects.push(`+${gained}🌟`);
@@ -887,16 +579,11 @@ document.getElementById('btn-hero-jacket').addEventListener('click', async () =>
 });
 
 document.getElementById('btn-hero-equity').addEventListener('click', async () => {
-  if (isAnimating || state.gameOver || state.equityUses <= 0 || state.powersUsedThisTurn.equity || state.ap < 1) return;
-  const target = state.seats.find(s => s.owner === 'player' && !s.locked);
+  if (isAnimating || state.gameOver) return;
+  const target = rules.useEquity(state);
   if (!target) return;
-
-  startRunTimer();
+  recordAction('equity');
   isAnimating = true;
-  state.ap -= 1;
-  state.equityUses -= 1;
-  state.powersUsedThisTurn.equity = true;
-  target.locked = true;
   renderAll();
   if (!await showCardAnimation({ art: 'assets/card_banquet.svg', title: translate("📜 1.5% 股权加锁") }, translate("🔒 永久锁住 {0}!", translate(target.name)), false, target.id)) return;
   isAnimating = false;
@@ -904,15 +591,11 @@ document.getElementById('btn-hero-equity').addEventListener('click', async () =>
 });
 
 document.getElementById('btn-hero-rally').addEventListener('click', async () => {
-  if (isAnimating || state.gameOver || state.rallyUses <= 0 || state.powersUsedThisTurn.rally || state.influence < 15) return;
-  const seat = claimNeutralSeat(state) || stealEnemySeat(state);
+  if (isAnimating || state.gameOver) return;
+  const seat = rules.useRally(state);
   if (!seat) return;
-
-  startRunTimer();
+  recordAction('rally');
   isAnimating = true;
-  state.rallyUses -= 1;
-  state.powersUsedThisTurn.rally = true;
-  state.influence -= 15;
   renderAll();
   if (!await showCardAnimation({ art: 'assets/card_pr.svg', title: translate("📣 舆论号召") }, translate("消耗15🌟 抢占{0}!", translate(seat.name)), false, seat.id)) return;
   isAnimating = false;
@@ -921,7 +604,7 @@ document.getElementById('btn-hero-rally').addEventListener('click', async () => 
 
 document.getElementById('btn-end-turn').addEventListener('click', async () => {
   if (isAnimating || state.gameOver) return;
-  startRunTimer();
+  recordAction('end');
   const turnState = state;
   isAnimating = true;
   isEnemyTurn = true;
@@ -929,50 +612,33 @@ document.getElementById('btn-end-turn').addEventListener('click', async () => {
 
   try {
     const boss = getCurrentBoss();
-    const aiCount = getEnemyCardCount(state);
-    const freezeBoss = state.aiFrozen;
     const cfg = getAiConfig();
-    const playedCardIds = new Set();
-    let lastCardId = null;
-    state.aiFrozen = false;
-    state.aiPenalty = 0;
+    const turn = rules.beginEnemyTurn(state);
 
-    for (let i = 0; i < aiCount; i++) {
-      if (playedCardIds.size === AI_CARDS.length) {
-        playedCardIds.clear();
-        playedCardIds.add(lastCardId);
-      }
-      const aiRes = cfg.engine === 'llm' && cfg.key
-        ? await runLlmAi(state, cfg, playedCardIds, boss)
-        : runBuiltinAi(state, playedCardIds);
+    for (let i = 0; i < turn.cards; i++) {
+      const excluded = rules.enemyExclusions(turn);
+      const aiRes = !rankedRun && cfg.engine === 'llm' && cfg.key
+        ? await runLlmAi(state, cfg, excluded, boss, rules)
+        : rules.runBuiltinAi(state, excluded);
       if (state !== turnState) return;
 
-      lastCardId = aiRes.card.id;
-      playedCardIds.add(lastCardId);
-      state.enemyTaunt = aiRes.taunt;
-      const outcome = executeEnemyEffects(aiRes.card, state);
+      const outcome = rules.playEnemyCard(state, turn, aiRes);
       renderAll();
       if (!await showCardAnimation(aiRes.card, outcome.floatText, true, outcome.targetSeatId)) return;
       if (checkStageDefeat()) return;
     }
 
-    if (freezeBoss) {
-      state.enemyTaunt = translate("“可恶……700人联名信压下了我的额外行动！”");
-    } else {
-      const passiveRes = boss.onTurnEnd(state);
-      if (passiveRes) {
-        state.enemyTaunt = passiveRes.text;
-        renderAll();
-        renderSeats(passiveRes.targetSeatId);
-        await sleep(650);
-        if (state !== turnState) return;
-        if (checkStageDefeat()) return;
-      }
+    const passive = rules.playEnemyPassive(state, turn);
+    if (passive) {
+      renderAll();
+      renderSeats(passive.targetSeatId);
+      await sleep(PASSIVE_ANIMATION_MS);
+      if (state !== turnState) return;
+      if (checkStageDefeat()) return;
     }
 
     if (state.turn >= state.maxTurns) {
-      const pVotes = state.seats.filter(s => s.owner === 'player').length;
-      const pLocked = state.seats.filter(s => s.owner === 'player' && s.locked).length;
+      const { votes: pVotes, locked: pLocked } = getPlayerScore(state);
       isEnemyTurn = false;
       isAnimating = false;
       if (pVotes >= BOARD_MAJORITY) {
@@ -983,15 +649,8 @@ document.getElementById('btn-end-turn').addEventListener('click', async () => {
       return;
     }
 
-    state.turn += 1;
-    state.maxAp = Math.min(6, 3 + Math.ceil(state.turn / 2));
-    state.ap = state.maxAp;
-    state.heroPassiveUsedThisTurn = false;
-    state.powersUsedThisTurn = { jacket: false, equity: false, rally: false };
-    state.mulliganUsedThisTurn = false;
-    state.cardsPlayedThisTurn = 0;
+    rules.nextTurn(state);
     isDiscardMode = false;
-    drawCards(2);
     SoundFX.playManaRefresh();
     SoundFX.playDeal(2);
     clearStage();
@@ -1069,7 +728,8 @@ document.getElementById('btn-play-again').addEventListener('click', e => {
   const nextStage = Number(e.target.dataset.nextStage || 1);
   const keep = e.target.dataset.keep === '1';
   document.getElementById('modal-end').style.display = 'none';
-  startStage(nextStage, keep);
+  if (keep) startStage(nextStage, true);
+  else initGame();
   SoundFX.playDeal(4);
 });
 
@@ -1163,6 +823,195 @@ tutorialDialog.addEventListener('close', () => {
   if (document.activeElement === document.body) tutorialButton.focus({ preventScroll: true });
 });
 
+const PLAYER_NAME_KEY = 'backtoceo_player_name';
+const RANDOM_PLAYER_NAMES = ['夜市股东 {0}', '芯片猎手 {0}', '皮衣策士 {0}', '董事会新秀 {0}'];
+const playerNameDialog = document.getElementById('player-name-dialog');
+const playerNameInput = document.getElementById('player-name-input');
+const playerNameDisplay = document.getElementById('player-name-display');
+const cancelPlayerName = document.getElementById('btn-cancel-player-name');
+let playerName = '';
+
+try {
+  playerName = normalizePlayerName(localStorage.getItem(PLAYER_NAME_KEY) || '');
+} catch {
+  // 存储不可用时，在当前页面记住名称。
+}
+
+function renderPlayerName() {
+  playerNameDisplay.textContent = playerName;
+  playerNameDisplay.hidden = !playerName;
+}
+
+function openPlayerName() {
+  playerNameInput.value = playerName;
+  playerNameInput.setCustomValidity('');
+  cancelPlayerName.hidden = !playerName;
+  playerNameDialog.showModal();
+}
+
+function continueFirstVisit() {
+  if (!playerName) openPlayerName();
+  else if (!tutorialSeen) openTutorial();
+}
+
+document.getElementById('btn-player-name').addEventListener('click', openPlayerName);
+cancelPlayerName.addEventListener('click', () => playerNameDialog.close());
+playerNameDialog.addEventListener('cancel', event => {
+  if (!playerName) event.preventDefault();
+});
+playerNameInput.addEventListener('input', () => playerNameInput.setCustomValidity(''));
+document.getElementById('btn-random-player-name').addEventListener('click', () => {
+  const template = RANDOM_PLAYER_NAMES[Math.floor(Math.random() * RANDOM_PLAYER_NAMES.length)];
+  playerNameInput.value = translate(template, Math.floor(Math.random() * 9000) + 1000);
+  playerNameInput.setCustomValidity('');
+});
+document.getElementById('player-name-form').addEventListener('submit', event => {
+  event.preventDefault();
+  const name = normalizePlayerName(playerNameInput.value);
+  if (!name) {
+    playerNameInput.setCustomValidity(translate("请输入 1 到 24 个字符的有效名称。"));
+    playerNameInput.reportValidity();
+    return;
+  }
+  const firstName = !playerName;
+  playerName = name;
+  try {
+    localStorage.setItem(PLAYER_NAME_KEY, playerName);
+  } catch {
+    // 存储不可用时，名称在当前页面仍然可用。
+  }
+  renderPlayerName();
+  playerNameDialog.close();
+  if (firstName) continueFirstVisit();
+});
+
+const leaderboardDialog = document.getElementById('leaderboard-dialog');
+const leaderboardStatus = document.getElementById('leaderboard-status');
+const leaderboardEntries = document.getElementById('leaderboard-entries');
+const rankedStartStatus = document.getElementById('ranked-start-status');
+const startRankedButton = document.getElementById('btn-start-ranked');
+const retryRankedButton = document.getElementById('btn-retry-ranked');
+let rankedAvailable = false;
+let startingRanked = false;
+
+function recordAction(type, index) {
+  startRunTimer();
+  rankedRun?.actions.push(index === undefined ? [type] : [type, index]);
+}
+
+function leaderboardRequest(data) {
+  const options = { signal: AbortSignal.timeout(12000) };
+  if (data) {
+    options.method = 'POST';
+    options.headers = { 'Content-Type': 'application/json' };
+    options.body = JSON.stringify(data);
+  }
+  return fetch('/api/leaderboard', options);
+}
+
+function displayLeaderboard({ entries, cleared, rankedAvailable: available }) {
+  leaderboardStatus.textContent = translate("独立通关玩家：{0}", cleared);
+  if (entries.length === 0) {
+    leaderboardStatus.textContent += ' · ' + translate("暂无通关成绩。");
+  }
+  const rows = entries.map(entry => {
+    const item = document.createElement('li');
+    const row = document.createElement('div');
+    row.className = 'leaderboard-entry';
+    const name = document.createElement('span');
+    const nickname = document.createElement('bdi');
+    nickname.textContent = entry.nickname;
+    name.append(nickname);
+    if (entry.example) {
+      const label = document.createElement('span');
+      label.className = 'leaderboard-example';
+      label.textContent = translate("示例");
+      name.append(label);
+    }
+    const seconds = Math.floor(entry.elapsedMs / 1000);
+    const time = document.createElement('time');
+    time.textContent = formatRunTime(seconds);
+    time.dateTime = 'PT' + seconds + 'S';
+    row.append(name, time);
+    item.append(row);
+    return item;
+  });
+  leaderboardEntries.replaceChildren(...rows);
+  leaderboardEntries.hidden = rows.length === 0;
+  rankedAvailable = available;
+  startRankedButton.disabled = startingRanked || !rankedAvailable;
+  if (!available) rankedStartStatus.textContent = translate("暂时无法启动排位挑战。");
+}
+
+document.getElementById('btn-leaderboard').addEventListener('click', async () => {
+  leaderboardDialog.showModal();
+  leaderboardEntries.hidden = true;
+  rankedStartStatus.textContent = '';
+  startRankedButton.disabled = true;
+  rankedAvailable = false;
+  leaderboardStatus.textContent = translate("正在加载排行榜…");
+  try {
+    const response = await leaderboardRequest();
+    if (!response.ok) throw new Error('Leaderboard unavailable');
+    displayLeaderboard(await response.json());
+  } catch {
+    leaderboardStatus.textContent = translate("排行榜暂时无法加载。");
+  }
+});
+
+startRankedButton.addEventListener('click', async () => {
+  if (startingRanked || !rankedAvailable || !playerName) return;
+  startingRanked = true;
+  startRankedButton.disabled = true;
+  rankedStartStatus.textContent = translate("正在启动排位挑战…");
+  try {
+    const response = await leaderboardRequest({ type: 'start' });
+    if (!response.ok) throw new Error('Ranked run unavailable');
+    const { token, seed } = await response.json();
+    if (!leaderboardDialog.open) return;
+    rankedRun = { token, actions: [] };
+    startStage(1, false, seededRandom(seed));
+    startRunTimer();
+    SoundFX.playDeal(4);
+    leaderboardDialog.close();
+  } catch {
+    rankedStartStatus.textContent = translate("暂时无法启动排位挑战。");
+  } finally {
+    startingRanked = false;
+    startRankedButton.disabled = !rankedAvailable;
+  }
+});
+
+async function submitRankedRun(run, finishedState) {
+  const status = document.getElementById('end-ranked-status');
+  run.nickname ??= playerName;
+  retryRankedButton.hidden = true;
+  status.textContent = translate("正在保存排位成绩…");
+  try {
+    const response = await leaderboardRequest({
+      type: 'finish', token: run.token, nickname: run.nickname, actions: run.actions,
+    });
+    if (state !== finishedState) return;
+    if (response.status === 400) {
+      status.textContent = translate("本次成绩未通过验证。");
+      return;
+    }
+    if (!response.ok) throw new Error('Ranked time unavailable');
+    const { elapsedMs } = await response.json();
+    if (state !== finishedState) return;
+    runFinishedSeconds = Math.floor(elapsedMs / 1000);
+    updateRunTimer();
+    renderRunTime('final-run-time', runFinishedSeconds);
+    document.getElementById('btn-share-x').href = getFinalShareUrl(formatRunTime(runFinishedSeconds));
+    status.textContent = translate("已提交排位成绩。");
+  } catch {
+    if (state !== finishedState) return;
+    status.textContent = translate("暂时无法保存成绩。");
+    retryRankedButton.onclick = () => void submitRankedRun(run, finishedState);
+    retryRankedButton.hidden = false;
+  }
+}
+
 const languageDialog = document.getElementById('language-dialog');
 document.getElementById('btn-language').addEventListener('click', () => languageDialog.showModal());
 languageDialog.addEventListener('cancel', event => {
@@ -1178,7 +1027,7 @@ document.querySelectorAll('[data-game-language]').forEach(button => {
     clearStage();
     renderAll();
     languageDialog.close();
-    if (!tutorialSeen) openTutorial();
+    continueFirstVisit();
   });
 });
 
@@ -1186,5 +1035,6 @@ applyPageLanguage();
 renderCampaignShareLinks();
 renderSoundButton();
 initGame();
+renderPlayerName();
 if (!selectedLanguage) languageDialog.showModal();
-else if (!tutorialSeen) openTutorial();
+else continueFirstVisit();

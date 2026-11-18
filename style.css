@@ -566,6 +566,13 @@ input[type="text"], input[type="password"], select { background: var(--bg); bord
 .language-options { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
 .language-options button { min-height: 46px; font-size: 14px; }
 
+.player-name-modal { max-width: 420px; }
+.player-name-modal h2 { font-size: 17px; }
+.player-name-modal .modal-body { gap: 8px; }
+.player-name-modal .modal-footer { flex-wrap: wrap; gap: 8px; }
+.player-name-button { align-self: flex-start; max-width: 100%; margin-top: 4px; text-align: start; overflow-wrap: anywhere; }
+#player-name-display { color: var(--amber); }
+
 .tutorial-modal { max-width: 640px; }
 .tutorial-modal[open] { display: flex; flex-direction: column; overflow: hidden; }
 .tutorial-modal .modal-header, .tutorial-actions { flex-shrink: 0; }
@@ -810,3 +817,24 @@ button:disabled { opacity: 0.52; cursor: not-allowed; }
 @media (prefers-reduced-motion: reduce) {
   .hs-table *, .modal * { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
 }
+
+#ranked-run-label { color: var(--muted); }
+.leaderboard-entries {
+  margin: 0;
+  padding-inline-start: 2rem;
+}
+.leaderboard-entries li {
+  padding: .45rem .25rem;
+  border-bottom: 1px solid #ffffff20;
+}
+.leaderboard-entry {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: .75rem;
+  align-items: center;
+}
+.leaderboard-entry bdi { overflow-wrap: anywhere; }
+.leaderboard-entry time { font-variant-numeric: tabular-nums; }
+.leaderboard-example { color: var(--muted); font-size: .8em; margin-inline-start: .5em; }
+.leaderboard-modal [role="status"]:empty,
+#end-ranked-status:empty { display: none; }

@@ -15,8 +15,13 @@ const html = pageUrl ? withShareUrl(sourceHtml, pageUrl) : sourceHtml;
 await rm(output, { recursive: true, force: true });
 await mkdir(output);
 await writeFile(new URL('index.html', output), html);
+await writeFile(new URL('_routes.json', output), JSON.stringify({
+  version: 1,
+  include: ['/api/leaderboard', '/api/seed-leaderboard-example'],
+  exclude: [],
+}));
 
-for (const file of ['style.css', 'sound.js', 'i18n.js', 'ai.js', 'game.js', 'favicon.ico']) {
+for (const file of ['style.css', 'sound.js', 'i18n.js', 'ai.js', 'game.js', 'game-rules.mjs', 'favicon.ico']) {
   await copyFile(new URL(file, root), new URL(file, output));
 }
 
