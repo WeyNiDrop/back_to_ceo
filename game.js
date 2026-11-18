@@ -642,14 +642,15 @@ function handleStageCleared(pVotes, pLocked = 0) {
   }
 }
 
-function getXShareUrl(text, pageUrl = '') {
-  const { posterUrl } = getGameShareAddress();
-  const postText = posterUrl ? `${text}\n\n${translate("海报原图")} ${posterUrl}` : text;
+function getXShareUrl(lines) {
   const intent = new URL('https://twitter.com/intent/tweet');
-  intent.searchParams.set('text', postText);
+  intent.searchParams.set('text', lines.filter(Boolean).join('\n'));
   intent.searchParams.set('hashtags', 'BackToCEO');
-  if (pageUrl) intent.searchParams.set('url', pageUrl);
   return intent.href;
+}
+
+function getGameXShareUrl(text, { publicUrl, posterUrl } = getGameShareAddress()) {
+  return getXShareUrl([text, publicUrl, translate("支持黄仁勋回归 NVIDIA CEO 职位"), posterUrl]);
 }
 
 const supportTemplate = document.getElementById('support-links-template');
@@ -659,8 +660,9 @@ document.querySelectorAll('[data-support-footer]').forEach(footer => {
 });
 
 function renderCampaignShareLinks() {
+  const { posterUrl } = getGameShareAddress();
   const shareText = translate("一起转发声援黄仁勋，支持他早日回归 NVIDIA CEO 岗位。");
-  const shareUrl = getXShareUrl(shareText, campaignUrl);
+  const shareUrl = getXShareUrl([campaignUrl, shareText, posterUrl]);
   document.querySelectorAll('.campaign-share').forEach(link => { link.href = shareUrl; });
 }
 
@@ -713,7 +715,7 @@ function showEndModal(title, desc, isWin = false, btnLabel = translate("🔄 再
   if (shareLink.hidden) {
     shareLink.removeAttribute('href');
   } else {
-    shareLink.href = getXShareUrl(shareText, getGameShareAddress().publicUrl);
+    shareLink.href = getGameXShareUrl(shareText);
   }
   document.getElementById('modal-end').style.display = 'flex';
 }
@@ -953,13 +955,15 @@ const posterShareStatus = document.getElementById('poster-share-status');
 let posterShareData;
 
 document.getElementById('btn-share-game').addEventListener('click', async () => {
-  const { address, publicUrl } = getGameShareAddress();
+  const shareAddress = getGameShareAddress();
+  const { address, publicUrl } = shareAddress;
   const shareTitle = document.title;
   document.getElementById('game-share-url-label').textContent = publicUrl ? translate("分享链接") : translate("当前地址");
   document.getElementById('game-share-url').value = address;
   document.getElementById('game-share-local-hint').hidden = Boolean(publicUrl);
   const shareLink = document.getElementById('game-share-x');
-  shareLink.href = getXShareUrl(shareTitle, publicUrl);
+  const shareUrl = getGameXShareUrl(shareTitle, shareAddress);
+  shareLink.href = shareUrl;
   shareLink.textContent = publicUrl ? translate("分享到 X") : translate("测试 X 发帖");
   posterShareButton.hidden = true;
   posterShareStatus.hidden = true;
@@ -973,7 +977,7 @@ document.getElementById('btn-share-game').addEventListener('click', async () => 
     if (!response.ok) return;
     const file = new File([await response.blob()], 'back-to-ceo-poster.jpg', { type: 'image/jpeg' });
     const data = { title: shareTitle, text: shareTitle, url: publicUrl, files: [file] };
-    if (dialog.open && shareLink.href === getXShareUrl(shareTitle, publicUrl) && navigator.canShare(data)) {
+    if (dialog.open && shareLink.href === shareUrl && navigator.canShare(data)) {
       posterShareData = data;
       posterShareButton.hidden = false;
     }
