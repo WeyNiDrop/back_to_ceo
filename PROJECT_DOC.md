@@ -259,3 +259,19 @@ node scripts/set-share-url.mjs https://games.example.com/back-to-ceo/
 
 1. **补缴提示金额**。可用资金低于补缴额时，实际只扣到余额为 0，动画仍显示按影响力缺口算出的全额。
 2. **立场与席位交互**。游戏默认使用极客立场。资本和铁腕的词条池已定义，界面还未提供立场选择或手动指定席位目标。
+
+## 10. 前端部署
+
+在 Cloudflare Workers & Pages 创建 **Pages** 项目，使用 Git 集成连接 GitHub 仓库。使用以下生产构建设置。推送到 `main` 会触发生产部署。
+
+| 设置 | 值 |
+| --- | --- |
+| 生产分支 | `main` |
+| 框架预设 | `None` |
+| 根目录 | 留空（仓库根目录） |
+| 构建命令 | `node scripts/build-frontend.mjs` |
+| 构建输出目录 | `dist` |
+
+本地可运行同一构建命令生成 `dist/`。产物包含网页、脚本、样式和游戏素材，供静态托管使用。构建会在产物中写入分享链接及海报的绝对地址，默认使用 Cloudflare 提供的 `CF_PAGES_URL`。
+
+首次部署成功后，可在 Pages 项目的 **Custom domains** 中绑定已有域名。若子域名由其他服务商管理，先在 Pages 添加它，再到 DNS 服务商添加指向项目 `*.pages.dev` 的 CNAME。若使用根域名，需将对应域名加入同一 Cloudflare 账号并由 Cloudflare 管理 DNS。绑定生效后，在 Pages 项目的 **Production** 构建变量中设置 `PUBLIC_SITE_URL` 为正式 HTTPS 地址并重新部署，分享链接便会使用正式域名。
