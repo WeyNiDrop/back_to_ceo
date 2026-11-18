@@ -679,11 +679,8 @@ function getGameShareAddress() {
   pageUrl.password = '';
 
   const isPublic = /^https?:$/.test(pageUrl.protocol) && (Boolean(canonical) || isPublicShareUrl(pageUrl));
-  const poster = document.getElementById('game-share-poster');
-  const displayedPosterUrl = new URL(poster.src);
-  const posterUrl = isPublicShareUrl(displayedPosterUrl) ? displayedPosterUrl : new URL(poster.getAttribute('src'), pageUrl);
-  posterUrl.username = '';
-  posterUrl.password = '';
+  const posterPath = document.getElementById('game-share-poster').getAttribute('src');
+  const posterUrl = new URL(posterPath, pageUrl);
   return {
     address: pageUrl.href,
     publicUrl: isPublic ? pageUrl.href : '',

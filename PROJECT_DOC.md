@@ -272,6 +272,6 @@ node scripts/set-share-url.mjs https://games.example.com/back-to-ceo/
 | 构建命令 | `node scripts/build-frontend.mjs` |
 | 构建输出目录 | `dist` |
 
-本地可运行同一构建命令生成 `dist/`。产物包含网页、脚本、样式和游戏素材，供静态托管使用。构建会在产物中写入分享链接及海报的绝对地址，默认使用 Cloudflare 提供的 `CF_PAGES_URL`。
+本地可运行同一构建命令生成 `dist/`。产物包含网页、脚本、样式和游戏素材，供静态托管使用。`main` 的 Pages 构建使用 `https://btceo.create-ai.cc/` 生成游戏分享和海报地址，其他分支使用各自的 `CF_PAGES_URL`。设置 `PUBLIC_SITE_URL` 可覆盖所用地址。
 
-首次部署成功后，可在 Pages 项目的 **Custom domains** 中绑定已有域名。若子域名由其他服务商管理，先在 Pages 添加它，再到 DNS 服务商添加指向项目 `*.pages.dev` 的 CNAME。若使用根域名，需将对应域名加入同一 Cloudflare 账号并由 Cloudflare 管理 DNS。绑定生效后，在 Pages 项目的 **Production** 构建变量中设置 `PUBLIC_SITE_URL` 为正式 HTTPS 地址并重新部署，分享链接便会使用正式域名。
+首次部署成功后，可在 Pages 项目的 **Custom domains** 中绑定已有域名。若子域名由其他服务商管理，先在 Pages 添加它，再到 DNS 服务商添加指向项目 `*.pages.dev` 的 CNAME。若使用根域名，需将对应域名加入同一 Cloudflare 账号并由 Cloudflare 管理 DNS。更换正式域名时，在 **Production** 环境设置新的 `PUBLIC_SITE_URL` 后重新部署。

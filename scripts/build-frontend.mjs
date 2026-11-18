@@ -4,7 +4,9 @@ import { withShareUrl } from './set-share-url.mjs';
 
 const root = new URL('../', import.meta.url);
 const output = new URL('dist/', root);
-const siteUrl = process.env.PUBLIC_SITE_URL || process.env.CF_PAGES_URL;
+const productionSiteUrl = 'https://btceo.create-ai.cc/';
+const pagesSiteUrl = process.env.CF_PAGES_BRANCH === 'main' ? productionSiteUrl : process.env.CF_PAGES_URL;
+const siteUrl = process.env.PUBLIC_SITE_URL || pagesSiteUrl;
 const sourceHtml = await readFile(new URL('index.html', root), 'utf8');
 const html = siteUrl ? withShareUrl(sourceHtml, siteUrl) : sourceHtml;
 
