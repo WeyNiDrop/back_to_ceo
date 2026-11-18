@@ -4,7 +4,6 @@ const RULES_VERSION = 'board-v1';
 const MAX_RUN_MS = 2 * 60 * 60 * 1000;
 const COOKIE_NAME = '__Host-btceo-player';
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
-const EXAMPLE_PLAYER = 'example-evan-musk';
 const text = new TextEncoder();
 
 function json(body, status = 200, headers = {}) {
@@ -81,14 +80,14 @@ export async function onRequestGet({ env }) {
   try {
     const [top, count] = await env.DB.batch([
       env.DB.prepare(
-        'SELECT p.nickname, b.elapsed_ms AS elapsedMs, p.player_id = ? AS example'
+        'SELECT p.nickname, b.elapsed_ms AS elapsedMs'
         + ' FROM best_times b JOIN players p ON p.player_id = b.player_id'
         + ' WHERE b.rules_version = ? ORDER BY b.elapsed_ms, b.finished_at_ms, b.player_id LIMIT 20'
-      ).bind(EXAMPLE_PLAYER, RULES_VERSION),
-      env.DB.prepare('SELECT COUNT(*) AS cleared FROM players WHERE player_id <> ?').bind(EXAMPLE_PLAYER),
+      ).bind(RULES_VERSION),
+      env.DB.prepare('SELECT COUNT(*) AS cleared FROM players'),
     ]);
     return json({
-      entries: top.results.map(row => ({ ...row, example: Boolean(row.example) })),
+      entries: top.results,
       cleared: count.results[0].cleared,
       rankedAvailable: Boolean(env.RUN_SIGNING_KEY),
     });

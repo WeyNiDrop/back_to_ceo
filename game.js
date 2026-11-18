@@ -918,21 +918,13 @@ function displayLeaderboard({ entries, cleared, rankedAvailable: available }) {
     const item = document.createElement('li');
     const row = document.createElement('div');
     row.className = 'leaderboard-entry';
-    const name = document.createElement('span');
     const nickname = document.createElement('bdi');
     nickname.textContent = entry.nickname;
-    name.append(nickname);
-    if (entry.example) {
-      const label = document.createElement('span');
-      label.className = 'leaderboard-example';
-      label.textContent = translate("示例");
-      name.append(label);
-    }
     const seconds = Math.floor(entry.elapsedMs / 1000);
     const time = document.createElement('time');
     time.textContent = formatRunTime(seconds);
     time.dateTime = 'PT' + seconds + 'S';
-    row.append(name, time);
+    row.append(nickname, time);
     item.append(row);
     return item;
   });

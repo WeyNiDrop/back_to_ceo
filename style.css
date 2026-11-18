@@ -835,6 +835,5 @@ button:disabled { opacity: 0.52; cursor: not-allowed; }
 }
 .leaderboard-entry bdi { overflow-wrap: anywhere; }
 .leaderboard-entry time { font-variant-numeric: tabular-nums; }
-.leaderboard-example { color: var(--muted); font-size: .8em; margin-inline-start: .5em; }
 .leaderboard-modal [role="status"]:empty,
 #end-ranked-status:empty { display: none; }

@@ -287,7 +287,6 @@ const ENGLISH_TEXT = {
   "排行榜暂时无法加载。": "The leaderboard is temporarily unavailable.",
   "独立通关玩家：{0}": "Unique players who cleared all stages: {0}",
   "暂无通关成绩。": "No finish times yet.",
-  "示例": "Example",
   "正在启动排位挑战…": "Starting ranked run…",
   "暂时无法启动排位挑战。": "Ranked runs are temporarily unavailable.",
   "正在保存排位成绩…": "Saving ranked time…",
