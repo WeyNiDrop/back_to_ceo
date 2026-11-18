@@ -37,7 +37,7 @@
       "isAccessibleForFree": true
     }
   </script>
-  <link rel="stylesheet" href="style.css?v=20261118-logo" />
+  <link rel="stylesheet" href="style.css?v=20261118-timer" />
 </head>
 <body>
   <div class="hs-table">
@@ -52,7 +52,13 @@
         <span><span data-i18n="连胜 3 关夺回 CEO">连胜 3 关夺回 CEO</span> · <strong id="stage-win-rule">占 6 席或锁 5 席即胜（第 6 回合末 ≥5 席晋级）</strong></span>
       </div>
 
-      <div class="turn-pill" id="turn-display">第 1 / 6 回合 · DAY 1 白天</div>
+      <div class="turn-status">
+        <div class="turn-pill" id="turn-display">第 1 / 6 回合 · DAY 1 白天</div>
+        <div class="run-timer">
+          <span data-i18n="当前用时">当前用时</span>
+          <time id="run-time" datetime="PT0S">00:00</time>
+        </div>
+      </div>
 
       <div class="top-btns">
         <button class="btn-top" id="btn-share-game" type="button" aria-haspopup="dialog" data-i18n="分享游戏">分享游戏</button>
@@ -194,6 +200,10 @@
       <div class="modal-body">
         <img id="end-scene-img" class="end-scene-img" src="assets/ending_victory.png" alt="结局场景" data-i18n-alt="结局场景" style="display:none;" />
         <p id="end-desc" class="end-desc"></p>
+        <p class="end-run-time" id="end-run-time" hidden>
+          <span data-i18n="通关用时">通关用时</span>
+          <time id="final-run-time" datetime="PT0S">00:00</time>
+        </p>
         <div class="end-actions">
           <button class="btn-save" id="btn-play-again">进入下一关</button>
           <a class="btn-save btn-action-link btn-secondary" id="btn-share-x" target="_blank" rel="noopener noreferrer" hidden data-i18n="分享到 X">分享到 X</a>
@@ -318,8 +328,8 @@
   </template>
 
   <script src="sound.js?v=202611172115"></script>
-  <script src="i18n.js?v=20261118-seo"></script>
+  <script src="i18n.js?v=20261118-timer"></script>
   <script src="ai.js?v=20261118-guide"></script>
-  <script src="game.js?v=20261118-seo"></script>
+  <script src="game.js?v=20261118-timer"></script>
 </body>
 </html>

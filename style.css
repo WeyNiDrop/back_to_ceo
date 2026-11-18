@@ -115,7 +115,10 @@ body {
   border-radius: 2px;
 }
 .goal-tag { white-space: nowrap; }
-.turn-pill { grid-area: turn; text-align: center; }
+.turn-status { grid-area: turn; display: grid; gap: 4px; }
+.turn-pill { text-align: center; }
+.run-timer { display: flex; justify-content: center; gap: 7px; color: var(--muted); font-size: 12px; }
+:is(.run-timer, .end-run-time) time { color: var(--amber); font-variant-numeric: tabular-nums; font-weight: 750; }
 .top-btns { grid-area: controls; display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 6px; }
 .btn-top { padding: 6px 11px; font-size: 12px; }
 .project-links {
@@ -543,6 +546,8 @@ input[type="text"], input[type="password"], select { background: var(--bg); bord
 .hint-text { font-size: 12px; color: var(--muted); }
 .btn-save { padding: 10px 12px; font-size: 13px; }
 .end-desc { font-size: 14px; line-height: 1.6; }
+.end-run-time { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 8px 12px; border: 1px solid var(--border); border-radius: 4px; color: var(--muted); font-size: 13px; }
+.end-run-time time { font-size: 20px; }
 .end-actions { display: flex; flex-wrap: wrap; gap: 8px; }
 .end-actions > * { flex: 1 1 130px; }
 .btn-action-link { text-align: center; text-decoration: none; }

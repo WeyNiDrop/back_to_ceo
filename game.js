@@ -102,6 +102,51 @@ let state = {};
 let isAnimating = false;
 let isEnemyTurn = false;
 let isDiscardMode = false;
+let runStartedAt = null;
+let runFinishedSeconds = null;
+let runTimerId;
+
+function getRunSeconds() {
+  if (runFinishedSeconds !== null) return runFinishedSeconds;
+  return runStartedAt === null ? 0 : Math.floor((performance.now() - runStartedAt) / 1000);
+}
+
+function formatRunTime(seconds) {
+  const minutes = Math.floor(seconds / 60);
+  const parts = [minutes % 60, seconds % 60];
+  if (minutes >= 60) parts.unshift(Math.floor(minutes / 60));
+  return parts.map(part => String(part).padStart(2, '0')).join(':');
+}
+
+function renderRunTime(elementId, seconds) {
+  const clock = document.getElementById(elementId);
+  clock.textContent = formatRunTime(seconds);
+  clock.dateTime = `PT${seconds}S`;
+}
+
+function updateRunTimer() {
+  renderRunTime('run-time', getRunSeconds());
+}
+
+function startRunTimer() {
+  if (runStartedAt !== null) return;
+  runStartedAt = performance.now();
+  runTimerId = setInterval(updateRunTimer, 1000);
+}
+
+function stopRunTimer() {
+  runFinishedSeconds = getRunSeconds();
+  clearInterval(runTimerId);
+  updateRunTimer();
+  return runFinishedSeconds;
+}
+
+function resetRunTimer() {
+  clearInterval(runTimerId);
+  runStartedAt = null;
+  runFinishedSeconds = null;
+  updateRunTimer();
+}
 
 function getCurrentBoss() {
   return (state.runBosses && state.runBosses[state.stage - 1]) || AI_BOSS_POOL[0];
@@ -346,6 +391,7 @@ function drawCards(count) {
 }
 
 function startStage(stageNum, keepResources = false) {
+  if (!keepResources) resetRunTimer();
   const runBosses = (keepResources && state.runBosses) ? state.runBosses : pickRunBosses(3);
   const boss = runBosses[stageNum - 1];
   const baseEnemyCount = stageNum === 1 && boss.id !== 'baron_fund' ? 3 : 4;
@@ -632,9 +678,10 @@ function handleStageCleared(pVotes, pLocked = 0) {
       getGameXShareUrl(shareText)
     );
   } else {
+    const elapsed = formatRunTime(stopRunTimer());
     const names = state.runBosses.map(b => b.name).join(' → ');
     const { publicUrl, posterUrl } = getGameShareAddress();
-    const shareText = translate("我在《{0}》连克三关，帮助黄仁勋重返 CEO 宝座！", translate(GAME_TITLE));
+    const shareText = translate("我在《{0}》用时 {1} 连克三关，帮助黄仁勋重返 CEO 宝座！", translate(GAME_TITLE), elapsed);
     showEndModal(
       translate("连克三关，重返 CEO 宝座"),
       translate("你从 0 席起步，连续击败 {0}，重新执掌董事会。", names),
@@ -695,10 +742,14 @@ function getGameShareAddress() {
 
 function showEndModal(title, desc, isWin = false, btnLabel = translate("🔄 再来一局"), shareUrl = '') {
   state.gameOver = true;
+  if (!isWin) stopRunTimer();
   SoundFX.playEnd(isWin);
   renderAll();
   document.getElementById('end-title').textContent = title;
   document.getElementById('end-desc').textContent = desc;
+  const completionTime = document.getElementById('end-run-time');
+  completionTime.hidden = !isWin || state.stage !== 3;
+  if (!completionTime.hidden) renderRunTime('final-run-time', getRunSeconds());
   const sceneImg = document.getElementById('end-scene-img');
   if (sceneImg) {
     const base = isWin ? 'assets/ending_victory' : 'assets/ending_defeat';
@@ -768,6 +819,7 @@ document.getElementById('hand-cards').addEventListener('click', async e => {
 
   const item = state.hand[idx];
   if (isDiscardMode) {
+    startRunTimer();
     isDiscardMode = false;
     state.mulliganUsedThisTurn = true;
     state.hand.splice(idx, 1);
@@ -791,6 +843,7 @@ document.getElementById('hand-cards').addEventListener('click', async e => {
     return;
   }
 
+  startRunTimer();
   isAnimating = true;
   state.ap -= costs.ap;
   state.cash -= costs.cash;
@@ -809,6 +862,7 @@ document.getElementById('hand-cards').addEventListener('click', async e => {
 
 document.getElementById('btn-hero-jacket').addEventListener('click', async () => {
   if (isAnimating || state.gameOver || state.jacketUses <= 0 || state.powersUsedThisTurn.jacket || state.ap < 2) return;
+  startRunTimer();
   isAnimating = true;
   state.ap -= 2;
   state.jacketUses -= 1;
@@ -827,6 +881,7 @@ document.getElementById('btn-hero-equity').addEventListener('click', async () =>
   const target = state.seats.find(s => s.owner === 'player' && !s.locked);
   if (!target) return;
 
+  startRunTimer();
   isAnimating = true;
   state.ap -= 1;
   state.equityUses -= 1;
@@ -843,6 +898,7 @@ document.getElementById('btn-hero-rally').addEventListener('click', async () => 
   const seat = claimNeutralSeat(state) || stealEnemySeat(state);
   if (!seat) return;
 
+  startRunTimer();
   isAnimating = true;
   state.rallyUses -= 1;
   state.powersUsedThisTurn.rally = true;
@@ -855,6 +911,7 @@ document.getElementById('btn-hero-rally').addEventListener('click', async () => 
 
 document.getElementById('btn-end-turn').addEventListener('click', async () => {
   if (isAnimating || state.gameOver) return;
+  startRunTimer();
   const turnState = state;
   isAnimating = true;
   isEnemyTurn = true;
