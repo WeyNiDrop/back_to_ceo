@@ -483,7 +483,6 @@ function renderAll() {
   const bossPassiveEl = document.getElementById('boss-passive');
   bossPassiveEl.textContent = translate("被动：{0}", translate(boss.passiveName));
   bossPassiveEl.dataset.tooltip = `${boss.name} · ${translate(boss.passiveName)}\n${translate(boss.passiveDesc)}`;
-  bossPassiveEl.style.cursor = 'help';
 
   const heroPassiveEl = document.querySelector('.hero-passive');
   if (heroPassiveEl) {
@@ -582,6 +581,8 @@ function renderAll() {
 
   const endBtn = document.getElementById('btn-end-turn');
   document.getElementById('btn-language').disabled = isAnimating;
+  document.getElementById('btn-tutorial').disabled = isAnimating;
+  bossPassiveEl.disabled = isAnimating;
   endBtn.disabled = state.gameOver || isAnimating;
   endBtn.textContent = isEnemyTurn ? translate("对手出牌中...") : translate("结束回合");
   const enemyTurnPreview = document.getElementById('enemy-turn-preview');
@@ -1006,6 +1007,68 @@ document.getElementById('btn-save-ai').addEventListener('click', () => {
   renderAll();
 });
 
+const TUTORIAL_SEEN_KEY = 'backtoceo_tutorial_seen';
+let tutorialSeen = false;
+try {
+  tutorialSeen = localStorage.getItem(TUTORIAL_SEEN_KEY) === '1';
+} catch {
+  // 存储不可用时，在当前页面记住教学状态。
+}
+
+const tutorialButton = document.getElementById('btn-tutorial');
+const tutorialDialog = document.getElementById('tutorial-dialog');
+const tutorialBody = tutorialDialog.querySelector('.modal-body');
+const tutorialPanels = [...tutorialDialog.querySelectorAll('.tutorial-step')];
+const tutorialBack = document.getElementById('tutorial-back');
+const tutorialNext = document.getElementById('tutorial-next');
+const opponentStep = tutorialPanels.length - 1;
+let tutorialStep = 0;
+
+function showTutorialStep(step) {
+  tutorialStep = step;
+  tutorialPanels.forEach((panel, index) => { panel.hidden = index !== step; });
+  document.getElementById('tutorial-progress').textContent = translate("第 {0} / {1} 步", step + 1, tutorialPanels.length);
+  tutorialBack.hidden = step === 0;
+  tutorialNext.textContent = translate(step === opponentStep ? "返回牌桌" : "下一步");
+  tutorialBody.scrollTop = 0;
+  tutorialPanels[step].querySelector('h3').focus({ preventScroll: true });
+}
+
+function openTutorial(step = 0) {
+  document.getElementById('tutorial-instant-win').textContent = translate("即时胜利：第 1 关占 {0} 席，第 2、3 关分别占 {1}、{2} 席。", ...INSTANT_WIN_SEATS);
+  document.getElementById('tutorial-lock-win').textContent = translate("任一关锁定 {0} 个我方席位即胜。对手先锁定 {0} 席，你立即落败。", BOARD_MAJORITY);
+  document.getElementById('tutorial-round-win').textContent = translate("若未提前分出胜负，第 {0} 回合对手行动结束后，仍持有至少 {1} 席才算过关。", state.maxTurns, BOARD_MAJORITY);
+  document.getElementById('tutorial-enemy-turn').textContent = translate("点结束回合后，对手通常出与你本回合相同数量的牌，至少 {0} 张。它们可以抢席、动摇未锁席位或扣除资源。出牌后，对手结算回合末被动。打出「700人联名逼宫」能让对手只出 {0} 张牌并跳过这次被动。", MIN_ENEMY_CARDS);
+
+  const boss = getCurrentBoss();
+  document.getElementById('tutorial-boss-portrait').src = portraitSrc(boss.portrait);
+  document.getElementById('tutorial-boss-name').textContent = `${boss.name} · ${translate(boss.roleTitle)}`;
+  document.getElementById('tutorial-boss-passive').textContent = translate("被动：{0}", translate(boss.passiveName));
+  document.getElementById('tutorial-boss-effect').textContent = translate(boss.passiveDesc);
+
+  tutorialDialog.showModal();
+  showTutorialStep(step);
+}
+
+tutorialButton.addEventListener('click', () => openTutorial());
+document.getElementById('boss-passive').addEventListener('click', () => openTutorial(opponentStep));
+tutorialBack.addEventListener('click', () => showTutorialStep(tutorialStep - 1));
+tutorialNext.addEventListener('click', () => {
+  if (tutorialStep === opponentStep) tutorialDialog.close();
+  else showTutorialStep(tutorialStep + 1);
+});
+tutorialDialog.addEventListener('close', () => {
+  if (!tutorialSeen) {
+    tutorialSeen = true;
+    try {
+      localStorage.setItem(TUTORIAL_SEEN_KEY, '1');
+    } catch {
+      // 存储不可用时仍可关闭教学。
+    }
+  }
+  if (document.activeElement === document.body) tutorialButton.focus({ preventScroll: true });
+});
+
 const languageDialog = document.getElementById('language-dialog');
 document.getElementById('btn-language').addEventListener('click', () => languageDialog.showModal());
 languageDialog.addEventListener('cancel', event => {
@@ -1020,6 +1083,7 @@ document.querySelectorAll('[data-game-language]').forEach(button => {
     clearStage();
     renderAll();
     languageDialog.close();
+    if (!tutorialSeen) openTutorial();
   });
 });
 
@@ -1027,3 +1091,4 @@ applyPageLanguage();
 renderSoundButton();
 initGame();
 if (!selectedLanguage) languageDialog.showModal();
+else if (!tutorialSeen) openTutorial();

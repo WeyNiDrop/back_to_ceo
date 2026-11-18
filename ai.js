@@ -34,7 +34,7 @@ const AI_BOSS_POOL = [
     name: 'Elena Sterling',
     roleTitle: '公关秃鹫',
     passiveName: '舆论绞肉机',
-    passiveDesc: '回合结束若你影响力 < 35，动摇 1 我方未锁定席位（否则扣 6🌟）。',
+    passiveDesc: '回合结束时，若你的影响力低于 35 且有未锁定席位，使你的 1 席变为中立。其他情况扣除 6🌟。',
     tauntStart: '“热搜榜已经全是我买的通稿，你拿什么翻盘？”',
     onTurnEnd(state) {
       if (state.influence < 35) {
@@ -55,7 +55,7 @@ const AI_BOSS_POOL = [
     name: 'Senator Cole',
     roleTitle: '铁腕政客',
     passiveName: '合规铁幕',
-    passiveDesc: '【间谍/政治牌】加收 $200万。每回合锁定 1 个敌席，第 3 关首回合只预告。',
+    passiveDesc: '你的间谍牌和政治牌多花 $200万。回合结束时锁定自己的 1 席，无席可锁则扣你 $400万。第 3 关首回合只预告。',
     tauntStart: '“这里归华盛顿管！每一张牌都要过我的合规审查。”',
     onTurnEnd(state) {
       if (state.stage === 3 && state.turn === 1) {
@@ -77,7 +77,7 @@ const AI_BOSS_POOL = [
     name: 'Marcus Vance',
     roleTitle: '篡位代理CEO',
     passiveName: '算力霸权',
-    passiveDesc: '每回合结束抢占 1 个中立席位；无中立席且我方 ≥3 席时反抢 1 席，否则扣 10🌟。',
+    passiveDesc: '回合结束时优先抢 1 个中立席。无中立席且你至少有 3 席时，尝试夺取你的 1 个未锁定席。无席可抢则扣除 10🌟。',
     tauntStart: '“公司现在姓 Vance，你只是个被除名的过客。”',
     onTurnEnd(state) {
       const pVotes = state.seats.filter(s => s.owner === 'player').length;
@@ -97,7 +97,7 @@ const AI_BOSS_POOL = [
     name: 'Victor Thorne',
     roleTitle: '华尔街做空之狼',
     passiveName: '恶意做空',
-    passiveDesc: '每回合结束扣除你$500万；若你资金<$1500万，额外抢1中立席。',
+    passiveDesc: '回合结束时扣除你 $500万。若扣款后资金低于 $1,500万，额外抢 1 个中立席。',
     tauntStart: '“我已经做空了你的个人信用，看看你的现金还能撑几轮。”',
     onTurnEnd(state) {
       const loss = Math.min(state.cash, 500);
@@ -158,7 +158,7 @@ const AI_BOSS_POOL = [
     name: 'Arthur Pendelton',
     roleTitle: '元老守旧派领袖',
     passiveName: '祖宗之法',
-    passiveDesc: '敌方席位更难撼动：每回合结束若我方≥3席，强抢回1个未锁定席位。',
+    passiveDesc: '回合结束时，若你至少有 3 席，尝试夺取你的 1 个未锁定席。无席可抢或条件未满足时扣除 5🌟。',
     tauntStart: '“公司不需要穿皮衣的摇滚明星，董事会的规矩不能破！”',
     onTurnEnd(state) {
       const pCount = state.seats.filter(s => s.owner === 'player').length;
@@ -218,7 +218,7 @@ const AI_BOSS_POOL = [
     name: 'Baron Al-Mansoor',
     roleTitle: '中东主权巨鳄',
     passiveName: '钞能力碾压',
-    passiveDesc: '回合结束若你资金 <$4,500万，直接买下 1 个中立席位（否则扣 7🌟）。',
+    passiveDesc: '回合结束时，若你的资金低于 $4,500万且有中立席，买下 1 个中立席。其他情况扣除 7🌟。',
     tauntStart: '“在绝对的主权基金面前，你的3%股权不过是个零头。”',
     onTurnEnd(state) {
       if (state.cash < 4500) {

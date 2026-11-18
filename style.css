@@ -115,6 +115,18 @@ body {
 .turn-pill { grid-area: turn; text-align: center; }
 .top-btns { grid-area: controls; display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 6px; }
 .btn-top { padding: 6px 11px; font-size: 12px; }
+.project-links {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px 18px;
+  margin-top: auto;
+  border-top: 1px solid #78614066;
+  padding: 6px 4px 0;
+  font-size: 12px;
+}
+.project-links a { color: var(--muted); padding-block: 6px; text-underline-offset: 3px; }
+.project-links a:hover { color: var(--amber); }
 
 /* 敌方英雄区 */
 .enemy-hero-zone { display: flex; justify-content: center; }
@@ -527,6 +539,27 @@ input[type="text"], input[type="password"], select { background: var(--bg); bord
 .language-options { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
 .language-options button { min-height: 46px; font-size: 14px; }
 
+.tutorial-modal { max-width: 640px; }
+.tutorial-modal[open] { display: flex; flex-direction: column; overflow: hidden; }
+.tutorial-modal .modal-header, .tutorial-actions { flex-shrink: 0; }
+.tutorial-modal .modal-header h2 { font-size: 17px; }
+.tutorial-modal .modal-body { min-height: 0; overflow: auto; }
+.tutorial-progress { color: var(--muted); font-family: var(--body-font); font-size: 12px; white-space: nowrap; }
+.tutorial-step { display: grid; gap: 12px; font-size: 14px; line-height: 1.55; }
+.tutorial-step h3 { color: var(--amber); font-family: var(--display-font); font-size: 22px; line-height: 1.25; }
+.tutorial-step ul { display: grid; gap: 8px; padding-inline-start: 1.25em; }
+.tutorial-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.tutorial-list > div, .tutorial-boss { padding: 9px 11px; border: 1px solid var(--border); border-radius: 4px; background: var(--card-bg); }
+.tutorial-list dt, #tutorial-boss-passive { color: var(--amber); font-weight: 700; }
+.tutorial-list dd { margin-top: 3px; }
+.tutorial-boss { display: flex; align-items: center; gap: 12px; }
+.tutorial-boss img { width: 60px; height: 60px; flex-shrink: 0; }
+#tutorial-boss-passive { margin: 2px 0 4px; }
+.tutorial-actions { align-items: center; gap: 8px; flex-wrap: wrap; }
+.tutorial-actions form { margin-inline-end: auto; }
+.tutorial-skip { border: 0; padding: 8px 0; background: transparent; color: var(--muted); font: inherit; font-size: 13px; cursor: pointer; }
+.tutorial-skip:hover { color: var(--text); text-decoration: underline; }
+
 /* 游戏按钮共用压边和按压反馈，主要行动使用金色。 */
 :is(.btn-top, .btn-mulligan, .power-btn, .end-turn-btn, .btn-save, .modal-close) {
   background: linear-gradient(var(--button-top, #3b4330), #151c14 90%);
@@ -570,7 +603,8 @@ button:disabled { opacity: 0.52; cursor: not-allowed; }
   border-radius: 5px;
   width: fit-content;
 }
-.enemy-passive { background: rgba(239, 68, 68, 0.16); color: #fca5a5; border: 1px solid rgba(239, 68, 68, 0.35); }
+.enemy-passive { background: rgba(239, 68, 68, 0.16); color: #fca5a5; border: 1px solid rgba(239, 68, 68, 0.35); cursor: pointer; text-align: start; }
+.enemy-passive:hover:not(:disabled) { border-color: var(--red); }
 .hero-passive { background: rgba(34, 197, 94, 0.16); color: #86efac; border: 1px solid rgba(34, 197, 94, 0.35); cursor: help; }
 .affix-tag {
   font-size: 10px;
@@ -634,7 +668,7 @@ button:disabled { opacity: 0.52; cursor: not-allowed; }
   }
   .top-btns { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); }
   .top-btns .btn-top { grid-column: span 2; min-height: 36px; padding-inline: 5px; }
-  .top-btns .btn-top:nth-child(n+4) { grid-column: span 3; }
+  .tutorial-list { grid-template-columns: minmax(0, 1fr); }
   .enemy-pod {
     display: grid;
     grid-template-columns: 76px minmax(0, 1fr);
