@@ -249,7 +249,7 @@
 node scripts/set-share-url.mjs https://games.example.com/back-to-ceo/
 ```
 
-脚本会写入 `og:url`、`og:image` 和 `twitter:image`，将海报解析为同站点的绝对地址。发布时应让游戏页面和海报都可公开访问，确保 X 能读取大图卡片。
+脚本会写入规范网址、`VideoGame` 结构化数据以及 `og:url`、`og:image` 和 `twitter:image`，将海报解析为同站点的绝对地址。发布时应让游戏页面和海报都可公开访问，确保 X 能读取大图卡片。
 
 ### 8.4 中英文界面
 
@@ -272,6 +272,6 @@ node scripts/set-share-url.mjs https://games.example.com/back-to-ceo/
 | 构建命令 | `node scripts/build-frontend.mjs` |
 | 构建输出目录 | `dist` |
 
-本地可运行同一构建命令生成 `dist/`。产物包含网页、脚本、样式和游戏素材，供静态托管使用。`main` 的 Pages 构建使用 `https://btceo.create-ai.cc/` 生成游戏分享和海报地址，其他分支使用各自的 `CF_PAGES_URL`。设置 `PUBLIC_SITE_URL` 可覆盖所用地址。
+本地可运行同一构建命令生成 `dist/`。产物包含网页、脚本、样式、`favicon.ico` 和游戏素材。`main` 的 Pages 构建使用 `https://btceo.create-ai.cc/` 写入规范网址、游戏分享地址和海报地址，并生成 `robots.txt` 与 `sitemap.xml`。其他分支使用各自的 `CF_PAGES_URL`。自托管时可设置 `PUBLIC_SITE_URL` 来指定公开地址并生成站点地图。
 
 首次部署成功后，可在 Pages 项目的 **Custom domains** 中绑定已有域名。若子域名由其他服务商管理，先在 Pages 添加它，再到 DNS 服务商添加指向项目 `*.pages.dev` 的 CNAME。若使用根域名，需将对应域名加入同一 Cloudflare 账号并由 Cloudflare 管理 DNS。更换正式域名时，在 **Production** 环境设置新的 `PUBLIC_SITE_URL` 后重新部署。

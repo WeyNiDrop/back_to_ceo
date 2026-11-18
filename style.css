@@ -99,6 +99,9 @@ body {
   font-weight: 600;
   color: var(--text);
 }
+.top-bar .game-wordmark { display: flex; align-items: center; justify-content: center; gap: 10px; }
+.game-wordmark-text { display: grid; justify-items: center; gap: 3px; }
+.game-logo { flex: none; width: clamp(42px, 5vw, 64px); height: auto; }
 .goal-banner { grid-area: goal; display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--muted); }
 .goal-banner strong { color: var(--text); }
 .goal-tag, .turn-pill {
@@ -120,6 +123,7 @@ body {
   border-top: 1px solid #78614066;
   padding: 6px 4px 0;
 }
+.project-description { margin-block: 3px 9px; color: var(--muted); font-size: 12px; line-height: 1.55; }
 .support-footer {
   display: flex;
   flex-wrap: wrap;

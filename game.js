@@ -623,7 +623,7 @@ function handleStageCleared(pVotes, pLocked = 0) {
     const nextBoss = state.runBosses[state.stage];
     const score = translate("第 {0} 回合拿下 {1}/9 席，锁定 {2} 席。", state.turn, pVotes, pLocked);
     const winReason = pLocked >= BOARD_MAJORITY ? translate("锁定 {0} 席直接控制董事会", pLocked) : translate("以 {0} / 9 席拿下本关", pVotes);
-    const shareText = translate("我在《{0}》第 {1} 关击败了 {2}！{3}", document.title, state.stage, boss.name, score);
+    const shareText = translate("我在《{0}》第 {1} 关击败了 {2}！{3}", translate(GAME_TITLE), state.stage, boss.name, score);
     showEndModal(
       translate("击败第 {0} 关：{1}", state.stage, boss.name),
       translate("你{0}，按 50% 结余保留资金并获得 $2,500万 战利品补助（保底 $4,500万）。下一关对手：{1}（{2}）。", winReason, nextBoss.name, translate(nextBoss.roleTitle)),
@@ -634,7 +634,7 @@ function handleStageCleared(pVotes, pLocked = 0) {
   } else {
     const names = state.runBosses.map(b => b.name).join(' → ');
     const { publicUrl, posterUrl } = getGameShareAddress();
-    const shareText = translate("我在《{0}》连克三关，帮助黄仁勋重返 CEO 宝座！", document.title);
+    const shareText = translate("我在《{0}》连克三关，帮助黄仁勋重返 CEO 宝座！", translate(GAME_TITLE));
     showEndModal(
       translate("连克三关，重返 CEO 宝座"),
       translate("你从 0 席起步，连续击败 {0}，重新执掌董事会。", names),
@@ -960,7 +960,7 @@ let posterShareData;
 document.getElementById('btn-share-game').addEventListener('click', async () => {
   const shareAddress = getGameShareAddress();
   const { address, publicUrl } = shareAddress;
-  const shareTitle = document.title;
+  const shareTitle = translate(GAME_TITLE);
   document.getElementById('game-share-url-label').textContent = publicUrl ? translate("分享链接") : translate("当前地址");
   document.getElementById('game-share-url').value = address;
   document.getElementById('game-share-local-hint').hidden = Boolean(publicUrl);

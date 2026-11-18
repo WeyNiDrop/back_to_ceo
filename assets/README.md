@@ -1,5 +1,13 @@
 # Back To CEO 重回巅峰之路 · 美术资源
 
+## 游戏标志与网页图标
+
+`back-to-ceo-logo.png` 是用内置 ImageGen 创建的黄仁勋主题透明徽章。页面标题旁使用 256 × 256 PNG，仓库根目录的 [`favicon.ico`](../favicon.ico) 包含同一标志的 16、32 和 48 像素版本。
+
+**生成提示词**
+
+> Use case: logo-brand. Create one original square icon for Back To CEO, an independent boardroom strategy card game inspired by Jensen Huang. Depict a recognizable stylized bust of Jensen Huang with silver swept-back hair, rectangular glasses, and a black leather jacket collar. Use flat vector-like shapes, a strong silhouette, very few broad facial details, and bold ivory and antique gold on deep emerald and charcoal. Center the bust inside a sturdy circular badge with a single gold rim, occupying about 88% of the square and leaving clear, genuinely transparent space outside the badge. Prioritize legibility as a 16–48 pixel browser favicon and visual fit with a dark green card table. No lettering, company logo, gradients, mockup, or watermark.
+
 ## 游戏宣传海报
 
 `back-to-ceo-poster.jpg` 由内置 ImageGen 生成并导出为 1200 × 630 JPEG，用于游戏分享预览、X 大图卡片和浏览器的系统海报分享。

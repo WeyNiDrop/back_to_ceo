@@ -276,6 +276,8 @@ const ENGLISH_TEXT = {
 
   // Page controls, dialogs, and accessibility labels
   "Back To CEO 重回巅峰之路": "Back To CEO: Road to the Top",
+  "Back To CEO 重回巅峰之路 · 黄仁勋主题策略卡牌游戏": "Back To CEO · Jensen Huang–Inspired Strategy Card Game",
+  "《Back To CEO 重回巅峰之路》是一款以黄仁勋为灵感的免费网页策略卡牌游戏。用手牌争夺董事会九席，连赢三关，夺回 CEO 宝座。": "Back To CEO is a free browser strategy card game inspired by Jensen Huang. Fight for nine board seats and win three battles to reclaim the CEO chair.",
   "重回巅峰之路": "Road to the Top",
   "连胜 3 关夺回 CEO": "Win 3 stages to reclaim the CEO chair",
   "分享游戏": "Share Game",
@@ -356,6 +358,7 @@ const ENGLISH_TEXT = {
   "你是商战卡牌游戏第 {0}/3 关的对手“{1}”（{2}）。\n当前第 {3}/{4} 回合，Gesen 占 {5} 席，你占 {6} 席，Gesen 资金 {7}，影响力 {8}。\n请从以下反制牌选 1 张打出，并给一句符合身份的简体中文嘲讽（不超过 25 字）：\n{9}\n严格返回 JSON：{\"card_id\":\"id\",\"taunt\":\"台词\"}": "You are the opponent “{1}” ({2}) in Stage {0}/3 of a boardroom card game.\nRound {3}/{4}. Gesen has {5} seats, you have {6}. Gesen has {7} cash and {8} influence.\nChoose one counter from the list and write one short in-character taunt in English:\n{9}\nReturn only JSON with the keys \"card_id\" and \"taunt\".",
 };
 
+const GAME_TITLE = 'Back To CEO 重回巅峰之路';
 const GAME_LANGUAGE_KEY = 'backtoceo_language';
 
 function readGameLanguage() {
@@ -389,7 +392,8 @@ function formatCash(amount) {
 
 function applyPageLanguage() {
   document.documentElement.lang = getGameLanguage();
-  document.title = translate('Back To CEO 重回巅峰之路');
+  document.title = translate('Back To CEO 重回巅峰之路 · 黄仁勋主题策略卡牌游戏');
+  document.querySelector('meta[name="description"]').content = translate(document.querySelector('.project-description').dataset.i18n);
   document.querySelectorAll('[data-i18n]').forEach(element => {
     element.textContent = translate(element.dataset.i18n);
   });
