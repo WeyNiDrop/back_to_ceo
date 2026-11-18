@@ -752,6 +752,7 @@ function showEndModal(title, desc, isWin = false, btnLabel = translate("🔄 再
   renderAll();
   document.getElementById('end-title').textContent = title;
   document.getElementById('end-desc').textContent = desc;
+  document.getElementById('end-defeat-message').hidden = isWin;
   const completionTime = document.getElementById('end-run-time');
   completionTime.hidden = !isWin || state.stage !== 3;
   if (!completionTime.hidden) renderRunTime('final-run-time', getRunSeconds());

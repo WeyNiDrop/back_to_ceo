@@ -135,6 +135,7 @@ const ENGLISH_TEXT = {
   "模型({0})": "Model ({0})",
   "对手设置": "Opponent Settings",
   "止步第 {0} 关": "Stopped at Stage {0}",
+  "很遗憾你未能夺回CEO宝座，但别灰心，你依然可以成就另一番传奇的事业！": "You didn’t reclaim the CEO chair this time, but don’t lose heart. You can still go on to build a legendary career!",
   "对手已锁定 {0} 个席位，场上剩余席位已不足 {1} 席，本关夺权失败。": "The opponent locked {0} seats. Fewer than {1} remain, so the takeover failed.",
   "重新开始": "Restart",
   "第 {0} 回合拿下 {1}/9 席，锁定 {2} 席。": "Round {0}, {1}/9 seats, {2} locked.",
