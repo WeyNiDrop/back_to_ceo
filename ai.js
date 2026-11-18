@@ -55,9 +55,12 @@ const AI_BOSS_POOL = [
     name: 'Senator Cole',
     roleTitle: '铁腕政客',
     passiveName: '合规铁幕',
-    passiveDesc: '你打出的【间谍/政治牌】额外缴$200万；每回合自动锁定1个敌席。',
+    passiveDesc: '【间谍/政治牌】加收 $200万。每回合锁定 1 个敌席，第 3 关首回合只预告。',
     tauntStart: '“这里归华盛顿管！每一张牌都要过我的合规审查。”',
     onTurnEnd(state) {
+      if (state.stage === 3 && state.turn === 1) {
+        return { text: '合规铁幕：下回合起锁定敌方席位' };
+      }
       const unlockEnemy = state.seats.find(s => s.owner === 'enemy' && !s.locked && !s.isCore);
       if (unlockEnemy) {
         unlockEnemy.locked = true;
@@ -194,10 +197,10 @@ const AI_BOSS_POOL = [
     name: 'Agent Miller',
     roleTitle: 'SEC 首席调查员',
     passiveName: '天眼审计',
-    passiveDesc: '花钱的牌额外缴 $150万；回合结束扣 $400万，若资金 <$2,000万 则动摇 1 我方席位。',
+    passiveDesc: '花钱的牌额外缴 $100万。回合结束扣 $300万，若扣款后资金 <$2,000万，则动摇 1 个未锁定的我方席位。',
     tauntStart: '“每笔公关费和餐费都在我的审计清单上，别想蒙混过关。”',
     onTurnEnd(state) {
-      const loss = Math.min(state.cash, 400);
+      const loss = Math.min(state.cash, 300);
       state.cash -= loss;
       if (state.cash < 2000) {
         const pSeat = state.seats.find(s => s.owner === 'player' && !s.locked);

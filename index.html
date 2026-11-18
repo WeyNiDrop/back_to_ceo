@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
   <title>BACK TO CEO · 董事会夺权战</title>
-  <link rel="stylesheet" href="style.css?v=20261118-rumors" />
+  <link rel="stylesheet" href="style.css?v=20261118-challenge" />
 </head>
 <body>
   <div class="hs-table">
@@ -13,7 +13,7 @@
     <header class="top-bar">
       <div class="goal-banner">
         <span class="goal-tag" id="stage-badge">第 1 / 3 关</span>
-        <span>连胜 3 关夺回 CEO · 占 <strong>6</strong> 席或锁 <strong>5</strong> 席即胜（6回合末 ≥5 席晋级）</span>
+        <span>连胜 3 关夺回 CEO · <strong id="stage-win-rule">占 6 席或锁 5 席即胜（第 6 回合末 ≥5 席晋级）</strong></span>
       </div>
 
       <div class="turn-pill" id="turn-display">第 1 / 6 回合 · DAY 1 白天</div>
@@ -41,13 +41,13 @@
     <!-- 中央对战区：9席董事会 + 卡牌碰撞舞台 -->
     <section class="battlefield">
       <div class="score-bar-wrap">
-        <span class="side-label player-side">我方 <strong id="player-votes">0</strong></span>
+        <span class="side-label player-side">我方 <strong id="player-votes">0</strong><small class="lock-progress" id="player-lock-progress">锁定 0 / 5</small></span>
         <div class="seats-row" id="seats-row"></div>
-        <span class="side-label enemy-side"><strong id="enemy-votes-bar">3</strong> 敌方</span>
+        <span class="side-label enemy-side"><strong id="enemy-votes-bar">3</strong> 敌方<small class="lock-progress" id="enemy-lock-progress">锁定 1 / 5</small></span>
       </div>
 
       <div class="clash-stage" id="clash-stage">
-        <div class="stage-placeholder" id="stage-placeholder">打出手中卡牌争夺席位，抢下 ≥5 席即可击败本关对手</div>
+        <div class="stage-placeholder" id="stage-placeholder">占 6 席或锁 5 席即胜（第 6 回合末 ≥5 席晋级）</div>
       </div>
     </section>
 
@@ -157,7 +157,7 @@
   </div>
 
   <script src="sound.js?v=202611172115"></script>
-  <script src="ai.js?v=20261118-rumors"></script>
-  <script src="game.js?v=20261118-rumors"></script>
+  <script src="ai.js?v=20261118-challenge"></script>
+  <script src="game.js?v=20261118-challenge"></script>
 </body>
 </html>

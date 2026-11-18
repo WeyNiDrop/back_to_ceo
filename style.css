@@ -149,6 +149,8 @@ body {
 .side-label { font-size: 13px; font-weight: 800; white-space: nowrap; }
 .player-side strong { color: var(--green); font-size: 20px; }
 .enemy-side strong { color: var(--red); font-size: 20px; }
+.lock-progress { display: block; font-size: 11px; font-weight: 600; color: var(--muted); }
+.lock-progress[data-danger="true"] { color: #fca5a5; }
 
 .seats-row {
   flex: 1;

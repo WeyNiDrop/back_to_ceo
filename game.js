@@ -95,6 +95,8 @@ const DECK_RECIPE = [
 ];
 
 const MIN_ENEMY_CARDS = 2;
+const INSTANT_WIN_SEATS = [6, 7, 7];
+const BOARD_MAJORITY = 5;
 
 let state = {};
 let isAnimating = false;
@@ -110,6 +112,11 @@ function getEnemyCardCount(turnState) {
   return Math.max(MIN_ENEMY_CARDS, turnState.cardsPlayedThisTurn - turnState.aiPenalty);
 }
 
+function getStageGoalText() {
+  const instantSeats = INSTANT_WIN_SEATS[state.stage - 1];
+  return `占 ${instantSeats} 席或锁 ${BOARD_MAJORITY} 席即胜（第 ${state.maxTurns} 回合末 ≥${BOARD_MAJORITY} 席晋级）`;
+}
+
 function portraitSrc(portrait) {
   return `assets/portraits/${portrait}.jpg`;
 }
@@ -123,7 +130,7 @@ function getEffectiveCosts(item) {
   let infReq = item.affix?.mod?.infReqPenalty || 0;
   if (boss.id === 'cole_pol' && (c.category === 'spy' || c.category === 'politics')) cash += 200;
   if (boss.id === 'sophia_supply' && c.category === 'stamina') cash += 200;
-  if (boss.id === 'miller_sec' && cash > 0) cash += 150;
+  if (boss.id === 'miller_sec' && cash > 0) cash += 100;
   return { ap, cash, inf, infReq };
 }
 
@@ -385,7 +392,7 @@ function initGame() {
 
 function clearStage() {
   const stage = document.getElementById('clash-stage');
-  stage.innerHTML = `<div class="stage-placeholder">第 ${state.stage} / 3 关：占 6 席或锁 5 席立即获胜（6回合末 ≥5 席晋级）</div>`;
+  stage.innerHTML = `<div class="stage-placeholder">第 ${state.stage} / 3 关 · ${getStageGoalText()}</div>`;
 }
 
 function sleep(ms) {
@@ -454,10 +461,12 @@ function renderSeats(flashSeatId = null) {
 
 function renderAll() {
   const boss = getCurrentBoss();
-  const pVotes = state.seats.filter(s => s.owner === 'player').length;
-  const eVotes = state.seats.filter(s => s.owner === 'enemy').length;
+  const playerSeats = state.seats.filter(s => s.owner === 'player');
+  const enemySeats = state.seats.filter(s => s.owner === 'enemy');
+  const enemyLocked = enemySeats.filter(s => s.locked).length;
 
   document.getElementById('stage-badge').textContent = `第 ${state.stage} / 3 关`;
+  document.getElementById('stage-win-rule').textContent = getStageGoalText();
   document.getElementById('turn-display').textContent = `第 ${state.turn} / ${state.maxTurns} 回合 · ${TURN_LABELS[state.turn - 1]}`;
 
   const bossPortrait = document.getElementById('boss-portrait');
@@ -478,9 +487,13 @@ function renderAll() {
     heroPassiveEl.dataset.tooltip = '皮衣光环：每回合首次打出影响力牌时，额外 +5🌟 影响力';
   }
 
-  document.getElementById('player-votes').textContent = pVotes;
-  document.getElementById('enemy-votes').textContent = eVotes;
-  document.getElementById('enemy-votes-bar').textContent = eVotes;
+  document.getElementById('player-votes').textContent = playerSeats.length;
+  document.getElementById('enemy-votes').textContent = enemySeats.length;
+  document.getElementById('enemy-votes-bar').textContent = enemySeats.length;
+  document.getElementById('player-lock-progress').textContent = `锁定 ${playerSeats.filter(s => s.locked).length} / ${BOARD_MAJORITY}`;
+  const enemyLockProgress = document.getElementById('enemy-lock-progress');
+  enemyLockProgress.textContent = `锁定 ${enemyLocked} / ${BOARD_MAJORITY}`;
+  enemyLockProgress.dataset.danger = String(enemyLocked >= BOARD_MAJORITY - 1);
   document.getElementById('enemy-taunt').textContent = state.enemyTaunt;
   document.getElementById('stat-cash').textContent = `$${state.cash.toLocaleString()}万`;
   document.getElementById('stat-inf').textContent = `${state.influence}`;
@@ -578,7 +591,7 @@ function renderAll() {
 function checkStageWin() {
   const pVotes = state.seats.filter(s => s.owner === 'player').length;
   const pLocked = state.seats.filter(s => s.owner === 'player' && s.locked).length;
-  if (pVotes >= 6 || pLocked >= 5) {
+  if (pVotes >= INSTANT_WIN_SEATS[state.stage - 1] || pLocked >= BOARD_MAJORITY) {
     handleStageCleared(pVotes, pLocked);
     return true;
   }
@@ -587,10 +600,10 @@ function checkStageWin() {
 
 function checkStageDefeat() {
   const eLocked = state.seats.filter(s => s.owner === 'enemy' && s.locked).length;
-  if (eLocked >= 5) {
+  if (eLocked >= BOARD_MAJORITY) {
     showEndModal(
       `止步第 ${state.stage} 关`,
-      `对手已锁定 ${eLocked} 个席位，场上剩余席位已不足 5 席，本关夺权失败。`,
+      `对手已锁定 ${eLocked} 个席位，场上剩余席位已不足 ${BOARD_MAJORITY} 席，本关夺权失败。`,
       false,
       '重新开始'
     );
@@ -601,7 +614,7 @@ function checkStageDefeat() {
 
 function handleStageCleared(pVotes, pLocked = 0) {
   const boss = getCurrentBoss();
-  const winReason = pLocked >= 5 ? `锁定 ${pLocked} 席直接控制董事会` : `以 ${pVotes} / 9 席拿下本关`;
+  const winReason = pLocked >= BOARD_MAJORITY ? `锁定 ${pLocked} 席直接控制董事会` : `以 ${pVotes} / 9 席拿下本关`;
   if (state.stage < 3) {
     const nextBoss = state.runBosses[state.stage];
     showEndModal(
@@ -829,10 +842,10 @@ document.getElementById('btn-end-turn').addEventListener('click', async () => {
       const pLocked = state.seats.filter(s => s.owner === 'player' && s.locked).length;
       isEnemyTurn = false;
       isAnimating = false;
-      if (pVotes >= 5 || pLocked >= 5) {
+      if (pVotes >= BOARD_MAJORITY) {
         handleStageCleared(pVotes, pLocked);
       } else {
-        showEndModal(`止步第 ${state.stage} 关`, `6 回合结束，你仅获得 ${pVotes} 席（未满 5 席），未能击败 ${boss.name}。`, false, '重新开始');
+        showEndModal(`止步第 ${state.stage} 关`, `${state.maxTurns} 回合结束，你仅获得 ${pVotes} 席（未满 ${BOARD_MAJORITY} 席），未能击败 ${boss.name}。`, false, '重新开始');
       }
       return;
     }
