@@ -900,7 +900,7 @@ function recordAction(type, index) {
 }
 
 function leaderboardRequest(data) {
-  const options = { signal: AbortSignal.timeout(12000) };
+  const options = { cache: 'no-store', signal: AbortSignal.timeout(12000) };
   if (data) {
     options.method = 'POST';
     options.headers = { 'Content-Type': 'application/json' };

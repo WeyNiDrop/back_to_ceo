@@ -17,7 +17,7 @@ await mkdir(output);
 await writeFile(new URL('index.html', output), html);
 await writeFile(new URL('_routes.json', output), JSON.stringify({
   version: 1,
-  include: ['/api/leaderboard', '/api/seed-leaderboard-example'],
+  include: ['/api/leaderboard'],
   exclude: [],
 }));
 
