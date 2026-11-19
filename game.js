@@ -391,7 +391,7 @@ function handleStageCleared(pVotes, pLocked = 0) {
 }
 
 function getFinalShareUrl(elapsed) {
-  const { publicUrl, posterUrl } = getGameShareAddress();
+  const { publicUrl, posterUrl } = getGameShareAddress('end-victory-poster');
   const shareText = translate("我在《{0}》用时 {1} 连克三关，帮助黄仁勋重返 CEO 宝座！", translate(GAME_TITLE), elapsed);
   return getXShareUrl([shareText, publicUrl, posterUrl]);
 }
@@ -426,7 +426,7 @@ function isPublicShareUrl(url) {
     !/\.(local|localhost)$/.test(host) && !/^(\d+\.){3}\d+$/.test(host);
 }
 
-function getGameShareAddress() {
+function getGameShareAddress(posterId = 'game-share-poster') {
   const canonical = document.querySelector('meta[property="og:url"]').content.trim();
   const pageUrl = new URL(canonical || window.location.href);
   pageUrl.search = '';
@@ -435,7 +435,7 @@ function getGameShareAddress() {
   pageUrl.password = '';
 
   const isPublic = /^https?:$/.test(pageUrl.protocol) && (Boolean(canonical) || isPublicShareUrl(pageUrl));
-  const posterPath = document.getElementById('game-share-poster').getAttribute('src');
+  const posterPath = document.getElementById(posterId).getAttribute('src');
   const posterUrl = new URL(posterPath, pageUrl);
   return {
     address: pageUrl.href,
@@ -456,14 +456,16 @@ function showEndModal(title, desc, isWin = false, btnLabel = translate("🔄 再
   document.getElementById('end-ranked-status').textContent = '';
   retryRankedButton.hidden = true;
   retryRankedButton.onclick = null;
-  completionTime.hidden = !isWin || state.stage !== 3;
-  if (!completionTime.hidden) renderRunTime('final-run-time', getRunSeconds());
+  const isFinalVictory = isWin && state.stage === 3;
+  completionTime.hidden = !isFinalVictory;
+  if (isFinalVictory) renderRunTime('final-run-time', getRunSeconds());
+  document.getElementById('end-victory-poster').hidden = !isFinalVictory;
   const sceneImg = document.getElementById('end-scene-img');
-  if (sceneImg) {
+  sceneImg.hidden = isFinalVictory;
+  if (!isFinalVictory) {
     const base = isWin ? 'assets/ending_victory' : 'assets/ending_defeat';
-    sceneImg.style.display = 'block';
     sceneImg.onerror = () => {
-      sceneImg.onerror = () => { sceneImg.style.display = 'none'; };
+      sceneImg.onerror = () => { sceneImg.hidden = true; };
       sceneImg.src = `${base}.svg`;
     };
     sceneImg.src = `${base}.png`;
