@@ -98,7 +98,7 @@ export async function onRequestGet({ env }) {
 }
 
 async function saveRun(db, run, nickname, now) {
-  await db.batch([
+  const results = await db.batch([
     db.prepare(
       'INSERT INTO players (player_id, nickname, created_at_ms)'
       + ' SELECT ?, ?, ? WHERE NOT EXISTS (SELECT 1 FROM runs WHERE run_id = ?)'
@@ -116,8 +116,13 @@ async function saveRun(db, run, nickname, now) {
       + ' WHERE excluded.elapsed_ms < best_times.elapsed_ms'
       + ' OR (excluded.elapsed_ms = best_times.elapsed_ms AND excluded.finished_at_ms < best_times.finished_at_ms)'
     ).bind(run.id),
+    db.prepare(
+      'SELECT r.elapsed_ms AS elapsedMs, b.elapsed_ms AS bestElapsedMs'
+      + ' FROM runs r JOIN best_times b ON b.player_id = r.player_id AND b.rules_version = r.rules_version'
+      + ' WHERE r.run_id = ?'
+    ).bind(run.id),
   ]);
-  return db.prepare('SELECT elapsed_ms AS elapsedMs FROM runs WHERE run_id = ?').bind(run.id).first();
+  return results.at(-1).results[0];
 }
 
 export async function onRequestPost({ request, env }) {

@@ -818,7 +818,6 @@ button:disabled { opacity: 0.52; cursor: not-allowed; }
   .hs-table *, .modal * { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
 }
 
-#ranked-run-label { color: var(--muted); }
 .leaderboard-entries {
   margin: 0;
   padding-inline-start: 2rem;

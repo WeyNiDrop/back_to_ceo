@@ -2,10 +2,11 @@ import {
   BOARD_MAJORITY, CARD_ANIMATION_MS, CARD_DB, countLockedEnemySeats, createGameRules,
   getPlayerScore, INSTANT_WIN_SEATS, isInstantWin,
   MIN_ENEMY_CARDS, normalizePlayerName, PASSIVE_ANIMATION_MS, seededRandom,
-} from './game-rules.mjs?v=20261118-leaderboard';
+} from './game-rules.mjs?v=20261119-all-runs';
 
 const rules = createGameRules({ translate, formatCash });
-let rankedRun = null;
+let currentRun = null;
+let startingChallenge = false;
 
 /**
  * Back To CEO 重回巅峰之路
@@ -93,6 +94,7 @@ function getEffectiveCosts(item) {
 }
 
 function getUnplayableReason(costs) {
+  if (!currentRun) return translate("挑战尚未开始");
   if (state.gameOver) return translate("本局已结束");
   if (isAnimating) return isEnemyTurn ? translate("对手回合演出中") : translate("出牌动画播放中");
   const reasons = [];
@@ -132,9 +134,41 @@ function startStage(stageNum, keepResources = false, random) {
   renderAll();
 }
 
-function initGame() {
-  rankedRun = null;
+async function initGame() {
+  if (startingChallenge) return;
+  startingChallenge = true;
+  currentRun = null;
+  const status = document.getElementById('challenge-start-status');
+  status.textContent = translate("正在连接计时服务…");
+  status.hidden = false;
   startStage(1, false);
+
+  try {
+    const response = await leaderboardRequest({ type: 'start' });
+    if (!response.ok) throw new Error('Challenge timing unavailable');
+    const { token, seed } = await response.json();
+    if (typeof token !== 'string' || !Number.isInteger(seed) || seed < 0 || seed > 0xffffffff) {
+      throw new Error('Invalid challenge');
+    }
+    currentRun = { token, actions: [] };
+    startStage(1, false, seededRandom(seed));
+    startRunTimer();
+    status.hidden = true;
+  } catch {
+    if (['localhost', '127.0.0.1', '[::1]'].includes(window.location.hostname)) {
+      currentRun = { token: null, actions: [] };
+      status.textContent = translate("本地预览，成绩不会提交。");
+    } else {
+      status.textContent = translate("无法连接计时服务，请点击「重开」重试。");
+    }
+  } finally {
+    startingChallenge = false;
+    renderAll();
+  }
+}
+
+function canTakeAction() {
+  return Boolean(currentRun) && !state.gameOver && !isAnimating;
 }
 
 function clearStage() {
@@ -257,20 +291,21 @@ function renderAll() {
   }
 
   const jacketBtn = document.getElementById('btn-hero-jacket');
+  const actionsLocked = !canTakeAction();
   document.getElementById('jacket-uses').textContent = `${state.jacketUses}/2`;
-  jacketBtn.disabled = state.gameOver || isAnimating || state.jacketUses <= 0 || state.powersUsedThisTurn.jacket || state.ap < 2;
+  jacketBtn.disabled = actionsLocked || state.jacketUses <= 0 || state.powersUsedThisTurn.jacket || state.ap < 2;
   jacketBtn.dataset.tooltip = state.jacketUses <= 0 ? translate("皮衣直播次数已用完（每关限2次）") : state.powersUsedThisTurn.jacket ? translate("本回合已使用过皮衣直播（每回合限1次）") : state.ap < 2 ? translate("无法使用：需要 2💎 体力") : translate("消耗 2💎，获得 +20🌟影响力并摸 1 张牌");
 
   const equityBtn = document.getElementById('btn-hero-equity');
   document.getElementById('equity-uses').textContent = `${state.equityUses}/2`;
   const hasUnlockPlayerSeat = state.seats.some(s => s.owner === 'player' && !s.locked);
-  equityBtn.disabled = state.gameOver || isAnimating || state.equityUses <= 0 || state.powersUsedThisTurn.equity || state.ap < 1 || !hasUnlockPlayerSeat;
+  equityBtn.disabled = actionsLocked || state.equityUses <= 0 || state.powersUsedThisTurn.equity || state.ap < 1 || !hasUnlockPlayerSeat;
   equityBtn.dataset.tooltip = state.equityUses <= 0 ? translate("股权加锁次数已用完（每关限2次）") : state.powersUsedThisTurn.equity ? translate("本回合已使用过股权加锁（每回合限1次）") : !hasUnlockPlayerSeat ? translate("无法使用：场上暂无未锁定的我方席位") : state.ap < 1 ? translate("无法使用：需要 1💎 体力") : translate("消耗 1💎，永久锁定 1 个我方席位防止被对手抢走");
 
   const rallyBtn = document.getElementById('btn-hero-rally');
   document.getElementById('rally-uses').textContent = `${state.rallyUses}/2`;
   const hasTargetSeat = state.seats.some(s => s.owner === 'neutral' || (s.owner === 'enemy' && !s.locked && !s.isCore));
-  rallyBtn.disabled = state.gameOver || isAnimating || state.rallyUses <= 0 || state.powersUsedThisTurn.rally || state.influence < 15 || !hasTargetSeat;
+  rallyBtn.disabled = actionsLocked || state.rallyUses <= 0 || state.powersUsedThisTurn.rally || state.influence < 15 || !hasTargetSeat;
   rallyBtn.dataset.tooltip = state.rallyUses <= 0 ? translate("舆论号召次数已用完（每关限2次）") : state.powersUsedThisTurn.rally ? translate("本回合已使用过舆论号召（每回合限1次）") : state.influence < 15 ? translate("无法使用：需要 15🌟 影响力（当前 {0}🌟）", state.influence) : !hasTargetSeat ? translate("无法使用：场上已无可用席位") : translate("消耗 15🌟 影响力（0💎体力），直接抢占 1 个中立或敌方未锁定席位！");
 
   renderSeats();
@@ -279,7 +314,7 @@ function renderAll() {
   document.getElementById('discard-count').textContent = state.discard.length;
   const mulliganBtn = document.getElementById('btn-mulligan');
   if (mulliganBtn) {
-    mulliganBtn.disabled = state.gameOver || isAnimating || state.mulliganUsedThisTurn || state.hand.length === 0;
+    mulliganBtn.disabled = actionsLocked || state.mulliganUsedThisTurn || state.hand.length === 0;
     mulliganBtn.textContent = isDiscardMode ? translate("取消换牌") : state.mulliganUsedThisTurn ? translate("已换牌 (0/1)") : translate("换 1 张牌");
   }
   const handEl = document.getElementById('hand-cards');
@@ -330,13 +365,12 @@ function renderAll() {
   document.getElementById('btn-language').disabled = isAnimating;
   document.getElementById('btn-tutorial').disabled = isAnimating;
   bossPassiveEl.disabled = isAnimating;
-  endBtn.disabled = state.gameOver || isAnimating;
+  endBtn.disabled = actionsLocked;
   endBtn.textContent = isEnemyTurn ? translate("对手出牌中...") : translate("结束回合");
 
   const cfg = getAiConfig();
   document.getElementById('ai-mode-text').textContent = cfg.engine === 'llm' && cfg.key ? translate("模型({0})", cfg.model) : translate("对手设置");
-  document.getElementById('btn-ai-config').disabled = Boolean(rankedRun);
-  document.getElementById('ranked-run-label').hidden = !rankedRun;
+  document.getElementById('btn-restart').disabled = startingChallenge;
 }
 
 function checkStageWin() {
@@ -386,7 +420,8 @@ function handleStageCleared(pVotes, pLocked = 0) {
       translate("再来一局"),
       getFinalShareUrl(elapsed)
     );
-    if (rankedRun) void submitRankedRun(rankedRun, state);
+    if (currentRun?.token) void submitCompletedRun(currentRun, state);
+    else document.getElementById('end-ranked-status').textContent = translate("本地预览，成绩不会提交。");
   }
 }
 
@@ -472,6 +507,7 @@ function showEndModal(title, desc, isWin = false, btnLabel = translate("🔄 再
     sceneImg.src = `${base}.png`;
   }
   const btn = document.getElementById('btn-play-again');
+  btn.disabled = false;
   btn.textContent = btnLabel;
   btn.dataset.nextStage = isWin && state.stage < 3 ? String(state.stage + 1) : '1';
   btn.dataset.keep = isWin && state.stage < 3 ? '1' : '0';
@@ -516,13 +552,13 @@ document.addEventListener('mouseout', e => {
 });
 
 document.getElementById('btn-mulligan')?.addEventListener('click', () => {
-  if (isAnimating || state.gameOver || state.mulliganUsedThisTurn || state.hand.length === 0) return;
+  if (!canTakeAction() || state.mulliganUsedThisTurn || state.hand.length === 0) return;
   isDiscardMode = !isDiscardMode;
   renderAll();
 });
 
 document.getElementById('hand-cards').addEventListener('click', async e => {
-  if (isAnimating || state.gameOver) return;
+  if (!canTakeAction()) return;
   const cardEl = e.target.closest('.hs-card');
   if (!cardEl) return;
   const idx = state.hand.findIndex(h => h.uid === cardEl.dataset.uid);
@@ -565,7 +601,7 @@ document.getElementById('hand-cards').addEventListener('click', async e => {
 });
 
 document.getElementById('btn-hero-jacket').addEventListener('click', async () => {
-  if (isAnimating || state.gameOver) return;
+  if (!canTakeAction()) return;
   const move = rules.useJacket(state);
   if (!move) return;
   recordAction('jacket');
@@ -582,7 +618,7 @@ document.getElementById('btn-hero-jacket').addEventListener('click', async () =>
 });
 
 document.getElementById('btn-hero-equity').addEventListener('click', async () => {
-  if (isAnimating || state.gameOver) return;
+  if (!canTakeAction()) return;
   const target = rules.useEquity(state);
   if (!target) return;
   recordAction('equity');
@@ -594,7 +630,7 @@ document.getElementById('btn-hero-equity').addEventListener('click', async () =>
 });
 
 document.getElementById('btn-hero-rally').addEventListener('click', async () => {
-  if (isAnimating || state.gameOver) return;
+  if (!canTakeAction()) return;
   const seat = rules.useRally(state);
   if (!seat) return;
   recordAction('rally');
@@ -606,8 +642,10 @@ document.getElementById('btn-hero-rally').addEventListener('click', async () => 
 });
 
 document.getElementById('btn-end-turn').addEventListener('click', async () => {
-  if (isAnimating || state.gameOver) return;
-  recordAction('end');
+  if (!canTakeAction()) return;
+  const cfg = getAiConfig();
+  const modelCards = cfg.engine === 'llm' && cfg.key ? [] : undefined;
+  recordAction('end', modelCards);
   const turnState = state;
   isAnimating = true;
   isEnemyTurn = true;
@@ -615,15 +653,15 @@ document.getElementById('btn-end-turn').addEventListener('click', async () => {
 
   try {
     const boss = getCurrentBoss();
-    const cfg = getAiConfig();
     const turn = rules.beginEnemyTurn(state);
 
     for (let i = 0; i < turn.cards; i++) {
       const excluded = rules.enemyExclusions(turn);
-      const aiRes = !rankedRun && cfg.engine === 'llm' && cfg.key
+      const aiRes = modelCards
         ? await runLlmAi(state, cfg, excluded, boss, rules)
         : rules.runBuiltinAi(state, excluded);
       if (state !== turnState) return;
+      modelCards?.push(aiRes.source === 'llm' ? aiRes.card.id : null);
 
       const outcome = rules.playEnemyCard(state, turn, aiRes);
       renderAll();
@@ -678,7 +716,7 @@ soundButton.addEventListener('click', () => {
 });
 
 document.getElementById('btn-restart').addEventListener('click', () => {
-  initGame();
+  void initGame();
   SoundFX.playDeal(4);
 });
 
@@ -700,7 +738,7 @@ document.getElementById('btn-play-again').addEventListener('click', e => {
   const keep = e.target.dataset.keep === '1';
   document.getElementById('modal-end').style.display = 'none';
   if (keep) startStage(nextStage, true);
-  else initGame();
+  else void initGame();
   SoundFX.playDeal(4);
 });
 
@@ -792,6 +830,7 @@ tutorialDialog.addEventListener('close', () => {
     }
   }
   if (document.activeElement === document.body) tutorialButton.focus({ preventScroll: true });
+  if (!currentRun && playerName) void initGame();
 });
 
 const PLAYER_NAME_KEY = 'backtoceo_player_name';
@@ -823,6 +862,7 @@ function openPlayerName() {
 function continueFirstVisit() {
   if (!playerName) openPlayerName();
   else if (!tutorialSeen) openTutorial();
+  else if (!currentRun) void initGame();
 }
 
 document.getElementById('btn-player-name').addEventListener('click', openPlayerName);
@@ -859,15 +899,11 @@ document.getElementById('player-name-form').addEventListener('submit', event => 
 const leaderboardDialog = document.getElementById('leaderboard-dialog');
 const leaderboardStatus = document.getElementById('leaderboard-status');
 const leaderboardEntries = document.getElementById('leaderboard-entries');
-const rankedStartStatus = document.getElementById('ranked-start-status');
-const startRankedButton = document.getElementById('btn-start-ranked');
 const retryRankedButton = document.getElementById('btn-retry-ranked');
-let rankedAvailable = false;
-let startingRanked = false;
 
-function recordAction(type, index) {
+function recordAction(type, detail) {
   startRunTimer();
-  rankedRun?.actions.push(index === undefined ? [type] : [type, index]);
+  currentRun.actions.push(detail === undefined ? [type] : [type, detail]);
 }
 
 function leaderboardRequest(data) {
@@ -880,7 +916,7 @@ function leaderboardRequest(data) {
   return fetch('/api/leaderboard', options);
 }
 
-function displayLeaderboard({ entries, cleared, rankedAvailable: available }) {
+function displayLeaderboard({ entries, cleared }) {
   leaderboardStatus.textContent = translate("独立通关玩家：{0}", cleared);
   if (entries.length === 0) {
     leaderboardStatus.textContent += ' · ' + translate("暂无通关成绩。");
@@ -901,17 +937,11 @@ function displayLeaderboard({ entries, cleared, rankedAvailable: available }) {
   });
   leaderboardEntries.replaceChildren(...rows);
   leaderboardEntries.hidden = rows.length === 0;
-  rankedAvailable = available;
-  startRankedButton.disabled = startingRanked || !rankedAvailable;
-  if (!available) rankedStartStatus.textContent = translate("暂时无法启动排位挑战。");
 }
 
 document.getElementById('btn-leaderboard').addEventListener('click', async () => {
   leaderboardDialog.showModal();
   leaderboardEntries.hidden = true;
-  rankedStartStatus.textContent = '';
-  startRankedButton.disabled = true;
-  rankedAvailable = false;
   leaderboardStatus.textContent = translate("正在加载排行榜…");
   try {
     const response = await leaderboardRequest();
@@ -922,34 +952,13 @@ document.getElementById('btn-leaderboard').addEventListener('click', async () =>
   }
 });
 
-startRankedButton.addEventListener('click', async () => {
-  if (startingRanked || !rankedAvailable || !playerName) return;
-  startingRanked = true;
-  startRankedButton.disabled = true;
-  rankedStartStatus.textContent = translate("正在启动排位挑战…");
-  try {
-    const response = await leaderboardRequest({ type: 'start' });
-    if (!response.ok) throw new Error('Ranked run unavailable');
-    const { token, seed } = await response.json();
-    if (!leaderboardDialog.open) return;
-    rankedRun = { token, actions: [] };
-    startStage(1, false, seededRandom(seed));
-    startRunTimer();
-    SoundFX.playDeal(4);
-    leaderboardDialog.close();
-  } catch {
-    rankedStartStatus.textContent = translate("暂时无法启动排位挑战。");
-  } finally {
-    startingRanked = false;
-    startRankedButton.disabled = !rankedAvailable;
-  }
-});
-
-async function submitRankedRun(run, finishedState) {
+async function submitCompletedRun(run, finishedState) {
   const status = document.getElementById('end-ranked-status');
+  const playAgainButton = document.getElementById('btn-play-again');
   run.nickname ??= playerName;
+  playAgainButton.disabled = true;
   retryRankedButton.hidden = true;
-  status.textContent = translate("正在保存排位成绩…");
+  status.textContent = translate("正在保存通关成绩…");
   try {
     const response = await leaderboardRequest({
       type: 'finish', token: run.token, nickname: run.nickname, actions: run.actions,
@@ -959,19 +968,24 @@ async function submitRankedRun(run, finishedState) {
       status.textContent = translate("本次成绩未通过验证。");
       return;
     }
-    if (!response.ok) throw new Error('Ranked time unavailable');
-    const { elapsedMs } = await response.json();
+    if (!response.ok) throw new Error('Finish time unavailable');
+    const { elapsedMs, bestElapsedMs } = await response.json();
+    if (!Number.isFinite(elapsedMs)) throw new Error('Invalid finish time');
     if (state !== finishedState) return;
     runFinishedSeconds = Math.floor(elapsedMs / 1000);
     updateRunTimer();
     renderRunTime('final-run-time', runFinishedSeconds);
     document.getElementById('btn-share-x').href = getFinalShareUrl(formatRunTime(runFinishedSeconds));
-    status.textContent = translate("已提交排位成绩。");
+    status.textContent = Number.isFinite(bestElapsedMs)
+      ? translate("成绩已记录，个人最快用时 {0}。", formatRunTime(Math.floor(bestElapsedMs / 1000)))
+      : translate("通关成绩已记录。");
   } catch {
     if (state !== finishedState) return;
     status.textContent = translate("暂时无法保存成绩。");
-    retryRankedButton.onclick = () => void submitRankedRun(run, finishedState);
+    retryRankedButton.onclick = () => void submitCompletedRun(run, finishedState);
     retryRankedButton.hidden = false;
+  } finally {
+    if (state === finishedState) playAgainButton.disabled = false;
   }
 }
 
@@ -997,7 +1011,7 @@ document.querySelectorAll('[data-game-language]').forEach(button => {
 applyPageLanguage();
 renderCampaignShareLinks();
 renderSoundButton();
-initGame();
+startStage(1, false);
 renderPlayerName();
 if (!selectedLanguage) languageDialog.showModal();
 else continueFirstVisit();

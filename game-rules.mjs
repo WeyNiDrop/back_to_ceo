@@ -897,20 +897,24 @@ export function replayRankedRun(seed, actions) {
   let animationMs = 0;
   for (const [position, action] of actions.entries()) {
     if (!Array.isArray(action) || action.length < 1 || action.length > 2) return null;
-    const [type, index] = action;
+    const [type, detail] = action;
     const usesIndex = type === 'card' || type === 'discard';
-    if (usesIndex ? action.length !== 2 || !Number.isInteger(index) || index < 0 || index >= 5 : action.length !== 1) return null;
+    if (usesIndex) {
+      if (action.length !== 2 || !Number.isInteger(detail) || detail < 0 || detail >= 5) return null;
+    } else if (action.length !== 1 && (type !== 'end' || !Array.isArray(detail))) {
+      return null;
+    }
 
     let won = false;
     switch (type) {
       case 'discard':
-        if (!replayRules.discardCard(state, index)) return null;
+        if (!replayRules.discardCard(state, detail)) return null;
         break;
       case 'card':
       case 'equity':
       case 'rally':
       case 'jacket': {
-        const moved = type === 'card' ? replayRules.playCard(state, index)
+        const moved = type === 'card' ? replayRules.playCard(state, detail)
           : type === 'equity' ? replayRules.useEquity(state)
           : type === 'rally' ? replayRules.useRally(state)
           : replayRules.useJacket(state);
@@ -921,9 +925,17 @@ export function replayRankedRun(seed, actions) {
       }
       case 'end': {
         const turn = replayRules.beginEnemyTurn(state);
+        if (detail && detail.length !== turn.cards) return null;
         for (let i = 0; i < turn.cards; i++) {
-          const move = replayRules.runBuiltinAi(state, replayRules.enemyExclusions(turn));
-          replayRules.playEnemyCard(state, turn, move);
+          const excluded = replayRules.enemyExclusions(turn);
+          const modelCardId = detail ? detail[i] : null;
+          if (modelCardId === null) {
+            replayRules.playEnemyCard(state, turn, replayRules.runBuiltinAi(state, excluded));
+          } else {
+            const card = replayRules.getAiCardPool(state, excluded).find(option => option.id === modelCardId);
+            if (!card) return null;
+            replayRules.playEnemyCard(state, turn, { card, taunt: card.taunt });
+          }
           animationMs += CARD_ANIMATION_MS;
           if (countLockedEnemySeats(state) >= BOARD_MAJORITY) return null;
         }
