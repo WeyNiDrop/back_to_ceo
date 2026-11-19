@@ -399,7 +399,7 @@ function getFinalShareUrl(elapsed) {
 function getXShareUrl(lines) {
   const intent = new URL('https://x.com/intent/tweet');
   intent.searchParams.set('text', lines.filter(Boolean).join('\n'));
-  intent.searchParams.set('hashtags', 'BackToCEO');
+  intent.searchParams.set('hashtags', 'BackToCEO,standwithjensen,bringjensenback');
   return intent.href;
 }
 
@@ -679,11 +679,7 @@ document.getElementById('btn-restart').addEventListener('click', () => {
   SoundFX.playDeal(4);
 });
 
-const posterShareButton = document.getElementById('btn-share-poster');
-const posterShareStatus = document.getElementById('poster-share-status');
-let posterShareData;
-
-document.getElementById('btn-share-game').addEventListener('click', async () => {
+document.getElementById('btn-share-game').addEventListener('click', () => {
   const shareAddress = getGameShareAddress();
   const { address, publicUrl } = shareAddress;
   const shareTitle = translate(GAME_TITLE);
@@ -691,37 +687,9 @@ document.getElementById('btn-share-game').addEventListener('click', async () => 
   document.getElementById('game-share-url').value = address;
   document.getElementById('game-share-local-hint').hidden = Boolean(publicUrl);
   const shareLink = document.getElementById('game-share-x');
-  const shareUrl = getGameXShareUrl(shareTitle, shareAddress);
-  shareLink.href = shareUrl;
+  shareLink.href = getGameXShareUrl(shareTitle, shareAddress);
   shareLink.textContent = publicUrl ? translate("分享到 X") : translate("测试 X 发帖");
-  posterShareButton.hidden = true;
-  posterShareStatus.hidden = true;
-  const dialog = document.getElementById('game-share-dialog');
-  dialog.showModal();
-
-  if (!publicUrl || !window.isSecureContext || !navigator.share || !navigator.canShare) return;
-  try {
-    const poster = document.getElementById('game-share-poster');
-    const response = await fetch(poster.src);
-    if (!response.ok) return;
-    const file = new File([await response.blob()], 'back-to-ceo-poster.jpg', { type: 'image/jpeg' });
-    const data = { title: shareTitle, text: shareTitle, url: publicUrl, files: [file] };
-    if (dialog.open && shareLink.href === shareUrl && navigator.canShare(data)) {
-      posterShareData = data;
-      posterShareButton.hidden = false;
-    }
-  } catch {
-    // 下载与 X 分享入口在文件分享不可用时仍可使用。
-  }
-});
-
-posterShareButton.addEventListener('click', async () => {
-  posterShareStatus.hidden = true;
-  try {
-    await navigator.share(posterShareData);
-  } catch (error) {
-    posterShareStatus.hidden = error.name === 'AbortError';
-  }
+  document.getElementById('game-share-dialog').showModal();
 });
 
 document.getElementById('btn-play-again').addEventListener('click', e => {
