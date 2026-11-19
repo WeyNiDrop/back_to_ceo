@@ -32,7 +32,7 @@ Win all three stages to clear the game. Your run ends if you fall short of the s
 
 1. **Manage your hand.** Draw four cards at the start of each stage. The 21-card deck contains 19 distinct cards across the Energy, Influence, Espionage, and Politics categories. Select a card to play it and pay its energy, cash, or influence cost. Modifiers can change costs or effects.
 2. **Control the board.** Cards and powers can claim neutral seats, steal unlocked enemy seats, or protect seats you already hold. Locked seats count toward your total and are protected against theft and effects that turn them neutral.
-3. **Anticipate the counter.** After you choose **End Turn**, the opponent normally plays as many cards as you played that round, with a minimum of two, then resolves their passive. Some cards reduce the opponent's plays or suppress their round-end passive. Select the passive's name on the board to see how it works.
+3. **Anticipate the counter.** The opponent starts with as many card plays as you made that round, with a baseline of at least two. Card effects can then subtract up to two plays. The opponent resolves their Boss passive after playing. Petition of 700 can skip that passive. Select the passive's name on the board to see how it works.
 4. **Carry momentum into the next round.** You can swap one card per round. Each new round refills energy and draws up to two cards, with a five-card hand limit. When you win a stage, you carry some cash and influence forward, get a fresh hand, and regain your power uses.
 
 ### Hero powers

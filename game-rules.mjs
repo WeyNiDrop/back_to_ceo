@@ -1,5 +1,7 @@
 // Shared by the browser and the Pages Function that verifies ranked runs.
 export const MIN_ENEMY_CARDS = 2;
+export const MAX_ENEMY_CARD_REDUCTION = 2;
+export const ENEMY_CARD_RULES_VERSION = 2;
 export const INSTANT_WIN_SEATS = [6, 7, 7];
 export const BOARD_MAJORITY = 5;
 export const CARD_ANIMATION_MS = 900;
@@ -38,7 +40,7 @@ const STANCES = {
     desc: '抽到的手牌有概率附带【顺手加锁】【威慑压制】【回魂咖啡】等词条。',
     affixes: [
       { name: '顺手加锁', desc: '抢席后锁定🔒', mod: { bonusLock: true } },
-      { name: '威慑压制', desc: '敌方减牌1张（至少2张）', mod: { bonusWeaken: 1 } },
+      { name: '威慑压制', desc: '敌方少出 1 张牌', mod: { bonusWeaken: 1 } },
       { name: '回魂咖啡', desc: '额外+1💎', mod: { bonusAp: 1 } }
     ]
   }
@@ -511,9 +513,14 @@ export function createGameRules({ translate = text => text, formatCash = String 
     return (state.runBosses && state.runBosses[state.stage - 1]) || AI_BOSS_POOL[0];
   }
 
-  function getEnemyCardCount(turnState) {
-    if (turnState.aiFrozen) return MIN_ENEMY_CARDS;
-    return Math.max(MIN_ENEMY_CARDS, turnState.cardsPlayedThisTurn - turnState.aiPenalty);
+  function getEnemyCardCount(state, enemyCardRulesVersion) {
+    if (enemyCardRulesVersion === 1) {
+      // Runs already in progress still replay with the floor used when they started.
+      if (state.aiFrozen) return MIN_ENEMY_CARDS;
+      return Math.max(MIN_ENEMY_CARDS, state.cardsPlayedThisTurn - state.aiPenalty);
+    }
+    const baseCount = state.aiFrozen ? MIN_ENEMY_CARDS : Math.max(MIN_ENEMY_CARDS, state.cardsPlayedThisTurn);
+    return Math.max(0, baseCount - state.aiPenalty);
   }
 
   function getEffectiveCosts(state, item) {
@@ -636,10 +643,10 @@ export function createGameRules({ translate = text => text, formatCash = String 
       }
     }
 
-    const totalWeaken = (fx.weakenAi || 0) + (mod.bonusWeaken || 0);
-    if (totalWeaken > 0) {
-      s.aiPenalty = Math.min(2, s.aiPenalty + totalWeaken);
-      toastParts.push(translate("对手减牌"));
+    const reduction = Math.min((fx.weakenAi || 0) + (mod.bonusWeaken || 0), MAX_ENEMY_CARD_REDUCTION - s.aiPenalty);
+    if (reduction > 0) {
+      s.aiPenalty += reduction;
+      toastParts.push(translate("敌方少出 {0} 张牌", reduction));
     }
 
     if (fx.freezeAi) {
@@ -810,9 +817,9 @@ export function createGameRules({ translate = text => text, formatCash = String 
     return target;
   }
 
-  function beginEnemyTurn(state) {
+  function beginEnemyTurn(state, enemyCardRulesVersion = ENEMY_CARD_RULES_VERSION) {
     const turn = {
-      cards: getEnemyCardCount(state),
+      cards: getEnemyCardCount(state, enemyCardRulesVersion),
       frozen: state.aiFrozen,
       played: new Set(),
       last: null,
@@ -891,7 +898,7 @@ export function seededRandom(seed) {
 
 const replayRules = createGameRules();
 
-export function replayRankedRun(seed, actions) {
+export function replayRankedRun(seed, actions, enemyCardRulesVersion = ENEMY_CARD_RULES_VERSION) {
   if (!Array.isArray(actions) || actions.length === 0 || actions.length > MAX_RUN_ACTIONS) return null;
   let state = replayRules.makeStage(1, null, seededRandom(seed));
   let animationMs = 0;
@@ -924,7 +931,7 @@ export function replayRankedRun(seed, actions) {
         break;
       }
       case 'end': {
-        const turn = replayRules.beginEnemyTurn(state);
+        const turn = replayRules.beginEnemyTurn(state, enemyCardRulesVersion);
         if (detail && detail.length !== turn.cards) return null;
         for (let i = 0; i < turn.cards; i++) {
           const excluded = replayRules.enemyExclusions(turn);

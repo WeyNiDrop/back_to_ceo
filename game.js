@@ -1,8 +1,8 @@
 import {
-  BOARD_MAJORITY, CARD_ANIMATION_MS, CARD_DB, countLockedEnemySeats, createGameRules,
-  getPlayerScore, INSTANT_WIN_SEATS, isInstantWin,
+  BOARD_MAJORITY, CARD_ANIMATION_MS, CARD_DB, countLockedEnemySeats, createGameRules, ENEMY_CARD_RULES_VERSION,
+  getPlayerScore, INSTANT_WIN_SEATS, isInstantWin, MAX_ENEMY_CARD_REDUCTION,
   MIN_ENEMY_CARDS, normalizePlayerName, PASSIVE_ANIMATION_MS, seededRandom,
-} from './game-rules.mjs?v=20261119-all-runs';
+} from './game-rules.mjs?v=20261119-enemy-card-count';
 
 const rules = createGameRules({ translate, formatCash });
 let currentRun = null;
@@ -118,8 +118,8 @@ function formatCardDesc(card, item) {
   if (enemyFirstSeats) parts.push(translate("夺{0}席（敌席优先）", enemyFirstSeats));
   if (fx.demoteEnemy) parts.push(translate("动摇1敌席"));
   if (fx.lockClaimed) parts.push(translate("并锁定🔒"));
-  if (fx.weakenAi) parts.push(translate("敌方减牌{0}张（至少{1}张）", fx.weakenAi, MIN_ENEMY_CARDS));
-  if (fx.freezeAi) parts.push(translate("敌方只出{0}张，冻结 Boss 被动", MIN_ENEMY_CARDS));
+  if (fx.weakenAi) parts.push(translate("敌方少出 {0} 张牌", fx.weakenAi));
+  if (fx.freezeAi) parts.push(translate("敌方至多出 {0} 张牌，冻结 Boss 被动", MIN_ENEMY_CARDS));
   if (item?.affix) parts.push(`(${translate(item.affix.desc)})`);
   return parts.join(' ');
 }
@@ -144,7 +144,7 @@ async function initGame() {
   startStage(1, false);
 
   try {
-    const response = await leaderboardRequest({ type: 'start' });
+    const response = await leaderboardRequest({ type: 'start', enemyCardRulesVersion: ENEMY_CARD_RULES_VERSION });
     if (!response.ok) throw new Error('Challenge timing unavailable');
     const { token, seed } = await response.json();
     if (typeof token !== 'string' || !Number.isInteger(seed) || seed < 0 || seed > 0xffffffff) {
@@ -801,7 +801,7 @@ function openTutorial(step = 0) {
   document.getElementById('tutorial-instant-win').textContent = translate("即时胜利：第 1 关占 {0} 席，第 2、3 关分别占 {1}、{2} 席。", ...INSTANT_WIN_SEATS);
   document.getElementById('tutorial-lock-win').textContent = translate("任一关锁定 {0} 个我方席位即胜。对手先锁定 {0} 席，你立即落败。", BOARD_MAJORITY);
   document.getElementById('tutorial-round-win').textContent = translate("若未提前分出胜负，第 {0} 回合对手行动结束后，仍持有至少 {1} 席才算过关。", state.maxTurns, BOARD_MAJORITY);
-  document.getElementById('tutorial-enemy-turn').textContent = translate("点结束回合后，对手通常出与你本回合相同数量的牌，至少 {0} 张。它们可以抢席、动摇未锁席位或扣除资源。出牌后，对手结算回合末被动。打出「700人联名逼宫」能让对手只出 {0} 张牌并跳过这次被动。", MIN_ENEMY_CARDS);
+  document.getElementById('tutorial-enemy-turn').textContent = translate("点结束回合后，对手基础出牌数与你本回合相同，至少 {0} 张。减牌效果从基础数量扣除，最多累计减 {1} 张。对手随后结算回合末被动。「700人联名逼宫」将其出牌上限设为 {0} 张，并跳过这次被动。", MIN_ENEMY_CARDS, MAX_ENEMY_CARD_REDUCTION);
 
   const boss = getCurrentBoss();
   document.getElementById('tutorial-boss-portrait').src = portraitSrc(boss.portrait);

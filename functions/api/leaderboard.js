@@ -1,4 +1,4 @@
-import { normalizePlayerName, replayRankedRun } from '../../game-rules.mjs';
+import { ENEMY_CARD_RULES_VERSION, normalizePlayerName, replayRankedRun } from '../../game-rules.mjs';
 
 const RULES_VERSION = 'board-v1';
 const MAX_RUN_MS = 2 * 60 * 60 * 1000;
@@ -133,16 +133,20 @@ export async function onRequestPost({ request, env }) {
     const action = await readAction(request);
     const player = playerCookie(request);
     if (action?.type === 'start') {
+      const enemyCardRulesVersion = action.enemyCardRulesVersion ?? 1;
+      if (enemyCardRulesVersion !== 1 && enemyCardRulesVersion !== ENEMY_CARD_RULES_VERSION) {
+        return json({ error: 'INVALID_RULES_VERSION' }, 400);
+      }
       const id = player ?? crypto.randomUUID();
       const seed = crypto.getRandomValues(new Uint32Array(1))[0];
-      const run = { id: crypto.randomUUID(), player: id, seed, rules: RULES_VERSION, started: now };
+      const run = { id: crypto.randomUUID(), player: id, seed, rules: RULES_VERSION, enemyCardRulesVersion, started: now };
       return json({ token: await sign(run, env.RUN_SIGNING_KEY), seed }, 200, { 'Set-Cookie': playerHeader(id) });
     }
     if (action?.type !== 'finish') return json({ error: 'INVALID_ACTION' }, 400);
     const run = player && await verify(action.token, env.RUN_SIGNING_KEY, player, now);
     if (!run) return json({ error: 'INVALID_RUN' }, 400);
     const nickname = typeof action.nickname === 'string' && normalizePlayerName(action.nickname);
-    const replay = nickname && replayRankedRun(run.seed, action.actions);
+    const replay = nickname && replayRankedRun(run.seed, action.actions, run.enemyCardRulesVersion ?? 1);
     if (!replay || now - run.started + 1000 < replay.animationMs) return json({ error: 'INVALID_RUN' }, 400);
     return json(await saveRun(env.DB, run, nickname, now));
   } catch (error) {
