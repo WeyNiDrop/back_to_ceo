@@ -391,9 +391,10 @@ function handleStageCleared(pVotes, pLocked = 0) {
 }
 
 function getFinalShareUrl(elapsed) {
-  const { publicUrl, posterUrl } = getGameShareAddress('end-victory-poster');
+  const { publicUrl } = getGameShareAddress();
+  const resultUrl = publicUrl ? new URL('result/', publicUrl).href : '';
   const shareText = translate("我在《{0}》用时 {1} 连克三关，帮助黄仁勋重返 CEO 宝座！", translate(GAME_TITLE), elapsed);
-  return getXShareUrl([shareText, publicUrl, posterUrl]);
+  return getXShareUrl([shareText, resultUrl]);
 }
 
 function getXShareUrl(lines) {
@@ -426,7 +427,7 @@ function isPublicShareUrl(url) {
     !/\.(local|localhost)$/.test(host) && !/^(\d+\.){3}\d+$/.test(host);
 }
 
-function getGameShareAddress(posterId = 'game-share-poster') {
+function getGameShareAddress() {
   const canonical = document.querySelector('meta[property="og:url"]').content.trim();
   const pageUrl = new URL(canonical || window.location.href);
   pageUrl.search = '';
@@ -435,7 +436,7 @@ function getGameShareAddress(posterId = 'game-share-poster') {
   pageUrl.password = '';
 
   const isPublic = /^https?:$/.test(pageUrl.protocol) && (Boolean(canonical) || isPublicShareUrl(pageUrl));
-  const posterPath = document.getElementById(posterId).getAttribute('src');
+  const posterPath = document.getElementById('game-share-poster').getAttribute('src');
   const posterUrl = new URL(posterPath, pageUrl);
   return {
     address: pageUrl.href,

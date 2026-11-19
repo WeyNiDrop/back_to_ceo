@@ -1,6 +1,6 @@
 import { copyFile, cp, mkdir, readFile, rm, writeFile } from 'node:fs/promises';
 import { basename } from 'node:path';
-import { escapeMarkup, normalizeSiteUrl, withShareUrl } from './set-share-url.mjs';
+import { escapeMarkup, normalizeSiteUrl, withResultShareUrl, withShareUrl } from './set-share-url.mjs';
 
 const root = new URL('../', import.meta.url);
 const output = new URL('dist/', root);
@@ -11,10 +11,14 @@ const siteUrl = process.env.PUBLIC_SITE_URL || pagesSiteUrl;
 const pageUrl = siteUrl ? normalizeSiteUrl(siteUrl) : null;
 const sourceHtml = await readFile(new URL('index.html', root), 'utf8');
 const html = pageUrl ? withShareUrl(sourceHtml, pageUrl) : sourceHtml;
+const resultMarkup = await readFile(new URL('result/index.html', root), 'utf8');
+const resultHtml = pageUrl ? withResultShareUrl(resultMarkup, pageUrl) : resultMarkup;
 
 await rm(output, { recursive: true, force: true });
 await mkdir(output);
 await writeFile(new URL('index.html', output), html);
+await mkdir(new URL('result/', output));
+await writeFile(new URL('result/index.html', output), resultHtml);
 await writeFile(new URL('_routes.json', output), JSON.stringify({
   version: 1,
   include: ['/api/leaderboard'],

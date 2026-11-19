@@ -305,6 +305,7 @@ const ENGLISH_TEXT = {
   "Back To CEO 重回巅峰之路": "Back To CEO: Road to the Top",
   "Back To CEO 重回巅峰之路 · 黄仁勋主题策略卡牌游戏": "Back To CEO · Jensen Huang–Inspired Strategy Card Game",
   "《Back To CEO 重回巅峰之路》是一款以黄仁勋为灵感的免费网页策略卡牌游戏。用手牌争夺董事会九席，连赢三关，夺回 CEO 宝座。": "Back To CEO is a free browser strategy card game inspired by Jensen Huang. Fight for nine board seats and win three battles to reclaim the CEO chair.",
+  "《Back To CEO 重回巅峰之路》是一款以黄仁勋为灵感的免费网页策略卡牌游戏。连赢三关夺回 CEO 宝座，参与 #standwithjensen 和 #bringjensenback 声援话题。": "Play Back To CEO, a free strategy card game inspired by Jensen Huang. Win three stages to reclaim the CEO chair. #standwithjensen #bringjensenback",
   "重回巅峰之路": "Road to the Top",
   "连胜 3 关夺回 CEO": "Win 3 stages to reclaim the CEO chair",
   "分享游戏": "Share Game",
@@ -381,6 +382,8 @@ const ENGLISH_TEXT = {
 
 const GAME_TITLE = 'Back To CEO 重回巅峰之路';
 const GAME_LANGUAGE_KEY = 'backtoceo_language';
+const descriptionMeta = document.querySelector('meta[name="description"]');
+const originalDescription = descriptionMeta.content;
 
 function readGameLanguage() {
   try {
@@ -414,7 +417,7 @@ function formatCash(amount) {
 function applyPageLanguage() {
   document.documentElement.lang = getGameLanguage();
   document.title = translate('Back To CEO 重回巅峰之路 · 黄仁勋主题策略卡牌游戏');
-  document.querySelector('meta[name="description"]').content = translate(document.querySelector('.project-description').dataset.i18n);
+  descriptionMeta.content = translate(originalDescription);
   document.querySelectorAll('[data-i18n]').forEach(element => {
     element.textContent = translate(element.dataset.i18n);
   });

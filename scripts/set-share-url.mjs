@@ -29,28 +29,41 @@ export function normalizeSiteUrl(input) {
   return pageUrl;
 }
 
-export function withShareUrl(markup, pageUrl) {
-  const posterUrl = new URL('assets/back-to-ceo-poster.jpg', pageUrl);
+function withCardUrls(markup, pageUrl, posterUrl) {
   const canonicalTag = /(<link rel="canonical" href=")[^"]*(")/;
-  const structuredDataTag = /(<script type="application\/ld\+json" id="game-structured-data">)\s*([\s\S]*?)\s*(<\/script>)/;
-  if (!structuredDataTag.test(markup)) throw new Error('缺少游戏结构化数据');
-
   const withCanonical = setUrlAttribute(markup, canonicalTag, 'canonical', pageUrl.href);
   const withPage = setMetaContent(withCanonical, 'property', 'og:url', pageUrl.href);
   const withPoster = setMetaContent(withPage, 'property', 'og:image', posterUrl.href);
-  const withSocial = setMetaContent(withPoster, 'name', 'twitter:image', posterUrl.href);
-  return withSocial.replace(structuredDataTag, (_, start, json, end) => {
+  return setMetaContent(withPoster, 'name', 'twitter:image', posterUrl.href);
+}
+
+export function withShareUrl(markup, pageUrl) {
+  const posterUrl = new URL('assets/back-to-ceo-poster.jpg', pageUrl);
+  const structuredDataTag = /(<script type="application\/ld\+json" id="game-structured-data">)\s*([\s\S]*?)\s*(<\/script>)/;
+  if (!structuredDataTag.test(markup)) throw new Error('缺少游戏结构化数据');
+
+  return withCardUrls(markup, pageUrl, posterUrl).replace(structuredDataTag, (_, start, json, end) => {
     const data = { ...JSON.parse(json), url: pageUrl.href, image: posterUrl.href };
     const body = JSON.stringify(data, null, 2).replaceAll('<', '\\u003c').replace(/^/gm, '    ');
     return `${start}\n${body}\n  ${end}`;
   });
 }
 
+export function withResultShareUrl(markup, siteUrl) {
+  const pageUrl = new URL('result/', siteUrl);
+  const posterUrl = new URL('assets/back-to-ceo-poster-rtx6090-forward.jpg', siteUrl);
+  return withCardUrls(markup, pageUrl, posterUrl);
+}
+
 if (process.argv[1] && pathToFileURL(process.argv[1]).href === import.meta.url) {
   const indexPath = new URL('../index.html', import.meta.url);
+  const resultPath = new URL('../result/index.html', import.meta.url);
   try {
-    const markup = await readFile(indexPath, 'utf8');
-    await writeFile(indexPath, withShareUrl(markup, normalizeSiteUrl(process.argv[2])));
+    const siteUrl = normalizeSiteUrl(process.argv[2]);
+    const [indexMarkup, resultMarkup] = await Promise.all([readFile(indexPath, 'utf8'), readFile(resultPath, 'utf8')]);
+    const indexHtml = withShareUrl(indexMarkup, siteUrl);
+    const resultHtml = withResultShareUrl(resultMarkup, siteUrl);
+    await Promise.all([writeFile(indexPath, indexHtml), writeFile(resultPath, resultHtml)]);
     console.log('已写入规范网址、搜索结构化数据和分享地址');
   } catch (error) {
     console.error(error.message);
