@@ -10,7 +10,7 @@
 
 ## 游戏宣传海报
 
-`back-to-ceo-poster.jpg` 由内置 ImageGen 生成并导出为 1200 × 630 JPEG，是第一版分享海报。当前分享海报为 `back-to-ceo-poster-rtx6090-stage.jpg`，同样由内置 ImageGen 生成并导出为 1200 × 630 JPEG，用于游戏分享预览和 X 大图卡片。
+`back-to-ceo-poster.jpg` 由内置 ImageGen 生成并导出为 1200 × 630 JPEG，是第一版分享海报。当前分享海报为 `back-to-ceo-poster-rtx6090-perspective.jpg`，同样由内置 ImageGen 生成并导出为 1200 × 630 JPEG，用于游戏分享预览和 X 大图卡片。
 
 **生成提示词**
 
