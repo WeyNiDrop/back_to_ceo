@@ -336,7 +336,7 @@ const ENGLISH_TEXT = {
   "关闭分享预览": "Close share preview",
   "游戏地址": "Game URL",
   "本地地址仅供预览。公开部署后，X 才能读取游戏链接和海报卡片。": "This is a local preview. Deploy the game publicly to show the game link and poster card on X.",
-  "黑皮衣主角手持卡牌，身后是董事会长桌和一张金色空椅。": "A card player in a black jacket stands before a boardroom table and an empty golden CEO chair.",
+  "游戏插画，黄仁勋从烤箱端出 RTX 6090，马斯克、特朗普和库克在旁鼓掌。": "Game illustration of Jensen Huang taking an RTX 6090 out of an oven while Elon Musk, Donald Trump and Tim Cook applaud.",
   "席位已锁定": "Seat locked",
   "点赞支持作者": "Support the Creator",
   "在 GitHub 为项目加星": "Star the project on GitHub",
