@@ -836,6 +836,8 @@ tutorialDialog.addEventListener('close', () => {
 const PLAYER_NAME_KEY = 'backtoceo_player_name';
 const RANDOM_PLAYER_NAMES = ['夜市股东 {0}', '芯片猎手 {0}', '皮衣策士 {0}', '董事会新秀 {0}'];
 const playerNameDialog = document.getElementById('player-name-dialog');
+const playerNameTitle = document.getElementById('player-name-title');
+const playerNameButton = document.getElementById('btn-player-name');
 const playerNameInput = document.getElementById('player-name-input');
 const playerNameDisplay = document.getElementById('player-name-display');
 const cancelPlayerName = document.getElementById('btn-cancel-player-name');
@@ -849,7 +851,12 @@ try {
 
 function renderPlayerName() {
   playerNameDisplay.textContent = playerName;
+  playerNameDisplay.title = playerName;
   playerNameDisplay.hidden = !playerName;
+  const label = translate(playerName ? "修改昵称" : "设置昵称");
+  playerNameTitle.textContent = label;
+  playerNameButton.title = label;
+  playerNameButton.setAttribute('aria-label', label);
 }
 
 function openPlayerName() {
@@ -857,6 +864,7 @@ function openPlayerName() {
   playerNameInput.setCustomValidity('');
   cancelPlayerName.hidden = !playerName;
   playerNameDialog.showModal();
+  playerNameInput.select();
 }
 
 function continueFirstVisit() {
@@ -865,7 +873,7 @@ function continueFirstVisit() {
   else if (!currentRun) void initGame();
 }
 
-document.getElementById('btn-player-name').addEventListener('click', openPlayerName);
+playerNameButton.addEventListener('click', openPlayerName);
 cancelPlayerName.addEventListener('click', () => playerNameDialog.close());
 playerNameDialog.addEventListener('cancel', event => {
   if (!playerName) event.preventDefault();
@@ -999,6 +1007,7 @@ document.querySelectorAll('[data-game-language]').forEach(button => {
     const language = button.dataset.gameLanguage;
     if (language !== getGameLanguage()) state.enemyTaunt = getCurrentBoss().tauntStart;
     setGameLanguage(language);
+    renderPlayerName();
     renderCampaignShareLinks();
     renderSoundButton();
     clearStage();

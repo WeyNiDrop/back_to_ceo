@@ -117,6 +117,7 @@ body {
 .goal-tag { white-space: nowrap; }
 .turn-status { grid-area: turn; display: grid; gap: 4px; }
 .turn-pill { text-align: center; }
+.turn-meta { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 4px 10px; }
 .run-timer { display: flex; justify-content: center; gap: 7px; color: var(--muted); font-size: 12px; }
 :is(.run-timer, .end-run-time) time { color: var(--amber); font-variant-numeric: tabular-nums; font-weight: 750; }
 .top-btns { grid-area: controls; display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 6px; }
@@ -570,8 +571,26 @@ input[type="text"], input[type="password"], select { background: var(--bg); bord
 .player-name-modal h2 { font-size: 17px; }
 .player-name-modal .modal-body { gap: 8px; }
 .player-name-modal .modal-footer { flex-wrap: wrap; gap: 8px; }
-.player-name-button { align-self: flex-start; max-width: 100%; margin-top: 4px; text-align: start; overflow-wrap: anywhere; }
-#player-name-display { color: var(--amber); }
+.player-identity {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
+  max-width: 100%;
+  color: var(--muted);
+  font-size: 12px;
+  white-space: nowrap;
+}
+.player-name-button { display: grid; place-items: center; flex: 0 0 auto; width: 26px; height: 24px; padding: 0; }
+.player-name-button svg { display: block; width: 15px; height: 15px; }
+#player-name-display {
+  min-width: 0;
+  max-width: 8em;
+  overflow: hidden;
+  color: var(--amber);
+  font-weight: 800;
+  text-overflow: ellipsis;
+}
 
 .tutorial-modal { max-width: 640px; }
 .tutorial-modal[open] { display: flex; flex-direction: column; overflow: hidden; }
@@ -730,7 +749,6 @@ button:disabled { opacity: 0.52; cursor: not-allowed; }
   }
   .player-pod { gap: 8px; padding: 7px 9px; }
   .player-pod .hero-portrait { width: clamp(55px, 9.5dvh, 104px); height: clamp(68px, 12dvh, 120px); }
-  .player-pod .player-name-button { padding: 4px 6px; }
   .hand-zone { gap: 6px; padding: 7px 9px; }
   .hand-cards { gap: 6px; min-height: clamp(180px, 29dvh, 250px); }
   .hs-card { gap: 3px; padding: 5px; }
@@ -761,8 +779,15 @@ button:disabled { opacity: 0.52; cursor: not-allowed; }
   .hs-card img { height: clamp(43px, 8dvh, 61px); }
 }
 
-@media (min-width: 1025px) and (max-width: 1160px) {
-  .top-bar { grid-template-areas: "brand controls controls" "brand goal turn"; }
+@media (min-width: 1025px) and (max-width: 1320px) {
+  .top-bar {
+    grid-template-areas: "brand controls controls" "brand goal turn";
+    padding-block: 4px;
+    row-gap: 3px;
+  }
+  .top-btns .btn-top { padding-block: 3px; }
+  .turn-status { gap: 2px; }
+  .turn-pill { padding-block: 2px; }
 }
 
 @media (max-width: 1024px) {
@@ -800,6 +825,7 @@ button:disabled { opacity: 0.52; cursor: not-allowed; }
     grid-template-areas: "brand" "turn" "goal" "controls";
     padding: 10px;
   }
+  .player-name-button { width: 36px; height: 36px; }
   .top-btns { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); }
   .top-btns .btn-top { grid-column: span 2; min-height: 36px; padding-inline: 5px; }
   .tutorial-list { grid-template-columns: minmax(0, 1fr); }

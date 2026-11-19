@@ -275,8 +275,10 @@ const ENGLISH_TEXT = {
   "稳固防线": "Position held",
 
   // Page controls, dialogs, and accessibility labels
-  "玩家名称": "Player name",
-  "设置玩家名称": "Set your player name",
+  "玩家：": "Player:",
+  "玩家昵称": "Player nickname",
+  "设置昵称": "Set nickname",
+  "修改昵称": "Edit nickname",
   "昵称最多 24 个字符，保存在此浏览器，通关后随成绩提交到公开排行榜。": "Your nickname can be up to 24 characters. It is saved in this browser and submitted to the public leaderboard with your finish time.",
   "排行榜": "Leaderboard",
   "连胜三关后自动记录成绩，排行榜展示每位玩家的最快用时。": "Clear all three stages to have your time recorded automatically. The leaderboard shows each player’s fastest time.",
@@ -295,8 +297,8 @@ const ENGLISH_TEXT = {
   "暂时无法保存成绩。": "Your time could not be saved right now.",
   "重试保存成绩": "Retry saving time",
   "取消": "Cancel",
-  "随机名称": "Random name",
-  "保存名称": "Save name",
+  "随机昵称": "Random nickname",
+  "保存昵称": "Save nickname",
   "请输入 1 到 24 个字符的有效名称。": "Enter a valid name of 1 to 24 characters.",
   "夜市股东 {0}": "Night Market {0}",
   "芯片猎手 {0}": "Chip Hunter {0}",

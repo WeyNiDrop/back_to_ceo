@@ -39,7 +39,7 @@
       "isAccessibleForFree": true
     }
   </script>
-  <link rel="stylesheet" href="style.css?v=20261119-desktop-layout" />
+  <link rel="stylesheet" href="style.css?v=20261119-player-icon" />
 </head>
 <body>
   <div class="hs-table">
@@ -56,9 +56,20 @@
 
       <div class="turn-status">
         <div class="turn-pill" id="turn-display">第 1 / 6 回合 · DAY 1 白天</div>
-        <div class="run-timer">
-          <span data-i18n="当前用时">当前用时</span>
-          <time id="run-time" datetime="PT0S">00:00</time>
+        <div class="turn-meta">
+          <div class="run-timer">
+            <span data-i18n="当前用时">当前用时</span>
+            <time id="run-time" datetime="PT0S">00:00</time>
+          </div>
+          <div class="player-identity">
+            <span data-i18n="玩家：">玩家：</span>
+            <bdi id="player-name-display" hidden></bdi>
+            <button class="btn-top player-name-button" id="btn-player-name" type="button" aria-label="设置昵称" title="设置昵称" aria-haspopup="dialog" aria-controls="player-name-dialog">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M4 20l1-4.5L16.5 4a2.5 2.5 0 0 1 3.5 3.5L8.5 19 4 20ZM14.5 6l3.5 3.5"/>
+              </svg>
+            </button>
+          </div>
         </div>
         <p class="hint-text" id="challenge-start-status" role="status" hidden></p>
       </div>
@@ -110,9 +121,6 @@
             <div class="cash-badge"><span data-i18n="💰 资金">💰 资金</span> <strong id="stat-cash">$5,000万</strong></div>
             <div class="inf-badge"><span data-i18n="🌟 影响力">🌟 影响力</span> <strong id="stat-inf">20</strong></div>
             <div class="passive-pill hero-passive" data-i18n="🧥 被动：皮衣光环(+5🌟)">🧥 被动：皮衣光环(+5🌟)</div>
-            <button class="btn-top player-name-button" id="btn-player-name" type="button" aria-haspopup="dialog">
-              <span data-i18n="玩家名称">玩家名称</span> <bdi id="player-name-display" hidden></bdi>
-            </button>
           </div>
         </div>
 
@@ -263,18 +271,18 @@
 
   <dialog class="modal share-modal player-name-modal" id="player-name-dialog" aria-labelledby="player-name-title">
     <div class="modal-header">
-      <h2 id="player-name-title" data-i18n="设置玩家名称">设置玩家名称</h2>
+      <h2 id="player-name-title">设置昵称</h2>
     </div>
     <form id="player-name-form">
       <div class="modal-body">
-        <label for="player-name-input" data-i18n="玩家名称">玩家名称</label>
+        <label for="player-name-input" data-i18n="玩家昵称">玩家昵称</label>
         <input id="player-name-input" type="text" autocomplete="nickname" maxlength="48" required autofocus aria-describedby="player-name-hint" />
         <p class="hint-text" id="player-name-hint" data-i18n="昵称最多 24 个字符，保存在此浏览器，通关后随成绩提交到公开排行榜。">昵称最多 24 个字符，保存在此浏览器，通关后随成绩提交到公开排行榜。</p>
       </div>
       <div class="modal-footer">
         <button class="btn-save btn-secondary" id="btn-cancel-player-name" type="button" data-i18n="取消" hidden>取消</button>
-        <button class="btn-save btn-secondary" id="btn-random-player-name" type="button" data-i18n="随机名称">随机名称</button>
-        <button class="btn-save" type="submit" data-i18n="保存名称">保存名称</button>
+        <button class="btn-save btn-secondary" id="btn-random-player-name" type="button" data-i18n="随机昵称">随机昵称</button>
+        <button class="btn-save" type="submit" data-i18n="保存昵称">保存昵称</button>
       </div>
     </form>
   </dialog>
@@ -359,8 +367,8 @@
   </template>
 
   <script src="sound.js?v=202611172115"></script>
-  <script src="i18n.js?v=20261119-enemy-card-count"></script>
+  <script src="i18n.js?v=20261119-player-icon"></script>
   <script src="ai.js?v=20261118-leaderboard"></script>
-  <script type="module" src="game.js?v=20261119-enemy-card-count"></script>
+  <script type="module" src="game.js?v=20261119-player-icon"></script>
 </body>
 </html>
