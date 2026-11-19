@@ -336,7 +336,7 @@ const ENGLISH_TEXT = {
   "关闭分享预览": "Close share preview",
   "游戏地址": "Game URL",
   "本地地址仅供预览。公开部署后，X 才能读取游戏链接和海报卡片。": "This is a local preview. Deploy the game publicly to show the game link and poster card on X.",
-  "游戏插画，黄仁勋从烤箱端出 RTX 6090，马斯克、特朗普和库克在旁鼓掌。": "Game illustration of Jensen Huang taking an RTX 6090 out of an oven while Elon Musk, Donald Trump and Tim Cook applaud.",
+  "游戏插画，黄仁勋在 NVIDIA 发布会上从烤箱端出四风扇 RTX 6090，马斯克、特朗普、库克和现场粉丝为他喝彩。": "Game illustration of Jensen Huang lifting a four-fan RTX 6090 out of an oven at an NVIDIA keynote while Elon Musk, Donald Trump, Tim Cook and the audience cheer.",
   "席位已锁定": "Seat locked",
   "点赞支持作者": "Support the Creator",
   "在 GitHub 为项目加星": "Star the project on GitHub",

@@ -30,7 +30,7 @@ export function normalizeSiteUrl(input) {
 }
 
 export function withShareUrl(markup, pageUrl) {
-  const posterUrl = new URL('assets/back-to-ceo-poster-rtx6090.jpg', pageUrl);
+  const posterUrl = new URL('assets/back-to-ceo-poster-rtx6090-keynote.jpg', pageUrl);
   const canonicalTag = /(<link rel="canonical" href=")[^"]*(")/;
   const structuredDataTag = /(<script type="application\/ld\+json" id="game-structured-data">)\s*([\s\S]*?)\s*(<\/script>)/;
   if (!structuredDataTag.test(markup)) throw new Error('缺少游戏结构化数据');
