@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Back To CEO 游戏规则</title>
+  <meta name="description" content="Back To CEO 的胜负判定、回合流程、卡牌费用、英雄技能和 MCP 动作。">
+  <style>
+    :root { color-scheme: dark; font: 16px/1.65 system-ui, sans-serif; background: #14231a; color: #fff0d4; }
+    body { box-sizing: border-box; max-width: 960px; margin: auto; padding: 24px 20px 56px; }
+    h1, h2, a { color: #efc67b; }
+    h1 { font-size: clamp(24px, 5vw, 38px); }
+    h2 { margin-block: 1.6em .5em; font-size: 1.3em; }
+    p, li { max-width: 68ch; }
+    ul, ol { padding-inline-start: 1.4em; }
+    li + li { margin-block-start: .4em; }
+    table { width: 100%; border-collapse: collapse; font-size: .92em; }
+    th, td { padding: .5em .7em; border-bottom: 1px solid #786140; text-align: start; vertical-align: top; }
+    th { color: #efc67b; }
+    code { overflow-wrap: anywhere; }
+    @media (max-width: 480px) {
+      body { padding-inline: 12px; }
+      th, td { padding-inline: .35em; overflow-wrap: anywhere; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Back To CEO 游戏规则</h1>
+    <p>在九席董事会连续击败三位对手。每一关都需要重新争取席位。</p>
+    <nav aria-label="相关页面"><a href="./play?mode=chain">链上游玩</a> · <a href="./llms.txt">AI 连接说明</a></nav>
+  </header>
+  <main>
+    <section id="victory">
+      <h2>如何过关</h2>
+      <ul>
+        <li>第 1、2、3 关分别控制 6、7、7 席时立即过关。</li>
+        <li>任一关锁定 5 个我方席位时立即过关。对手先锁到 5 席时立即落败。</li>
+        <li>若没有提前分胜负，第 6 回合对手的出牌和被动全部结算后，我方持有至少 5 席才过关。锁定席也计入持有席位。</li>
+        <li>席位分为我方、对手与中立。锁定席位不能被夺走或动摇。对手的核心席位始终锁定。</li>
+      </ul>
+    </section>
+    <section id="turns">
+      <h2>回合与资源</h2>
+      <ol>
+        <li>每关以 0 个我方席位、4 点体力和 4 张手牌开局。第一关起始资金为 5,000 万，影响力为 20。</li>
+        <li>行动阶段可出牌、使用技能，或免费换掉一张手牌。每回合只能换 1 张，换牌时弃掉所选牌并摸 1 张。</li>
+        <li>出牌前同时检查体力、资金和影响力。影响力的最低门槛与实际消耗是两个字段，需满足两者中较高的值。费用会受到实际词条和当前对手影响。</li>
+        <li>点击「结束回合」后，对手出牌并结算回合末被动。等待牌面更新后再行动。</li>
+        <li>下一回合摸 2 张牌并补满体力。第 1 至 6 回合的基础体力按顺序为 4、4、5、5、6、6。手牌上限为 5，牌效可把当前体力补到 8，影响力上限为 100。</li>
+        <li>过关后重新洗牌、发牌并重置技能次数。下一关资金是上一关结余的 50% 四舍五入后加 2,500 万，最低 4,500 万。下一关影响力为上一关结余，最低 20、最高 50。</li>
+      </ol>
+    </section>
+    <section id="skills">
+      <h2>英雄技能</h2>
+      <p>每个主动技能每关可用 2 次，同一技能每回合限用 1 次。</p>
+      <table>
+        <thead><tr><th scope="col">技能</th><th scope="col">费用与效果</th></tr></thead>
+        <tbody>
+          <tr><th scope="row">皮衣直播 <code>jacket</code></th><td>2 点体力，获得 20 影响力并摸 1 张牌。</td></tr>
+          <tr><th scope="row">股权加锁 <code>equity</code></th><td>1 点体力，锁定第一个我方未锁定席位。</td></tr>
+          <tr><th scope="row">舆论号召 <code>rally</code></th><td>15 影响力，优先拿 1 个中立席，没有中立席时夺取 1 个未锁定敌席。</td></tr>
+          <tr><th scope="row">皮衣光环（被动）</th><td>每回合首次打出影响力牌时额外获得 5 影响力。</td></tr>
+        </tbody>
+      </table>
+    </section>
+    <section id="opponent">
+      <h2>对手如何行动</h2>
+      <ul>
+        <li>对手基础出牌数为本回合玩家打出的卡牌数，最低 2 张。换牌与英雄技能不计入出牌数。</li>
+        <li>减牌效果可累计减 2 张，从基础数量中扣除，最终可减到 0。「700人联名逼宫」把对手基础出牌数设为 2 张，并跳过本回合末的对手被动。</li>
+        <li>读取当前对手的被动说明。比如 Senator Cole 会提高间谍牌和政治牌的资金费用，并在回合末优先锁定己方席位。</li>
+        <li>结算前比较双方的锁定数。还能拿下即时过关所需的席位时可直接争席，对手接近锁满时要把下一次被动也算进去。</li>
+      </ul>
+    </section>
+    <section id="cards">
+      <h2>基础卡牌表</h2>
+      <p>费用依次为体力 / 资金（万）/ 影响力。对战时以牌面和 MCP 返回的实际费用、词条为准。</p>
+      <table>
+        <thead><tr><th scope="col">卡牌</th><th scope="col">分类</th><th scope="col">费用</th><th scope="col">基础效果</th></tr></thead>
+        <tbody>
+          <tr><th scope="row">炸鸡啤酒套餐</th><td>体力</td><td>0 / 100 / 0</td><td>获得 2 点体力</td></tr>
+          <tr><th scope="row">Denny's 苦咖啡</th><td>体力</td><td>0 / 0 / 0</td><td>获得 1 点体力、摸 1 张牌</td></tr>
+          <tr><th scope="row">夜市微服私访</th><td>体力</td><td>1 / 100 / 0</td><td>获得 1 点体力、获得 500 万资金、获得 5 影响力</td></tr>
+          <tr><th scope="row">古早味·兆元宴</th><td>体力</td><td>2 / 300 / 0</td><td>获得 1400 万资金、获得 10 影响力</td></tr>
+          <tr><th scope="row">硅谷水军控评</th><td>影响力</td><td>1 / 400 / 0</td><td>获得 12 影响力、抢占 1 个中立席</td></tr>
+          <tr><th scope="row">深夜代码直播</th><td>影响力</td><td>1 / 200 / 0</td><td>获得 15 影响力、摸 1 张牌</td></tr>
+          <tr><th scope="row">皮衣播客专访</th><td>影响力</td><td>2 / 0 / 0</td><td>获得 15 影响力、抢占 1 个中立席、摸 1 张牌</td></tr>
+          <tr><th scope="row">假照辟谣反转</th><td>影响力</td><td>1 / 0 / 12</td><td>拿下 1 席，优先中立席、摸 1 张牌</td></tr>
+          <tr><th scope="row">算力核弹发布会</th><td>影响力</td><td>2 / 800 / 20</td><td>拿下 2 席，优先未锁定敌席、锁定本牌取得的席位</td></tr>
+          <tr><th scope="row">私家侦探盯梢</th><td>间谍</td><td>1 / 400 / 0</td><td>摸 2 张牌、对手下次少出 1 张牌</td></tr>
+          <tr><th scope="row">精准一刀</th><td>间谍</td><td>1 / 0 / 20</td><td>获得 1000 万资金</td></tr>
+          <tr><th scope="row">会议室窃听器</th><td>间谍</td><td>1 / 600 / 0</td><td>获得 10 影响力、拿下 1 席，优先未锁定敌席</td></tr>
+          <tr><th scope="row">酒店监控实锤</th><td>间谍</td><td>2 / 800 / 0</td><td>拿下 1 席，优先未锁定敌席、获得 10 影响力、对手下次少出 1 张牌</td></tr>
+          <tr><th scope="row">反间谍舆论战</th><td>间谍</td><td>2 / 700 / 0</td><td>抢占 1 个中立席、使 1 个未锁定敌席变为中立</td></tr>
+          <tr><th scope="row">策反男间谍</th><td>间谍</td><td>2 / 1000 / 15</td><td>拿下 2 席，优先未锁定敌席</td></tr>
+          <tr><th scope="row">律师函禁制令</th><td>政治</td><td>1 / 600 / 0</td><td>抢占 1 个中立席、锁定本牌取得的席位</td></tr>
+          <tr><th scope="row">程序拖延战术</th><td>政治</td><td>1 / 500 / 0</td><td>拿下 1 席，优先中立席、对手下次少出 1 张牌</td></tr>
+          <tr><th scope="row">国会山政客游说</th><td>政治</td><td>2 / 1200 / 0</td><td>拿下 1 席，优先未锁定敌席、锁定本牌取得的席位</td></tr>
+          <tr><th scope="row">700人联名逼宫</th><td>政治</td><td>2 / 0 / 25</td><td>拿下 2 席，优先未锁定敌席、将对手基础出牌数设为最低值，跳过本回合末被动</td></tr>
+        </tbody>
+      </table>
+    </section>
+    <section id="ai-actions">
+      <h2>AI 如何读取局面和行动</h2>
+      <ul>
+        <li>浏览器中先读取关卡目标、席位归属、当前手牌及对手被动。单次执行一个可用操作，等动画结束后重新读取状态。技能和卡牌会自动选取符合条件的席位。</li>
+        <li>MCP 练习局根据 <code>legalActions</code> 选择动作。<code>play:N</code> 出牌，<code>discard:N</code> 换牌，<code>end_turn</code> 结束回合。<code>N</code> 是当前手牌从 0 开始的下标，每次摸牌、出牌或换牌后重新读取。</li>
+        <li>调用 <code>apply_action</code> 时用最新的 <code>version</code>。遇到 <code>STALE_VERSION</code> 时先调用 <code>get_game_state</code>。<code>won</code> 或 <code>lost</code> 表示对局已经结束。</li>
+        <li>链上模式的证明最多支持 96 步，出牌、换牌、技能与结束回合都计入。最终通关后等待浏览器生成证明，再由玩家确认钱包内的领奖交易。</li>
+      </ul>
+    </section>
+  </main>
+</body>
+</html>

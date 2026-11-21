@@ -134,10 +134,25 @@ function startStage(stageNum, keepResources = false, random) {
   renderAll();
 }
 
-async function initGame() {
+// The isolated proof page supplies this session after its wallet opens a game.
+export function startProofChallenge(seed, proof) {
+  if (startingChallenge) return false;
+  currentRun?.proof?.cancel();
+  currentRun = { token: null, actions: [], proof };
+  document.getElementById('modal-end').style.display = 'none';
+  document.getElementById('challenge-start-status').hidden = true;
+  document.getElementById('btn-ai-config').disabled = true;
+  startStage(1, false, seededRandom(seed));
+  startRunTimer();
+  return true;
+}
+
+export async function initGame() {
   if (startingChallenge) return;
   startingChallenge = true;
+  currentRun?.proof?.cancel();
   currentRun = null;
+  document.getElementById('btn-ai-config').disabled = false;
   const status = document.getElementById('challenge-start-status');
   status.textContent = translate("正在连接计时服务…");
   status.hidden = false;
@@ -368,8 +383,8 @@ function renderAll() {
   endBtn.disabled = actionsLocked;
   endBtn.textContent = isEnemyTurn ? translate("对手出牌中...") : translate("结束回合");
 
-  const cfg = getAiConfig();
-  document.getElementById('ai-mode-text').textContent = cfg.engine === 'llm' && cfg.key ? translate("模型({0})", cfg.model) : translate("对手设置");
+  const cfg = currentRun?.proof ? null : getAiConfig();
+  document.getElementById('ai-mode-text').textContent = cfg?.engine === 'llm' && cfg.key ? translate("模型({0})", cfg.model) : translate("对手设置");
   document.getElementById('btn-restart').disabled = startingChallenge;
 }
 
@@ -420,7 +435,8 @@ function handleStageCleared(pVotes, pLocked = 0) {
       translate("再来一局"),
       getFinalShareUrl(elapsed)
     );
-    if (currentRun?.token) void submitCompletedRun(currentRun, state);
+    if (currentRun?.proof) currentRun.proof.finish(state.cash);
+    else if (currentRun?.token) void submitCompletedRun(currentRun, state);
     else document.getElementById('end-ranked-status').textContent = translate("本地预览，成绩不会提交。");
   }
 }
@@ -482,7 +498,10 @@ function getGameShareAddress() {
 
 function showEndModal(title, desc, isWin = false, btnLabel = translate("🔄 再来一局"), shareUrl = '') {
   state.gameOver = true;
-  if (!isWin) stopRunTimer();
+  if (!isWin) {
+    stopRunTimer();
+    currentRun?.proof?.cancel(true);
+  }
   SoundFX.playEnd(isWin);
   renderAll();
   document.getElementById('end-title').textContent = title;
@@ -643,8 +662,8 @@ document.getElementById('btn-hero-rally').addEventListener('click', async () => 
 
 document.getElementById('btn-end-turn').addEventListener('click', async () => {
   if (!canTakeAction()) return;
-  const cfg = getAiConfig();
-  const modelCards = cfg.engine === 'llm' && cfg.key ? [] : undefined;
+  const cfg = currentRun.proof ? null : getAiConfig();
+  const modelCards = cfg?.engine === 'llm' && cfg.key ? [] : undefined;
   recordAction('end', modelCards);
   const turnState = state;
   isAnimating = true;
@@ -867,7 +886,13 @@ function openPlayerName() {
   playerNameInput.select();
 }
 
-function continueFirstVisit() {
+export function isOnchainPlayMode() {
+  const mode = new URLSearchParams(location.search).get('mode');
+  return mode === 'chain' || (mode !== 'ordinary' && document.documentElement.hasAttribute('data-wallet-game'));
+}
+
+export function continueFirstVisit() {
+  if (isOnchainPlayMode()) return;
   if (!playerName) openPlayerName();
   else if (!tutorialSeen) openTutorial();
   else if (!currentRun) void initGame();
@@ -911,7 +936,9 @@ const retryRankedButton = document.getElementById('btn-retry-ranked');
 
 function recordAction(type, detail) {
   startRunTimer();
-  currentRun.actions.push(detail === undefined ? [type] : [type, detail]);
+  const action = detail === undefined ? [type] : [type, detail];
+  currentRun.actions.push(action);
+  currentRun.proof?.append(action);
 }
 
 function leaderboardRequest(data) {

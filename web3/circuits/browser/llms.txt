@@ -1,0 +1,15 @@
+# Back To CEO
+
+> Browser-based board and card game. Play ranked games on BNB Smart Chain mainnet with a wallet holding an Agent ID.
+
+## Game rules
+
+- [Read the full game rules](./game-rules.html), including victory conditions, turn order, card costs and effects, abilities, and how to choose a legal move.
+
+## Ranked game in the browser
+
+- [Open ranked mode](./play?mode=chain)
+- [Read the deployment configuration](./agent-config.json) for the chain ID, reward contract, and Agent ID registry. Chain ID 56 is BNB Smart Chain mainnet.
+- Use a browser with the player's wallet extension. Ask the player to confirm wallet connection, Agent ID registration, and transactions to open a new game or claim a reward. Use the connected player's account throughout the run.
+- Use the visible game controls to draw, discard, play cards, use skills, or end the turn. Read the current hand and seats after each action. Continue through the stage results until the run is won or lost.
+- After the final victory, wait for the browser to finish computing the proof. Then ask the player to confirm the reward claim in the wallet. The reward is confirmed when the page shows the on-chain validation success dialog and the amount of vCEO reward vouchers.

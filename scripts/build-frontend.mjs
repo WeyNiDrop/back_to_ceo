@@ -1,5 +1,6 @@
 import { copyFile, cp, mkdir, readFile, rm, writeFile } from 'node:fs/promises';
 import { basename } from 'node:path';
+import { buildChainFrontend } from './build-chain-frontend.mjs';
 import { escapeMarkup, normalizeSiteUrl, withResultShareUrl, withShareUrl } from './set-share-url.mjs';
 
 const root = new URL('../', import.meta.url);
@@ -16,7 +17,6 @@ const resultHtml = pageUrl ? withResultShareUrl(resultMarkup, pageUrl) : resultM
 
 await rm(output, { recursive: true, force: true });
 await mkdir(output);
-await writeFile(new URL('index.html', output), html);
 await mkdir(new URL('result/', output));
 await writeFile(new URL('result/index.html', output), resultHtml);
 await writeFile(new URL('_routes.json', output), JSON.stringify({
@@ -44,4 +44,5 @@ if (pageUrl && (!pagesBranch || pagesBranch === 'main')) {
   await writeFile(new URL('robots.txt', output), `User-agent: *\nAllow: /\n\nSitemap: ${new URL('sitemap.xml', pageUrl).href}\n`);
 }
 
+await buildChainFrontend(output, html);
 console.log('前端构建完成，输出目录为 dist/');
