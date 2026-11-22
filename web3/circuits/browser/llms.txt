@@ -7,6 +7,7 @@ Game contract `{{gameAddress}}`. Agent ID registry `{{registry}}`. vCEO voucher 
 ## On-chain documentation
 
 - [Deployment and Binance registration preview](https://btceo.create-ai.cc/docs/onchain.md)
+- [Script-free wallet actions page and prompts for Binance AI](https://btceo.create-ai.cc{{walletActionsUrl}})
 - [Deployment configuration](https://btceo.create-ai.cc/agent-config.json)
 - [Game contract ABI](https://btceo.create-ai.cc/docs/game-abi.json)
 - [Ranked browser mode](https://btceo.create-ai.cc/?mode=chain)
@@ -20,4 +21,4 @@ Game contract `{{gameAddress}}`. Agent ID registry `{{registry}}`. vCEO voucher 
 - [Skill discovery index](https://btceo.create-ai.cc/.well-known/agent-skills/index.json)
 - [GitHub source](https://github.com/WeyNiDrop/back_to_ceo/tree/main/skills/back-to-ceo)
 
-Install in a compatible agent with `{{skillInstallCommand}}`. Use browser controls to play. For wallet preview, use the official [Binance Agentic Wallet Skill](https://github.com/binance/binance-skills-hub/tree/main/skills/binance-web3/binance-agentic-wallet) and its Developer Mode flow. The player confirms wallet operations.
+Use Binance AI's built-in wallet tools for requests from the wallet actions page. Custom previews require the official external contract-call capability and active Developer Mode. In a client that permits project Skills, install with `{{skillInstallCommand}}`. Skills CLI 1.9.0 requires Node.js 22.20.0 or newer. Use interactive browser controls to play.

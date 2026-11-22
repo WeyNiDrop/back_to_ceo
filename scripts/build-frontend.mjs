@@ -2,6 +2,7 @@ import { copyFile, cp, mkdir, readFile, rm, writeFile } from 'node:fs/promises';
 import { basename } from 'node:path';
 import { buildChainFrontend } from './build-chain-frontend.mjs';
 import { escapeMarkup, normalizeSiteUrl, withResultShareUrl, withShareUrl } from './set-share-url.mjs';
+import { walletActionsUrl } from '../web3/circuits/browser/skill-guide.mjs';
 
 const root = new URL('../', import.meta.url);
 const output = new URL('dist/', root);
@@ -38,6 +39,7 @@ if (pageUrl && (!pagesBranch || pagesBranch === 'main')) {
   const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url><loc>${escapeMarkup(pageUrl.href)}</loc></url>
+  <url><loc>${escapeMarkup(new URL(walletActionsUrl, pageUrl).href)}</loc></url>
 </urlset>
 `;
   await writeFile(new URL('sitemap.xml', output), sitemap);

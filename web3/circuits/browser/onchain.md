@@ -24,6 +24,8 @@ Read `agentIdRegistry()`, `rewardToken()`, and `verifier()` on the game contract
 
 ## Registration preview with Binance Agentic Wallet
 
+For Binance AI, use the [wallet actions page](https://btceo.create-ai.cc{{walletActionsUrl}}) to copy a specific request for its built-in wallet. Where the chat supports external contract calls, ask for preview only.
+
 Use the [official Binance Agentic Wallet Skill](https://github.com/binance/binance-skills-hub/blob/main/skills/binance-web3/binance-agentic-wallet/SKILL.md) and [external contract-call documentation](https://github.com/binance/binance-skills-hub/blob/main/skills/binance-web3/binance-agentic-wallet/references/external-sign.md). An installable client with the official wallet tools is required for Binance previews. The browser flow supports a player-controlled EVM wallet.
 
 - Use the active Binance Agentic Wallet address for chain `{{chainId}}`. An existing registration can be read through `getProfile`.

@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Back To CEO 链上操作与钱包预览</title>
+  <meta name="description" content="Back To CEO 的 BNB Smart Chain 主网合约、Agent ID 资格查询和币安官方钱包注册预览。">
+  <link rel="canonical" href="https://btceo.create-ai.cc{{walletActionsUrl}}">
+  <style>
+    :root { color-scheme: dark; font: 16px/1.6 system-ui, sans-serif; background: #14231a; color: #fff0d4; }
+    body { box-sizing: border-box; max-width: 850px; margin: auto; padding: 24px 20px 56px; }
+    h1, h2, a { color: #efc67b; }
+    h1 { margin: .45em 0; font-size: clamp(23px, 5vw, 38px); }
+    h2 { margin: 1.5em 0 .4em; font-size: 1.23em; }
+    dl { margin: 0; }
+    dt { margin-top: .55em; }
+    dd { margin: 0; overflow-wrap: anywhere; }
+    textarea { box-sizing: border-box; width: 100%; min-height: 9em; padding: 12px; font: inherit; font-size: .9rem; color: inherit; border: 1px solid #786140; border-radius: 4px; background: #1c2e22; resize: vertical; }
+    code { overflow-wrap: anywhere; }
+  </style>
+</head>
+<body>
+  <header>
+    <nav aria-label="相关页面"><a href="/?mode=chain">链上游玩</a> · <a href="{{docsUrl}}">链上文档</a> · <a href="/docs/game-abi.json">游戏合约 ABI</a></nav>
+    <h1>Back To CEO 链上操作与钱包预览</h1>
+    <p>排位注册、开局和领取 vCEO 奖励凭证都使用 BNB Smart Chain 主网（链 ID <strong>{{chainId}}</strong>）。对战和 ZK 证明生成在游戏浏览器中完成。</p>
+  </header>
+  <main>
+    <section aria-labelledby="contracts">
+      <h2 id="contracts">主网合约</h2>
+      <dl>
+        <dt>游戏与凭证分发合约 AgentIdGameRewards</dt>
+        <dd><a href="https://bscscan.com/address/{{gameAddress}}#code"><code>{{gameAddress}}</code></a></dd>
+        <dt>Binance Agent ID 注册表</dt>
+        <dd><a href="https://bscscan.com/address/{{registry}}"><code>{{registry}}</code></a></dd>
+        <dt>vCEO 奖励凭证</dt>
+        <dd><a href="https://bscscan.com/address/{{rewardToken}}"><code>{{rewardToken}}</code></a></dd>
+        <dt>RankedSegmentVerifier</dt>
+        <dd><a href="https://bscscan.com/address/{{verifier}}#code"><code>{{verifier}}</code></a></dd>
+      </dl>
+    </section>
+    <section aria-labelledby="wallet-reads">
+      <h2 id="wallet-reads">先核对钱包和资格</h2>
+      <p>把这段指令发给币安 AI，使用它内置的 Agentic Wallet。钱包地址以币安官方界面显示的 BSC 地址为准。</p>
+      <textarea aria-label="复制给币安 AI 的只读指令" readonly rows="6">请使用币安官方 Agentic Wallet，显示我的 BNB Smart Chain 主网（chainId {{chainId}}）钱包公开地址。若支持公开合约只读查询，请调用 Agent ID 注册表 {{registry}} 的 balanceOf(address) 和游戏合约 {{gameAddress}} 的 getProfile(address)，检查该地址是否持有 Agent ID、是否已注册和是否有进行中的牌局。只做查询，请勿签名或发送交易。</textarea>
+    </section>
+    <section aria-labelledby="registration">
+      <h2 id="registration">首次注册交易预览</h2>
+      <p>首次注册调用 <code>register(uint256,string,bytes3)</code>，发送金额为 <strong>0 BNB</strong>，成功后会创建首局，执行时可能需要 Gas。复制下方指令时填入 Agent ID 数字 Token ID 和公开昵称。邀请码选填，留空时使用 <code>0x000000</code>。</p>
+      <textarea aria-label="复制给币安 AI 的注册预览指令" readonly rows="10">请只用币安官方 Agentic Wallet 预览一笔外部合约调用。链为 BNB Smart Chain 主网，chainId={{chainId}}，from 为我的 Agentic Wallet 在 BSC 的官方地址，to={{gameAddress}}，value=0 wei。调用 register(uint256,string,bytes3)，参数为 Agent ID 数字 Token ID「填写」，公开昵称「填写」，邀请码 0x000000（若有邀请码则替换成对应的 0x 加六位十六进制）。先核对活跃且未过期的 Developer Mode、当前地址尚未注册，以及 Agent ID 注册表 {{registry}} 的 ownerOf(tokenId) 是否等于 from。请用官方外部合约 preview 显示模拟结果、Gas 和风险后停下。只预览，请勿签名或广播。</textarea>
+      <p>币安官方外部合约预览需要该客户端支持 <code>contract-call preview</code>，且 Developer Mode 已启用并在有效期内。若币安 AI 会话未开放自定义合约预览，可用持有 Agent ID 的浏览器钱包进入<a href="/?mode=chain">链上模式</a>。本页提供合约资料和可复制指令。<a href="https://github.com/binance/binance-skills-hub/blob/main/skills/binance-web3/binance-agentic-wallet/references/external-sign.md">币安官方外部签名说明</a></p>
+    </section>
+  </main>
+</body>
+</html>

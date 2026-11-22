@@ -2,15 +2,19 @@
 
 Back To CEO Skill 可查询 BNB Smart Chain 主网（链 ID {{chainId}}）的 Agent ID 和玩家资料，在交互式浏览器中代玩排位，通关后等待浏览器生成并下载 ZK 证明。
 
-## 安装
+## 币安 AI
 
-在支持 Agent Skills 的客户端对应项目目录打开终端。确保终端可运行 Node.js 和 `npx`，然后执行命令并选择你使用的客户端。安装完成后，在该项目的 AI 对话中点名使用 `back-to-ceo`。
+使用币安内置的官方 Agentic Wallet。在[链上操作页](https://btceo.create-ai.cc{{walletActionsUrl}})复制只读资格查询或首次注册预览的指令。自定义合约预览取决于你当前会话提供的官方能力。若当前会话只支持查询或常用链上操作，请用持有 Agent ID 的浏览器钱包进入游戏。
+
+## 在支持安装的客户端使用 Skill
+
+在允许安装项目 Skill 的客户端目录打开终端，运行 `node --version`。Skills CLI 1.9.0 需要 Node.js 22.20.0 或更高版本。Node 20 下的 `fs/promises` 缺少 `glob` 报错发生在 CLI 加载阶段。确认版本后运行命令，再在该项目的 AI 对话中点名 `back-to-ceo`。安装器会写入该客户端的 Skill 文件。
 
 ```bash
 {{skillInstallCommand}}
 ```
 
-可以把 [Skill 原文](https://btceo.create-ai.cc{{skillUrl}}) 直接发给能读取公开网页的 AI。自动发现入口是 [Agent Skills 索引](https://btceo.create-ai.cc/.well-known/agent-skills/index.json)。兼容的客户端可从首页的 `Link` 元数据、[`llms.txt`](https://btceo.create-ai.cc/llms.txt) 或 [部署 JSON](https://btceo.create-ai.cc/agent-config.json) 找到本手册。安装命令选项见 [Skills CLI 文档](https://github.com/vercel-labs/skills/blob/main/docs/commands.md#skills-add)。
+能读取公开网页的 AI 可以把 [Skill 原文](https://btceo.create-ai.cc{{skillUrl}}) 作为资料阅读。自动发现入口是 [Agent Skills 索引](https://btceo.create-ai.cc/.well-known/agent-skills/index.json)，发布的条目类型为 `skill-md`，内容为单份 Markdown。安装命令选项见 [Skills CLI 文档](https://github.com/vercel-labs/skills/blob/main/docs/commands.md#skills-add)。
 
 ## 指令示例
 

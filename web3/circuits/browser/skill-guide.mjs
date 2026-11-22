@@ -1,4 +1,5 @@
 export const skillGuideUrl = '/docs/skill-guide.md';
+export const walletActionsUrl = '/wallet/';
 export const skillInstallCommand = 'npx skills add https://btceo.create-ai.cc --skill back-to-ceo';
 export const skillPlayPrompt = '使用 back-to-ceo Skill，在当前浏览器链上牌局代玩一局。通关后等待 ZK 证明生成并下载，在领奖前停下。需要钱包操作时交给我确认。';
 
@@ -11,8 +12,12 @@ export function bindSkillGuide(trigger) {
     <div class="modal-header"><h2 id="agent-skill-guide-title">安装与使用 Back To CEO Skill</h2></div>
     <div class="modal-body">
       <section>
+        <h3>使用币安 AI</h3>
+        <p>通过内置的官方 Agentic Wallet 核对资格或请求注册预览。<a href="${walletActionsUrl}" target="_blank" rel="noopener">查看链上操作与可复制指令</a></p>
+      </section>
+      <section>
         <h3>安装 Skill</h3>
-        <p>在支持 Agent Skills 的客户端项目目录打开终端，运行以下命令，并选择你使用的客户端。</p>
+        <p>在允许安装项目 Skill 的客户端目录运行命令。Skills CLI 1.9.0 需要 Node.js 22.20.0 或更高版本。</p>
         <pre><code id="agent-skill-install-command"></code></pre>
         <button class="btn-top" type="button" data-copy="agent-skill-install-command">复制安装命令</button>
       </section>
