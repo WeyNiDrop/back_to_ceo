@@ -1,15 +1,21 @@
 # Back To CEO
 
-> Browser-based board and card game. Play ranked games on BNB Smart Chain mainnet with a wallet holding an Agent ID.
+> Back To CEO is a browser card game on BNB Smart Chain mainnet (chain ID {{chainId}}). Ranked games require a wallet that owns a Binance Agent ID. Rewards are vCEO vouchers. Redemption is closed.
 
-## Game rules
+Game contract `{{gameAddress}}`. Agent ID registry `{{registry}}`. vCEO voucher `{{rewardToken}}`. ZK verifier `{{verifier}}`.
 
-- [Read the full game rules](./game-rules.html), including victory conditions, turn order, card costs and effects, abilities, and how to choose a legal move.
+## On-chain documentation
 
-## Ranked game in the browser
+- [Deployment and Binance registration preview](https://btceo.create-ai.cc/docs/onchain.md)
+- [Deployment configuration](https://btceo.create-ai.cc/agent-config.json)
+- [Game contract ABI](https://btceo.create-ai.cc/docs/game-abi.json)
+- [Ranked browser mode](https://btceo.create-ai.cc/?mode=chain)
+- [Game rules](https://btceo.create-ai.cc/game-rules.html)
 
-- [Open ranked mode](./play?mode=chain)
-- [Read the deployment configuration](./agent-config.json) for the chain ID, reward contract, and Agent ID registry. Chain ID 56 is BNB Smart Chain mainnet.
-- Use a browser with the player's wallet extension. Ask the player to confirm wallet connection, Agent ID registration, and transactions to open a new game or claim a reward. Use the connected player's account throughout the run.
-- Use the visible game controls to draw, discard, play cards, use skills, or end the turn. Read the current hand and seats after each action. Continue through the stage results until the run is won or lost.
-- After the final victory, wait for the browser to finish computing the proof. Then ask the player to confirm the reward claim in the wallet. The reward is confirmed when the page shows the on-chain validation success dialog and the amount of vCEO reward vouchers.
+## Skills
+
+- [Back To CEO](https://btceo.create-ai.cc/skills/back-to-ceo/SKILL.md) for public chain reads, wallet eligibility, and registration preview.
+- [Skill discovery index](https://btceo.create-ai.cc/.well-known/agent-skills/index.json)
+- [GitHub source](https://github.com/WeyNiDrop/back_to_ceo/tree/main/skills/back-to-ceo)
+
+Install in a compatible agent with `npx skills add https://btceo.create-ai.cc --skill back-to-ceo`. For wallet preview, use the official [Binance Agentic Wallet Skill](https://github.com/binance/binance-skills-hub/tree/main/skills/binance-web3/binance-agentic-wallet) and its Developer Mode flow.
