@@ -39,7 +39,7 @@
       "isAccessibleForFree": true
     }
   </script>
-  <link rel="stylesheet" href="style.css?v=20261119-player-icon" />
+  <link rel="stylesheet" href="style.css?v=20261122-wallet-entry" />
 </head>
 <body>
   <div class="hs-table">
@@ -75,6 +75,14 @@
       </div>
 
       <div class="top-btns">
+        <div class="mode-wallet-toolbar">
+          <button class="btn-top wallet-entry" id="btn-connect-wallet" type="button">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true">
+              <path d="M20 8V6a2 2 0 0 0-2-2H5a2 2 0 0 0 0 4h15a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6M22 12h-5a2 2 0 1 0 0 4h5"/>
+            </svg>
+            <span data-i18n="连接钱包">连接钱包</span>
+          </button>
+        </div>
         <button class="btn-top" id="btn-leaderboard" type="button" aria-haspopup="dialog" data-i18n="排行榜">排行榜</button>
         <button class="btn-top" id="btn-share-game" type="button" aria-haspopup="dialog" data-i18n="分享游戏">分享游戏</button>
         <button class="btn-top" id="btn-tutorial" type="button" aria-haspopup="dialog" data-i18n="新手教学">新手教学</button>
@@ -278,6 +286,7 @@
         <label for="player-name-input" data-i18n="玩家昵称">玩家昵称</label>
         <input id="player-name-input" type="text" autocomplete="nickname" maxlength="48" required autofocus aria-describedby="player-name-hint" />
         <p class="hint-text" id="player-name-hint" data-i18n="昵称最多 24 个字符，保存在此浏览器，通关后随成绩提交到公开排行榜。">昵称最多 24 个字符，保存在此浏览器，通关后随成绩提交到公开排行榜。</p>
+        <button class="btn-top" id="btn-connect-wallet-from-name" type="button" data-i18n="连接钱包进入链上模式" hidden>连接钱包进入链上模式</button>
       </div>
       <div class="modal-footer">
         <button class="btn-save btn-secondary" id="btn-cancel-player-name" type="button" data-i18n="取消" hidden>取消</button>
@@ -367,7 +376,7 @@
   </template>
 
   <script src="sound.js?v=202611172115"></script>
-  <script src="i18n.js?v=20261119-player-icon"></script>
+  <script src="i18n.js?v=20261122-wallet-entry"></script>
   <script src="ai.js?v=20261118-leaderboard"></script>
   <script type="module" src="game.js?v=20261119-player-icon"></script>
 </body>

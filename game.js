@@ -6,7 +6,7 @@ import {
 
 const rules = createGameRules({ translate, formatCash });
 let currentRun = null;
-let startingChallenge = false;
+let startingChallenge;
 
 /**
  * Back To CEO 重回巅峰之路
@@ -147,9 +147,15 @@ export function startProofChallenge(seed, proof) {
   return true;
 }
 
+export function cancelChallengeStart() {
+  startingChallenge?.abort();
+  startingChallenge = undefined;
+}
+
 export async function initGame() {
   if (startingChallenge) return;
-  startingChallenge = true;
+  const request = new AbortController();
+  startingChallenge = request;
   currentRun?.proof?.cancel();
   currentRun = null;
   document.getElementById('btn-ai-config').disabled = false;
@@ -159,9 +165,11 @@ export async function initGame() {
   startStage(1, false);
 
   try {
-    const response = await leaderboardRequest({ type: 'start', enemyCardRulesVersion: ENEMY_CARD_RULES_VERSION });
+    const signal = AbortSignal.any([request.signal, AbortSignal.timeout(12000)]);
+    const response = await leaderboardRequest({ type: 'start', enemyCardRulesVersion: ENEMY_CARD_RULES_VERSION }, signal);
     if (!response.ok) throw new Error('Challenge timing unavailable');
     const { token, seed } = await response.json();
+    if (request.signal.aborted) return;
     if (typeof token !== 'string' || !Number.isInteger(seed) || seed < 0 || seed > 0xffffffff) {
       throw new Error('Invalid challenge');
     }
@@ -170,6 +178,7 @@ export async function initGame() {
     startRunTimer();
     status.hidden = true;
   } catch {
+    if (request.signal.aborted) return;
     if (['localhost', '127.0.0.1', '[::1]'].includes(window.location.hostname)) {
       currentRun = { token: null, actions: [] };
       status.textContent = translate("本地预览，成绩不会提交。");
@@ -177,8 +186,10 @@ export async function initGame() {
       status.textContent = translate("无法连接计时服务，请点击「重开」重试。");
     }
   } finally {
-    startingChallenge = false;
-    renderAll();
+    if (startingChallenge === request) {
+      startingChallenge = undefined;
+      renderAll();
+    }
   }
 }
 
@@ -385,7 +396,7 @@ function renderAll() {
 
   const cfg = currentRun?.proof ? null : getAiConfig();
   document.getElementById('ai-mode-text').textContent = cfg?.engine === 'llm' && cfg.key ? translate("模型({0})", cfg.model) : translate("对手设置");
-  document.getElementById('btn-restart').disabled = startingChallenge;
+  document.getElementById('btn-restart').disabled = Boolean(startingChallenge);
 }
 
 function checkStageWin() {
@@ -941,8 +952,8 @@ function recordAction(type, detail) {
   currentRun.proof?.append(action);
 }
 
-function leaderboardRequest(data) {
-  const options = { cache: 'no-store', signal: AbortSignal.timeout(12000) };
+function leaderboardRequest(data, signal = AbortSignal.timeout(12000)) {
+  const options = { cache: 'no-store', signal };
   if (data) {
     options.method = 'POST';
     options.headers = { 'Content-Type': 'application/json' };

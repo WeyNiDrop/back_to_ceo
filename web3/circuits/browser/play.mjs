@@ -1,4 +1,4 @@
-import { continueFirstVisit, initGame, isOnchainPlayMode, startProofChallenge } from '../../../game.js';
+import { cancelChallengeStart, continueFirstVisit, initGame, isOnchainPlayMode, startProofChallenge } from '../../../game.js';
 import { normalizePlayerName } from '../../../game-rules.mjs';
 import { OPCODES } from '../ranked-input.mjs';
 import { createProfileDialog, formatRewardAmount } from './profile.mjs';
@@ -42,14 +42,17 @@ modeSwitch.setAttribute('role', 'tablist');
 modeSwitch.setAttribute('aria-label', '游玩模式');
 const ordinaryMode = addButton(modeSwitch, 'game-tab-ordinary', '普通游玩', 'proof-mode-tab');
 const chainMode = addButton(modeSwitch, 'game-tab-chain', '链上模式', 'proof-mode-tab');
-controls.prepend(modeSwitch);
+document.querySelector('.mode-wallet-toolbar').prepend(modeSwitch);
 const ordinaryPanel = createModePanel(ordinaryMode);
 const chainPanel = createModePanel(chainMode);
 ordinaryPanel.append(...['btn-leaderboard', 'btn-ai-config', 'btn-restart'].map(id => document.getElementById(id)));
 const playerIdentity = document.querySelector('.player-identity');
 const board = document.querySelectorAll('.goal-banner, .turn-status, .enemy-hero-zone, .battlefield, .player-zone');
-const connectWallet = addButton(chainPanel, 'btn-connect-wallet', '连接钱包');
+const connectWallet = document.getElementById('btn-connect-wallet');
+const connectWalletLabel = connectWallet.querySelector('span');
 connectWallet.setAttribute('aria-describedby', walletStatus.id);
+const firstVisitConnect = document.getElementById('btn-connect-wallet-from-name');
+firstVisitConnect.hidden = false;
 const newGame = addButton(chainPanel, 'btn-proof-new-game', '新开链上牌局');
 const profileButton = addButton(chainPanel, 'btn-agent-profile', '我的链上资料');
 profileButton.setAttribute('aria-haspopup', 'dialog');
@@ -174,6 +177,7 @@ function renderMode() {
 function switchMode(next) {
   if (onchain === next) return;
   walletRevision += 1;
+  if (next) cancelChallengeStart();
   restartOrdinary ||= Boolean(active) || chainRun;
   active?.cancel();
   chainRun = false;
@@ -196,9 +200,19 @@ chainMode.addEventListener('click', () => {
   switchMode(true);
   void enterChainMode();
 });
-connectWallet.addEventListener('click', () => {
+function connectFromToolbar() {
+  switchMode(true);
   if (walletConnection && !walletConnection.connected.profile) showRegistration(walletConnection);
-  else void enterChainMode(true);
+  else void enterChainMode(!walletConnection);
+}
+
+connectWallet.addEventListener('click', () => {
+  if (walletConnection?.connected.profile) showProfile();
+  else connectFromToolbar();
+});
+firstVisitConnect.addEventListener('click', () => {
+  document.getElementById('player-name-dialog').close();
+  connectFromToolbar();
 });
 modeSwitch.addEventListener('keydown', event => {
   const { key, target } = event;
@@ -227,9 +241,11 @@ function displayWallet(connection) {
   const connected = connection?.connected;
   const profile = connected?.profile;
   const pending = pendingWalletRevision === walletRevision;
-  connectWallet.hidden = !onchain || Boolean(profile);
   connectWallet.disabled = pending;
-  connectWallet.textContent = connected ? '继续注册' : '连接钱包';
+  const walletLabel = profile ? '钱包已连接' : connected ? '继续注册' : '连接钱包';
+  connectWalletLabel.dataset.i18n = walletLabel;
+  connectWalletLabel.textContent = translate(walletLabel);
+  connectWallet.title = connected?.player ?? '';
   profileStatus.hidden = profileButton.hidden = !onchain || !profile;
   profileStatus.textContent = profile
     ? `已注册 · ${profile.nickname} · Agent ID #${profile.agentId}${profile.ownsAgentId ? '' : '（已不持有）'} · 邀请码 ${profile.inviteCode.slice(2)}`
@@ -507,7 +523,7 @@ function begin(provider, opened) {
 }
 
 async function openFromButton(open) {
-  const buttons = [newGame, profileButton, ordinaryMode, chainMode];
+  const buttons = [newGame, profileButton, connectWallet, ordinaryMode, chainMode];
   for (const button of buttons) button.disabled = true;
   const revision = walletRevision;
   try {
@@ -588,7 +604,7 @@ newGame.addEventListener('click', () => void openFromButton(async () => {
   if (walletConnection?.connected.profile) await playWalletGame(walletConnection, true);
 }));
 
-profileButton.addEventListener('click', () => {
+function showProfile() {
   const connection = walletConnection;
   if (!connection?.connected.profile) return;
   profileDialog.show(connection, profile => {
@@ -597,7 +613,8 @@ profileButton.addEventListener('click', () => {
     connection.connected.activeGameId = profile.activeGameId;
     displayWallet(connection);
   });
-});
+}
+profileButton.addEventListener('click', showProfile);
 
 renderMode();
 const languageDialog = document.getElementById('language-dialog');

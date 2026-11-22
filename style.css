@@ -123,6 +123,11 @@ body {
 :is(.run-timer, .end-run-time) time { color: var(--amber); font-variant-numeric: tabular-nums; font-weight: 750; }
 .top-btns { grid-area: controls; display: flex; align-items: start; justify-content: flex-end; flex-wrap: wrap; gap: 6px; }
 .top-bar :is(.btn-top, .proof-mode-tab) { block-size: var(--top-control-height); padding-block: 0; line-height: 1.15; }
+.mode-wallet-toolbar { flex-basis: 100%; grid-column: 1 / -1; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 6px 12px; }
+.mode-wallet-toolbar .wallet-entry { display: inline-flex; align-items: center; justify-content: center; gap: 6px; margin-inline-start: auto; }
+.wallet-entry svg { width: 16px; height: 16px; flex-shrink: 0; }
+.wallet-entry span { white-space: nowrap; }
+#btn-connect-wallet-from-name { align-self: start; }
 .proof-mode-switch { display: flex; gap: 16px; grid-column: 1 / -1; border-bottom: 1px solid var(--border); }
 .proof-mode-tab { background: transparent; color: var(--muted); border: 0; border-bottom: 2px solid transparent; padding-inline: 6px; font: inherit; font-size: 13px; cursor: pointer; }
 .proof-mode-tab[aria-selected="true"] { color: var(--amber); border-bottom-color: var(--amber); font-weight: 700; }
@@ -659,7 +664,7 @@ input[type="text"], input[type="password"], select { background: var(--bg); bord
   font-weight: 750;
   transition: transform 0.13s ease, filter 0.13s ease, box-shadow 0.13s ease;
 }
-:is(.end-turn-btn, .btn-save:not(.btn-secondary), #btn-share-game) {
+:is(.end-turn-btn, .btn-save:not(.btn-secondary), #btn-share-game, .wallet-entry, #btn-connect-wallet-from-name) {
   background: linear-gradient(#f3d295, #c19453 54%, #a9783b);
   border-color: #f5cf90;
   box-shadow: inset 0 0 0 2px #745222, inset 0 0 0 3px #ffdb99a6, 0 3px 0 #29190d;

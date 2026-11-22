@@ -48,17 +48,6 @@ export async function buildChainFrontend(output, html) {
   const gameScript = /<script type="module" src="game\.js[^"]*"><\/script>/;
   if (!gameScript.test(html)) throw new Error('Cannot find the game script in the production page');
   const configJson = JSON.stringify(agentConfig);
-  const page = html.replace(gameScript, '<script type="module" src="/play.js"></script>')
-    .replace('</head>', `  <link rel="describedby" type="text/plain" title="AI play instructions" href="/llms.txt">
-  <link rel="help" type="text/markdown" title="Back To CEO on-chain documentation" href="${agentConfig.docsUrl}">
-  <link rel="help" title="Back To CEO wallet actions" href="${walletActionsUrl}">
-  <link rel="help" type="text/markdown" title="Back To CEO browser play and proof guide" href="${agentConfig.playGuideUrl}">
-  <link rel="help" type="text/markdown" title="Back To CEO Skill installation and usage" href="${skillGuideUrl}">
-  <link rel="alternate" type="text/markdown" title="Back To CEO Skill" href="${agentConfig.skillUrl}">
-  <link rel="help" title="Back To CEO 游戏规则" href="/game-rules.html">
-  <script type="application/json" id="back-to-ceo-agent-config">${configJson}</script>
-</head>`);
-
   await build({
     entryPoints: {
       play: fileURLToPath(new URL('play.mjs', browser)),
@@ -72,6 +61,17 @@ export async function buildChainFrontend(output, html) {
     target: 'es2022',
     outdir: fileURLToPath(output),
   });
+  const playVersion = createHash('sha256').update(await readFile(new URL('play.js', output))).digest('hex').slice(0, 12);
+  const page = html.replace(gameScript, `<script type="module" src="/play.js?v=${playVersion}"></script>`)
+    .replace('</head>', `  <link rel="describedby" type="text/plain" title="AI play instructions" href="/llms.txt">
+  <link rel="help" type="text/markdown" title="Back To CEO on-chain documentation" href="${agentConfig.docsUrl}">
+  <link rel="help" title="Back To CEO wallet actions" href="${walletActionsUrl}">
+  <link rel="help" type="text/markdown" title="Back To CEO browser play and proof guide" href="${agentConfig.playGuideUrl}">
+  <link rel="help" type="text/markdown" title="Back To CEO Skill installation and usage" href="${skillGuideUrl}">
+  <link rel="alternate" type="text/markdown" title="Back To CEO Skill" href="${agentConfig.skillUrl}">
+  <link rel="help" title="Back To CEO 游戏规则" href="/game-rules.html">
+  <script type="application/json" id="back-to-ceo-agent-config">${configJson}</script>
+</head>`);
 
   const [skill, llms, onchain, playGuide, skillGuide, walletActions] = await Promise.all([
     readFile(new URL('../skills/back-to-ceo/SKILL.md', import.meta.url), 'utf8'),
