@@ -4,6 +4,8 @@
 
 Game contract `{{gameAddress}}`. Agent ID registry `{{registry}}`. vCEO voucher `{{rewardToken}}`. ZK verifier `{{verifier}}`.
 
+Read [the complete AI documentation in one text file](https://btceo.create-ai.cc/llms-full.txt) if your client only fetches one URL.
+
 ## On-chain documentation
 
 - [Deployment and Binance registration preview](https://btceo.create-ai.cc/docs/onchain.md)

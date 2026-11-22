@@ -64,6 +64,7 @@ export async function buildChainFrontend(output, html) {
   const playVersion = createHash('sha256').update(await readFile(new URL('play.js', output))).digest('hex').slice(0, 12);
   const page = html.replace(gameScript, `<script type="module" src="/play.js?v=${playVersion}"></script>`)
     .replace('</head>', `  <link rel="describedby" type="text/plain" title="AI play instructions" href="/llms.txt">
+  <link rel="describedby" type="text/plain" title="Full Back To CEO AI documentation" href="/llms-full.txt">
   <link rel="help" type="text/markdown" title="Back To CEO on-chain documentation" href="${agentConfig.docsUrl}">
   <link rel="help" title="Back To CEO wallet actions" href="${walletActionsUrl}">
   <link rel="help" type="text/markdown" title="Back To CEO browser play and proof guide" href="${agentConfig.playGuideUrl}">
@@ -83,6 +84,10 @@ export async function buildChainFrontend(output, html) {
   ]);
   const description = skill.match(/^description: (.+)$/m)?.[1];
   if (!description) throw new Error('Back To CEO Skill requires a description');
+  const skillInstructions = skill.replace(/^---\r?\n[\s\S]*?\r?\n---\r?\n/, '').trim();
+  const fullAgentDocs = [llms, onchain, skillGuide, skillInstructions, playGuide]
+    .map(document => document.trim())
+    .join('\n\n---\n\n') + '\n';
   const discovery = {
     $schema: 'https://schemas.agentskills.io/discovery/0.2.0/schema.json',
     skills: [{
@@ -100,6 +105,7 @@ export async function buildChainFrontend(output, html) {
     writeFile(new URL('play.html', output), page.replace('<html ', '<html data-wallet-game ')),
     writeFile(new URL('agent-config.json', output), configJson),
     writeFile(new URL('llms.txt', output), llms),
+    writeFile(new URL('llms-full.txt', output), fullAgentDocs),
     writeFile(new URL('docs/onchain.md', output), onchain),
     writeFile(new URL('docs/play-and-prove.md', output), playGuide),
     writeFile(new URL(skillGuideUrl.slice(1), output), skillGuide),
@@ -111,7 +117,9 @@ export async function buildChainFrontend(output, html) {
   Cross-Origin-Opener-Policy: same-origin
   Cross-Origin-Embedder-Policy: require-corp
 /
-  Link: </llms.txt>; rel="describedby"; type="text/plain", <${walletActionsUrl}>; rel="help"; type="text/html", <${agentConfig.docsUrl}>; rel="help"; type="text/markdown", <${agentConfig.playGuideUrl}>; rel="help"; type="text/markdown", <${skillGuideUrl}>; rel="help"; type="text/markdown", <${agentConfig.skillUrl}>; rel="alternate"; type="text/markdown"
+  Link: </llms.txt>; rel="describedby"; type="text/plain", </llms-full.txt>; rel="describedby"; type="text/plain", <${walletActionsUrl}>; rel="help"; type="text/html", <${agentConfig.docsUrl}>; rel="help"; type="text/markdown", <${agentConfig.playGuideUrl}>; rel="help"; type="text/markdown", <${skillGuideUrl}>; rel="help"; type="text/markdown", <${agentConfig.skillUrl}>; rel="alternate"; type="text/markdown"
+/llms-full.txt
+  Content-Type: text/plain; charset=utf-8
 /agent-config.json
   Cache-Control: no-store
 ${agentConfig.docsUrl}

@@ -3,6 +3,9 @@ const ENGLISH_TEXT = {
   "钱包已连接": "Wallet connected",
   "继续注册": "Continue registration",
   "连接钱包进入链上模式": "Connect wallet for on-chain play",
+  "文档": "Documentation",
+  "AI 与链上文档": "AI and on-chain docs",
+  "AI 文档索引": "AI docs index",
   // Card catalog, affixes, and in-game messages
   "DAY 1 白天": "Day 1 · Daytime",
   "DAY 1 夜晚": "Day 1 · Night",

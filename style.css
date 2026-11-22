@@ -144,6 +144,8 @@ body {
   padding: 6px 4px 0;
 }
 .project-description { margin-block: 3px 9px; color: var(--muted); font-size: 12px; line-height: 1.55; }
+.project-doc-links { display: flex; flex-wrap: wrap; gap: 4px 12px; margin-bottom: 9px; font-size: 12px; }
+.project-doc-links a { color: var(--amber); }
 .support-footer {
   display: flex;
   flex-wrap: wrap;
