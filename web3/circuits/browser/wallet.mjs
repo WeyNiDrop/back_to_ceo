@@ -1,5 +1,6 @@
 import {
-  decodeEventLog, decodeFunctionResult, encodeAbiParameters, encodeFunctionData, getAddress, parseAbi,
+  createWalletClient, custom, decodeEventLog, decodeFunctionResult, encodeAbiParameters, encodeFunctionData,
+  getAddress, parseAbi, UnauthorizedProviderError,
 } from 'viem';
 
 export const BSC_AGENT_ID = '0x60B9262456dE011F7d15a54CdD8c48bAaa8B022F';
@@ -46,15 +47,13 @@ async function read(provider, address, functionName, args = []) {
 }
 
 async function ensureWallet(provider, config, account) {
-  const [chainId, accounts] = await Promise.all([
-    provider.request({ method: 'eth_chainId' }),
-    provider.request({ method: 'eth_accounts' }),
-  ]);
-  if (BigInt(chainId) !== BigInt(config.chainId)) {
+  const wallet = createWalletClient({ transport: custom(provider, { retryCount: 0 }) });
+  const [chainId, accounts] = await Promise.all([wallet.getChainId(), wallet.getAddresses()]);
+  if (chainId !== config.chainId) {
     const network = config.chainId === BSC_MAINNET_CHAIN_ID ? 'BNB Smart Chain 主网' : `链 ${config.chainId}`;
     throw new Error(`请在钱包中切换到 ${network}。`);
   }
-  if (!accounts[0] || getAddress(accounts[0]) !== account) throw new Error('请切回开局使用的钱包账号。');
+  if (accounts[0] !== account) throw new Error('请切回开局使用的钱包账号。');
 }
 
 async function confirm(provider, config, account, contract, functionName, args = [], onSubmitted = () => {}) {
@@ -97,13 +96,14 @@ function readEvent(receipt, address, eventName) {
 
 export async function connectAgentWallet(provider, rawConfig, onAuthorized = () => {}, { prompt = true } = {}) {
   if (!provider?.request) throw new Error('未检测到钱包。请在装有钱包扩展的浏览器中打开此页面。');
+  const wallet = createWalletClient({ transport: custom(provider, { retryCount: 0 }) });
   const [accounts, selectedConfig] = await Promise.all([
-    provider.request({ method: prompt ? 'eth_requestAccounts' : 'eth_accounts' }),
+    prompt ? wallet.requestAddresses() : wallet.getAddresses(),
     rawConfig,
   ]);
+  if (!accounts[0]) throw new UnauthorizedProviderError(new Error('钱包尚未授权。'));
   const config = chainConfig(selectedConfig);
-  if (!accounts[0]) throw new Error('钱包未授权。点击「链上模式」页签连接。');
-  const player = getAddress(accounts[0]);
+  const [player] = accounts;
   onAuthorized(player);
   await ensureWallet(provider, config, player);
 

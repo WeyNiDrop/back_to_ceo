@@ -48,6 +48,8 @@ const chainPanel = createModePanel(chainMode);
 ordinaryPanel.append(...['btn-leaderboard', 'btn-ai-config', 'btn-restart'].map(id => document.getElementById(id)));
 const playerIdentity = document.querySelector('.player-identity');
 const board = document.querySelectorAll('.goal-banner, .turn-status, .enemy-hero-zone, .battlefield, .player-zone');
+const connectWallet = addButton(chainPanel, 'btn-connect-wallet', '连接钱包');
+connectWallet.setAttribute('aria-describedby', walletStatus.id);
 const newGame = addButton(chainPanel, 'btn-proof-new-game', '新开链上牌局');
 const profileButton = addButton(chainPanel, 'btn-agent-profile', '我的链上资料');
 profileButton.setAttribute('aria-haspopup', 'dialog');
@@ -194,6 +196,10 @@ chainMode.addEventListener('click', () => {
   switchMode(true);
   void enterChainMode();
 });
+connectWallet.addEventListener('click', () => {
+  if (walletConnection && !walletConnection.connected.profile) showRegistration(walletConnection);
+  else void enterChainMode(true);
+});
 modeSwitch.addEventListener('keydown', event => {
   const { key, target } = event;
   if (target !== ordinaryMode && target !== chainMode) return;
@@ -220,12 +226,16 @@ function displayWallet(connection) {
   walletConnection = connection;
   const connected = connection?.connected;
   const profile = connected?.profile;
+  const pending = pendingWalletRevision === walletRevision;
+  connectWallet.hidden = !onchain || Boolean(profile);
+  connectWallet.disabled = pending;
+  connectWallet.textContent = connected ? '继续注册' : '连接钱包';
   profileStatus.hidden = profileButton.hidden = !onchain || !profile;
   profileStatus.textContent = profile
     ? `已注册 · ${profile.nickname} · Agent ID #${profile.agentId}${profile.ownsAgentId ? '' : '（已不持有）'} · 邀请码 ${profile.inviteCode.slice(2)}`
     : '';
   newGame.hidden = !onchain || !profile?.ownsAgentId;
-  newGame.disabled = pendingWalletRevision === walletRevision;
+  newGame.disabled = pending;
   if (connected) {
     const network = connected.chainId === BSC_MAINNET_CHAIN_ID ? 'BNB Smart Chain 主网' :
       connected.chainId === BSC_TESTNET_CHAIN_ID ? 'BSC 测试网' : `链 ${connected.chainId}`;
@@ -510,12 +520,13 @@ async function openFromButton(open) {
   }
 }
 
-async function enterChainMode(prompt = true) {
+async function enterChainMode(prompt = false) {
   if (!onchain || chainRun || pendingWalletRevision === walletRevision) return;
   const revision = walletRevision;
   pendingWalletRevision = revision;
   displayWallet(undefined);
   status.textContent = '';
+  walletStatus.title = '';
   walletStatus.textContent = prompt ? '正在连接钱包，请在钱包中授权。' : '正在读取钱包账号…';
   const provider = window.ethereum;
   watchWallet(provider);
@@ -549,9 +560,9 @@ async function enterChainMode(prompt = true) {
         : '钱包未连接';
     }
     if (Number(error?.code) === 4100) {
-      status.textContent = '钱包尚未授权。点击「链上模式」页签重试。';
+      status.textContent = '请点击「连接钱包」授权当前账号。';
     } else {
-      reportWalletError(error, status, chainMode);
+      reportWalletError(error, status, connectWallet);
     }
   } finally {
     if (revision === pendingWalletRevision) {

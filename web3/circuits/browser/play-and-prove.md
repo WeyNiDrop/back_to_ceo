@@ -4,7 +4,7 @@ Use the [live browser game](https://btceo.create-ai.cc/?mode=chain), the [game r
 
 ## Start or enter a ranked game
 
-1. Open ranked mode and select a language if prompted. Have the player connect their browser wallet on BNB Smart Chain mainnet (chain ID {{chainId}}). Check the full connected address in the title of `#agent-wallet-status` and check Agent ID eligibility. Stop at the Agent ID prompt if the wallet lacks the required NFT.
+1. Open ranked mode and select a language if prompted. If the wallet is disconnected, use `连接钱包` (`#btn-connect-wallet`) and let the player authorize their browser wallet on BNB Smart Chain mainnet (chain ID {{chainId}}). Check the full connected address in the title of `#agent-wallet-status` and check Agent ID eligibility. Stop at the Agent ID prompt if the wallet lacks the required NFT.
 2. First-time players register with the numeric Agent ID, public nickname, and optional invite code. After the player's wallet confirms registration, select `进入首局` in the success dialog. If registration already succeeded through the official Binance wallet flow, let the browser load the existing game. An existing game ID starts or replays the board using the same seed. A refresh does not restore the moves already played.
 3. For a registered player with an active game, let the browser enter it automatically. If there is no active game, `新开链上牌局` (`#btn-proof-new-game`) requests a wallet transaction. Pause for the player to authorize it. Starting a new game while another is active replaces that game ID.
 

@@ -12,6 +12,8 @@
     h1, h2, a { color: #efc67b; }
     h1 { margin: .45em 0; font-size: clamp(23px, 5vw, 38px); }
     h2 { margin: 1.5em 0 .4em; font-size: 1.23em; }
+    .connect-wallet { display: inline-block; padding: 8px 14px; border: 1px solid #efc67b; border-radius: 4px; background: #efc67b; color: #14231a; text-decoration: none; font-weight: 700; }
+    .connect-wallet:focus-visible { outline: 2px solid #efc67b; outline-offset: 3px; }
     dl { margin: 0; }
     dt { margin-top: .55em; }
     dd { margin: 0; overflow-wrap: anywhere; }
@@ -24,6 +26,7 @@
     <nav aria-label="相关页面"><a href="/?mode=chain">链上游玩</a> · <a href="{{docsUrl}}">链上文档</a> · <a href="/docs/game-abi.json">游戏合约 ABI</a></nav>
     <h1>Back To CEO 链上操作与钱包预览</h1>
     <p>排位注册、开局和领取 vCEO 奖励凭证都使用 BNB Smart Chain 主网（链 ID <strong>{{chainId}}</strong>）。对战和 ZK 证明生成在游戏浏览器中完成。</p>
+    <a class="connect-wallet" href="/?mode=chain#btn-connect-wallet">连接钱包进入游戏</a>
   </header>
   <main>
     <section aria-labelledby="contracts">
