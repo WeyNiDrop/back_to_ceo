@@ -3,8 +3,8 @@ import { normalizePlayerName } from '../../../game-rules.mjs';
 import { OPCODES } from '../ranked-input.mjs';
 import { createProfileDialog, formatRewardAmount } from './profile.mjs';
 import {
-  BSC_MAINNET_CHAIN_ID, BSC_TESTNET_CHAIN_ID, claimWalletVictory, connectAgentWallet, EMPTY_INVITE_CODE, mintTestAgentId,
-  openWalletGame, registerWalletPlayer,
+  AgentIdRequiredError, BSC_MAINNET_CHAIN_ID, BSC_TESTNET_CHAIN_ID, claimWalletVictory, connectAgentWallet,
+  EMPTY_INVITE_CODE, mintTestAgentId, openWalletGame, registerWalletPlayer,
 } from './wallet.mjs';
 
 const controls = document.querySelector('.top-btns');
@@ -275,9 +275,12 @@ function watchWallet(provider) {
 
 function reportWalletError(error, feedback, retryControl) {
   const code = Number(error?.code);
-  if (code === 4001) {
+  const requiresAgentId = error instanceof AgentIdRequiredError;
+  if (requiresAgentId || code === 4001) {
     feedback.textContent = '';
-    showWalletNotice({ title: '钱包请求已取消', message: '已取消钱包请求，可以重试。' });
+    showWalletNotice(requiresAgentId
+      ? { title: '需要 Agent ID', message: error.message }
+      : { title: '钱包请求已取消', message: '已取消钱包请求，可以重试。' });
     noticeDialog.addEventListener('close', () => retryControl.focus({ preventScroll: true }), { once: true });
     return;
   }
@@ -529,8 +532,9 @@ async function enterChainMode(prompt = true) {
       return;
     }
     if (!connected.profile.ownsAgentId) {
-      status.textContent = '此钱包需要持有注册时绑定的 Agent ID 才能开局。';
-    } else if (connected.activeGameId !== 0n) {
+      throw new AgentIdRequiredError('当前钱包已不持有注册时绑定的 Agent ID。请切换到符合条件的钱包后重试。');
+    }
+    if (connected.activeGameId !== 0n) {
       await playWalletGame(walletConnection);
     } else {
       status.textContent = '当前没有进行中的牌局，可以新开链上牌局。';

@@ -6,6 +6,9 @@ export const BSC_AGENT_ID = '0x60B9262456dE011F7d15a54CdD8c48bAaa8B022F';
 export const BSC_MAINNET_CHAIN_ID = 56;
 export const BSC_TESTNET_CHAIN_ID = 97;
 export const EMPTY_INVITE_CODE = '0x000000';
+
+export class AgentIdRequiredError extends Error {}
+
 const abi = parseAbi([
   'function balanceOf(address player) view returns (uint256)',
   'function ownerOf(uint256 tokenId) view returns (address)',
@@ -114,7 +117,9 @@ export async function connectAgentWallet(provider, rawConfig, onAuthorized = () 
   if (!snapshot.registered) {
     const balance = await read(provider, config.registry, 'balanceOf', [player]);
     if (onTestnet && balance > 0n) mockTokenId = await read(provider, config.registry, 'latestTokenId', [player]);
-    if (!onTestnet && balance === 0n) throw new Error('此钱包还没有 Agent ID。链上模式仅支持持有 Agent ID 的钱包，请在币安 App 的钱包首页领取。');
+    if (!onTestnet && balance === 0n) {
+      throw new AgentIdRequiredError('当前钱包还没有 Agent ID。请在币安 App 的钱包首页领取，或切换到持有 Agent ID 的钱包后重试。');
+    }
   }
   await ensureWallet(provider, config, player);
   const profile = snapshot.registered ? snapshot : null;
@@ -169,7 +174,7 @@ function readOpenedGame(receipt, connected) {
 export async function openWalletGame(provider, connected, onSubmitted, { startNew = false } = {}) {
   const { player, gameAddress } = connected;
   if (!connected.profile) throw new Error('请先完成 Agent ID 注册。');
-  if (!connected.profile.ownsAgentId) throw new Error('此钱包已不持有注册时绑定的 Agent ID。');
+  if (!connected.profile.ownsAgentId) throw new AgentIdRequiredError('此钱包已不持有注册时绑定的 Agent ID。');
   if (!startNew && connected.activeGameId !== 0n) {
     await ensureWallet(provider, connected, player);
     return { ...connected, gameId: connected.activeGameId };
