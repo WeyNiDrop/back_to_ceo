@@ -45,4 +45,6 @@ For a confirmed registration, read `PlayerRegistered`, `RegistrationRewarded` if
 
 ## Play and claim in the browser
 
+Use the [browser play and proof guide](https://btceo.create-ai.cc{{playGuideUrl}}) for turn-by-turn operation, proof progress, and downloading the result.
+
 Open ranked mode, play the game, and let the browser generate its ZK proof. `startGame()` creates a new game when desired. The browser submits `claimVictory(uint256,uint8,uint32,bytes)` from the game owner's address, with the actual game ID, stance, score, and browser-generated proof. Confirm the vCEO amount from `VictoryClaimed` after the transaction succeeds. Binance Agentic Wallet claim previews remain outside this integration's tested scope.

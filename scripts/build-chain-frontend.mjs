@@ -15,6 +15,7 @@ const agentConfig = {
   rewardToken: '0x8EA25df5AE9F700DaE0213Af2D11729f5317F38d',
   verifier: '0x98460cCd9FC6dDF8560C436c3bc8E2861266DaFd',
   docsUrl: '/docs/onchain.md',
+  playGuideUrl: '/docs/play-and-prove.md',
   skillUrl: '/skills/back-to-ceo/SKILL.md',
 };
 
@@ -45,6 +46,7 @@ export async function buildChainFrontend(output, html) {
   const page = html.replace(gameScript, '<script type="module" src="/play.js"></script>')
     .replace('</head>', `  <link rel="describedby" type="text/plain" title="AI play instructions" href="/llms.txt">
   <link rel="help" type="text/markdown" title="Back To CEO on-chain documentation" href="${agentConfig.docsUrl}">
+  <link rel="help" type="text/markdown" title="Back To CEO browser play and proof guide" href="${agentConfig.playGuideUrl}">
   <link rel="alternate" type="text/markdown" title="Back To CEO Skill" href="${agentConfig.skillUrl}">
   <link rel="help" title="Back To CEO 游戏规则" href="/game-rules.html">
   <script type="application/json" id="back-to-ceo-agent-config">${configJson}</script>
@@ -64,10 +66,11 @@ export async function buildChainFrontend(output, html) {
     outdir: fileURLToPath(output),
   });
 
-  const [skill, llms, onchain] = await Promise.all([
+  const [skill, llms, onchain, playGuide] = await Promise.all([
     readFile(new URL('../skills/back-to-ceo/SKILL.md', import.meta.url), 'utf8'),
     renderAgentDoc('llms.txt'),
     renderAgentDoc('onchain.md'),
+    renderAgentDoc('play-and-prove.md'),
   ]);
   const description = skill.match(/^description: (.+)$/m)?.[1];
   if (!description) throw new Error('Back To CEO Skill requires a description');
@@ -89,6 +92,7 @@ export async function buildChainFrontend(output, html) {
     writeFile(new URL('agent-config.json', output), configJson),
     writeFile(new URL('llms.txt', output), llms),
     writeFile(new URL('docs/onchain.md', output), onchain),
+    writeFile(new URL('docs/play-and-prove.md', output), playGuide),
     writeFile(new URL('docs/game-abi.json', output), JSON.stringify(gameAbi)),
     writeFile(new URL('skills/back-to-ceo/SKILL.md', output), skill),
     writeFile(new URL('.well-known/agent-skills/index.json', output), JSON.stringify(discovery)),
@@ -96,10 +100,12 @@ export async function buildChainFrontend(output, html) {
   Cross-Origin-Opener-Policy: same-origin
   Cross-Origin-Embedder-Policy: require-corp
 /
-  Link: </llms.txt>; rel="describedby"; type="text/plain", <${agentConfig.docsUrl}>; rel="help"; type="text/markdown", <${agentConfig.skillUrl}>; rel="alternate"; type="text/markdown"
+  Link: </llms.txt>; rel="describedby"; type="text/plain", <${agentConfig.docsUrl}>; rel="help"; type="text/markdown", <${agentConfig.playGuideUrl}>; rel="help"; type="text/markdown", <${agentConfig.skillUrl}>; rel="alternate"; type="text/markdown"
 /agent-config.json
   Cache-Control: no-store
 ${agentConfig.docsUrl}
+  Content-Type: text/markdown; charset=utf-8
+${agentConfig.playGuideUrl}
   Content-Type: text/markdown; charset=utf-8
 ${agentConfig.skillUrl}
   Content-Type: text/markdown; charset=utf-8

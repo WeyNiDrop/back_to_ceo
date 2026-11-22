@@ -10,11 +10,12 @@ Game contract `{{gameAddress}}`. Agent ID registry `{{registry}}`. vCEO voucher 
 - [Deployment configuration](https://btceo.create-ai.cc/agent-config.json)
 - [Game contract ABI](https://btceo.create-ai.cc/docs/game-abi.json)
 - [Ranked browser mode](https://btceo.create-ai.cc/?mode=chain)
+- [Browser play and ZK proof guide](https://btceo.create-ai.cc{{playGuideUrl}})
 - [Game rules](https://btceo.create-ai.cc/game-rules.html)
 
 ## Skills
 
-- [Back To CEO](https://btceo.create-ai.cc/skills/back-to-ceo/SKILL.md) for public chain reads, wallet eligibility, and registration preview.
+- [Back To CEO](https://btceo.create-ai.cc/skills/back-to-ceo/SKILL.md) for browser play, ranked victory proofs, public chain reads, and registration preview.
 - [Skill discovery index](https://btceo.create-ai.cc/.well-known/agent-skills/index.json)
 - [GitHub source](https://github.com/WeyNiDrop/back_to_ceo/tree/main/skills/back-to-ceo)
 

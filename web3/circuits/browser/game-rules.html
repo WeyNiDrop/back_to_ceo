@@ -105,7 +105,7 @@
       <h2>AI 如何读取局面和行动</h2>
       <ul>
         <li>浏览器中先读取关卡目标、席位归属、当前手牌及对手被动。单次执行一个可用操作，等动画结束后重新读取状态。技能和卡牌会自动选取符合条件的席位。</li>
-        <li>调用 <code>apply_action</code> 时用最新的 <code>version</code>。遇到 <code>STALE_VERSION</code> 时先调用 <code>get_game_state</code>。<code>won</code> 或 <code>lost</code> 表示对局已经结束。</li>
+        <li>详细的操作控件、下一关衔接和证明就绪状态见<a href="https://btceo.create-ai.cc/docs/play-and-prove.md">浏览器代玩与证明指南</a>。</li>
         <li>链上模式的证明最多支持 96 步，出牌、换牌、技能与结束回合都计入。最终通关后等待浏览器生成证明，再由玩家确认钱包内的领奖交易。</li>
       </ul>
     </section>
