@@ -2,6 +2,7 @@ import { continueFirstVisit, initGame, isOnchainPlayMode, startProofChallenge } 
 import { normalizePlayerName } from '../../../game-rules.mjs';
 import { OPCODES } from '../ranked-input.mjs';
 import { createProfileDialog, formatRewardAmount } from './profile.mjs';
+import { bindSkillGuide } from './skill-guide.mjs';
 import {
   AgentIdRequiredError, BSC_MAINNET_CHAIN_ID, BSC_TESTNET_CHAIN_ID, claimWalletVictory, connectAgentWallet,
   EMPTY_INVITE_CODE, mintTestAgentId, openWalletGame, registerWalletPlayer,
@@ -50,6 +51,7 @@ const board = document.querySelectorAll('.goal-banner, .turn-status, .enemy-hero
 const newGame = addButton(chainPanel, 'btn-proof-new-game', '新开链上牌局');
 const profileButton = addButton(chainPanel, 'btn-agent-profile', '我的链上资料');
 profileButton.setAttribute('aria-haspopup', 'dialog');
+bindSkillGuide(addButton(chainPanel, 'btn-agent-skill-guide', 'AI Skill 指南'));
 chainPanel.append(feedback);
 
 function createModePanel(tab) {

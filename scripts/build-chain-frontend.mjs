@@ -3,6 +3,7 @@ import { copyFile, mkdir, readFile, writeFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import { build } from 'esbuild';
 import { parseAbi } from 'viem';
+import { skillGuideUrl, skillInstallCommand, skillPlayPrompt } from '../web3/circuits/browser/skill-guide.mjs';
 import { BSC_AGENT_ID, BSC_MAINNET_CHAIN_ID, walletAbi } from '../web3/circuits/browser/wallet.mjs';
 
 const browser = new URL('../web3/circuits/browser/', import.meta.url);
@@ -17,6 +18,8 @@ const agentConfig = {
   docsUrl: '/docs/onchain.md',
   playGuideUrl: '/docs/play-and-prove.md',
   skillUrl: '/skills/back-to-ceo/SKILL.md',
+  skillGuideUrl,
+  skillInstallCommand,
 };
 
 const gameMethods = new Set([
@@ -33,9 +36,10 @@ const gameAbi = [
 
 async function renderAgentDoc(file) {
   const text = await readFile(new URL(file, browser), 'utf8');
+  const fields = { ...agentConfig, skillPlayPrompt };
   return text.replace(/\{\{(\w+)\}\}/g, (match, field) => {
-    if (!Object.hasOwn(agentConfig, field)) throw new Error(`Unknown deployment field ${match}`);
-    return agentConfig[field];
+    if (!Object.hasOwn(fields, field)) throw new Error(`Unknown deployment field ${match}`);
+    return fields[field];
   });
 }
 
@@ -47,6 +51,7 @@ export async function buildChainFrontend(output, html) {
     .replace('</head>', `  <link rel="describedby" type="text/plain" title="AI play instructions" href="/llms.txt">
   <link rel="help" type="text/markdown" title="Back To CEO on-chain documentation" href="${agentConfig.docsUrl}">
   <link rel="help" type="text/markdown" title="Back To CEO browser play and proof guide" href="${agentConfig.playGuideUrl}">
+  <link rel="help" type="text/markdown" title="Back To CEO Skill installation and usage" href="${skillGuideUrl}">
   <link rel="alternate" type="text/markdown" title="Back To CEO Skill" href="${agentConfig.skillUrl}">
   <link rel="help" title="Back To CEO 游戏规则" href="/game-rules.html">
   <script type="application/json" id="back-to-ceo-agent-config">${configJson}</script>
@@ -66,11 +71,12 @@ export async function buildChainFrontend(output, html) {
     outdir: fileURLToPath(output),
   });
 
-  const [skill, llms, onchain, playGuide] = await Promise.all([
+  const [skill, llms, onchain, playGuide, skillGuide] = await Promise.all([
     readFile(new URL('../skills/back-to-ceo/SKILL.md', import.meta.url), 'utf8'),
     renderAgentDoc('llms.txt'),
     renderAgentDoc('onchain.md'),
     renderAgentDoc('play-and-prove.md'),
+    renderAgentDoc('skill-guide.md'),
   ]);
   const description = skill.match(/^description: (.+)$/m)?.[1];
   if (!description) throw new Error('Back To CEO Skill requires a description');
@@ -93,6 +99,7 @@ export async function buildChainFrontend(output, html) {
     writeFile(new URL('llms.txt', output), llms),
     writeFile(new URL('docs/onchain.md', output), onchain),
     writeFile(new URL('docs/play-and-prove.md', output), playGuide),
+    writeFile(new URL(skillGuideUrl.slice(1), output), skillGuide),
     writeFile(new URL('docs/game-abi.json', output), JSON.stringify(gameAbi)),
     writeFile(new URL('skills/back-to-ceo/SKILL.md', output), skill),
     writeFile(new URL('.well-known/agent-skills/index.json', output), JSON.stringify(discovery)),
@@ -100,12 +107,14 @@ export async function buildChainFrontend(output, html) {
   Cross-Origin-Opener-Policy: same-origin
   Cross-Origin-Embedder-Policy: require-corp
 /
-  Link: </llms.txt>; rel="describedby"; type="text/plain", <${agentConfig.docsUrl}>; rel="help"; type="text/markdown", <${agentConfig.playGuideUrl}>; rel="help"; type="text/markdown", <${agentConfig.skillUrl}>; rel="alternate"; type="text/markdown"
+  Link: </llms.txt>; rel="describedby"; type="text/plain", <${agentConfig.docsUrl}>; rel="help"; type="text/markdown", <${agentConfig.playGuideUrl}>; rel="help"; type="text/markdown", <${skillGuideUrl}>; rel="help"; type="text/markdown", <${agentConfig.skillUrl}>; rel="alternate"; type="text/markdown"
 /agent-config.json
   Cache-Control: no-store
 ${agentConfig.docsUrl}
   Content-Type: text/markdown; charset=utf-8
 ${agentConfig.playGuideUrl}
+  Content-Type: text/markdown; charset=utf-8
+${skillGuideUrl}
   Content-Type: text/markdown; charset=utf-8
 ${agentConfig.skillUrl}
   Content-Type: text/markdown; charset=utf-8
